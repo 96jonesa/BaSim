@@ -65,44 +65,74 @@ function simStartStopButtonOnClick() {
 		simStartStopButton.innerHTML = "Stop Wave";
 		let maxRunnersAlive = 0;
 		let totalRunners = 0;
+		let maxHealersAlive = 0;
+		let totalHealers = 0;
+		let maxHealerHealth = 0;
 		let wave = simWaveSelect.value;
 		switch(Number(wave)) {
 		case 1:
 			maxRunnersAlive = 2;
 			totalRunners = 2;
+			maxHealersAlive = 2;
+			totalHealers = 2;
+			maxHealerHealth = 27;
 			break;
 		case 2:
 			maxRunnersAlive = 2;
 			totalRunners = 3;
+			maxHealersAlive = 3;
+			totalHealers = 3;
+			maxHealerHealth = 32;
 			break;
 		case 3:
 			maxRunnersAlive = 2;
 			totalRunners = 4;
+			maxHealersAlive = 2;
+			totalHealers = 3;
+			maxHealerHealth = 37;
 			break;
 		case 4:
 			maxRunnersAlive = 3;
 			totalRunners = 4;
+			maxHealersAlive = 3;
+			totalHealers = 4;
+			maxHealerHealth = 43;
 			break;
 		case 5:
 			maxRunnersAlive = 4;
 			totalRunners = 5;
+			maxHealersAlive = 4;
+			totalHealers = 5;
+			maxHealerHealth = 49;
 			break;
 		case 6:
 			maxRunnersAlive = 4;
 			totalRunners = 6;
+			maxHealersAlive = 4;
+			totalHealers = 6;
+			maxHealerHealth = 5;
 			break;
 		case 7:
 		case 10:
 			maxRunnersAlive = 5;
 			totalRunners = 6;
+			maxHealersAlive = 4;
+			totalHealers = 7;
+			maxHealerHealth = 60;
 			break;
 		case 8:
 			maxRunnersAlive = 5;
 			totalRunners = 7;
+			maxHealersAlive = 5;
+			totalHealers = 7;
+			maxHealerHealth = 67;
 			break;
 		case 9:
 			maxRunnersAlive = 5;
 			totalRunners = 9;
+			maxHealersAlive = 6;
+			totalHealers = 8;
+			maxHealerHealth = 76;
 			break;
 		}
 		baInit(maxRunnersAlive, totalRunners, movements);
@@ -1752,4 +1782,61 @@ function loadGameState() {
 	}
 
 	simDraw();
+}
+
+// -------------------------------
+// HERE BEGINS HEALER CODE
+// -------------------------------
+
+function heHealer(x, y, isWave10, id, maxHealth) {
+	this.x = x;
+	this.y = y;
+	this.isWave10 = isWave10;
+	this.id = id;
+	this.maxHealth = maxHealth;
+	this.currHealth = maxHealth;
+	this.poisonCountdown = 5; // starts reading to take 0 damage, for timing due to inital poison >5 ticks after spawn
+	this.isDying = false;
+	this.target = null; // null, a runner, or a player
+
+	this.tick = function() {
+		// If poison timing and poisoned, take poison damage (every 5 ticks)
+		if (--this.poisonCountdown % 5 === 0) {
+			if (this.poisonCountdown > -1) {
+				this.currHealth -= Math.floor((this.poisonCountdown + 20) / 25); // five 4s, five 3s, five 2s, five 1s, one 0 (at cd=0)
+			}
+		}
+
+		// Check death
+		if (this.currHealth < 1) {
+			this.isDying = true;
+		}
+
+		// if no target, try to get a target
+		if (this.target === null) {
+			this.tryGetNewTarget();
+		}
+
+		// do movement
+		this.doMovement();
+
+		// if adjacent to target, spray it
+		if (this.target !== null) {
+			if (Math.abs(this.x - this.target.x) + Math.abs(this.y - this.target.y) === 1) {
+				this.spray();
+			}
+		}
+	}
+
+	this.tryGetNewTarget = function() {
+		return true;
+	}
+
+	this.doMovement = function() {
+		return true;
+	}
+
+	this.spray = function() {
+		return true;
+	}
 }

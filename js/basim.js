@@ -1856,6 +1856,7 @@ function loadGameState() {
 // HERE BEGINS HEALER CODE
 // -------------------------------
 
+// heHealer
 function heHealer(x, y, isWave10, id, maxHealth) {
 	this.x = x;
 	this.y = y;
@@ -1927,5 +1928,57 @@ var baHealersAlive;
 var baTotalHealers;
 var baMaxHealersAlive;
 var baMaxHealerHealth;
-
 var baCurrentHealerID;
+
+// plHealer
+
+function plHealerInit(x, y) {
+	plHealerX = x;
+	plHealerY = y;
+}
+
+function plHealerTick() {
+	if (plHealerUsingFood) {
+		plHealerUseFood();
+	}
+}
+
+function plHealerUseFood(target) {
+	if (Math.abs(plHealerX - target.x) + Math.abs(plHealerY - target.y) === 1) {
+		if (currHealerFood === "t") {
+			if (numPoisonTofu < 1) {
+				return;
+			}
+			numPoisonTofu -= 1;
+		} else if (currHealerFood === "m") {
+			if (numPoisonMeat < 1) {
+				return;
+			}
+			numPoisonMeat -= 1;
+		} else {
+			if (numPoisonWorms < 1) {
+				return;
+			}
+			numPoisonWorms -= 1;
+		}
+
+		target.currHealth -= 4;
+
+		if (target.poisonCountdown < 1) {
+			target.poisonCountdown = 105;
+		} else {
+			target.poisonCountdown = 101 + ((target.poisonCountdown - 1) % 5);
+		}
+	}
+}
+
+var plHealerX;
+var plHealerY;
+
+var numPoisonTofu;
+var numPoisonMeat;
+var numPoisonWorms;
+
+var currHealerFood;
+
+var plHealerUsingFood;

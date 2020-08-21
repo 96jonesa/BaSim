@@ -21,6 +21,18 @@ Repairs required: <select id="togglerepair">
     <option value="yes">Yes</option>
     <option value="no">No</option>
 </select><br>
+Infinite food: <select id="toggleinfinitefood">
+    <option value="no">No</option>
+    <option value="yes">Yes</option>
+</select><br>
+Require log and hammer to repair: <select id="toggleloghammertorepair">
+    <option value="yes">Yes</option>
+    <option value="no">No</option>
+</select><br>
+Pause to save/load: <select id="togglepausesl">
+    <option value="no">No</option>
+    <option value="yes">Yes</option>
+</select><br>
 Runner movements: <input id="runnermovements" type="text"/><br>
 Tick duration (milliseconds): <input id="tickduration" type="number" min="100" max="1200" value="600"/><br>
 <button id="wavestart"></button> <b>Tick count: <span id="tickcount"></span></b> --- <b>Current Food: <span id="currdeffood"></span></b><br>
@@ -42,7 +54,7 @@ Tick duration (milliseconds): <input id="tickduration" type="number" min="100" m
 <b>y</b> loads state (must be running, and must be paused).<br>
 <br>
 <b>Save/Load (Experimental - let me know of any bugs):</b><br>
-If you save with <b>s</b>, then loading with <b>y</b> will bring to to the same state on the same wave you saved.<br>
+If you save with <b>s</b>, then loading with <b>y</b> will bring to to the same state on the same wave you saved. Unpause with <b>p</b><br>
 Defender level will behave as it was when you saved. Runner movements are calculated dynamically, so they will vary each time you load.<br>
 Tick duration can be changed by stopping the wave, changing tick duration, then starting the wave, then loading.<br>
 Repair requirement is dynamic and will be whatever the value currently is set to via the selection menu.<br>

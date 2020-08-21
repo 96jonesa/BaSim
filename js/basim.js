@@ -56,7 +56,7 @@ function simReset() {
 	}
 	simIsRunning = false;
 	simStartStopButton.innerHTML = "Start Wave";
-	baInit(0, 0, "", 0, 0);
+	baInit(0, 0, "", 0, 0, 0);
 	plDefInit(-1, 0);
 	simDraw();
 }
@@ -144,7 +144,7 @@ function simStartStopButtonOnClick() {
 			maxHealerHealth = 76;
 			break;
 		}
-		baInit(maxRunnersAlive, totalRunners, movements, maxHealersAlive, totalHealers);
+		baInit(maxRunnersAlive, totalRunners, movements, maxHealersAlive, totalHealers, maxHealerHealth);
 		if (mCurrentMap === mWAVE10) {
 			plDefInit(baWAVE10_DEFENDER_SPAWN_X, baWAVE10_DEFENDER_SPAWN_Y);
 		} else {
@@ -936,8 +936,12 @@ const WAVE10_SE_LOGS_Y = 38;
 const HAMMER_X = 32;
 const HAMMER_Y = 34;
 
+const baWAVE1_HEALER_SPAWN_X = 42;
+const baWAVE1_HEALER_SPAWN_Y = 37;
+const baWAVE10_HEALER_SPAWN_X = 36;
+const baWAVE10_HEALER_SPAWN_Y = 39;
 
-function baInit(maxRunnersAlive, totalRunners, runnerMovements, maxHealersAlive, totalHealers) {
+function baInit(maxRunnersAlive, totalRunners, runnerMovements, maxHealersAlive, totalHealers, maxHealerHealth) {
 	baRunners = [];
 	baRunnersToRemove = [];
 	baTickCounter = 0;
@@ -971,6 +975,8 @@ function baInit(maxRunnersAlive, totalRunners, runnerMovements, maxHealersAlive,
 	baHealersKilled = 0;
 	baMaxHealersAlive = maxHealersAlive;
 	baTotalHealers = totalHealers;
+	baMaxHealerHealth = maxHealerHealth;
+	baCurrentHealerID = 1;
 }
 function baTick() {
 	++baTickCounter;
@@ -983,6 +989,12 @@ function baTick() {
 		let index = baRunners.indexOf(runner);
 		baRunners.splice(index, 1);
 	}
+
+	//heHealer
+	for (let i = 0; i < baHealers.length; i++) {
+		baHealers[i].tick();
+	}
+
 	// hammer and logs respawn
 	if (baTickCounter > 1 && baTickCounter % 10 === 1) {
 		northwestLogsState = true;
@@ -1026,6 +1038,16 @@ function baTick() {
 		}
 		++baRunnersAlive;
 	}
+
+	if (baTickCounter > 1 && baTickCounter % 10 === 1 && baHealersAlive < baMaxHealersAlive && baHealersKilled + baHealersAlive < baTotalHealers) {
+		if (mCurrentMap === mWAVE_1_TO_9) {
+			baHealers.push(new heHealer(baWAVE1_HEALER_SPAWN_X, baWAVE1_HEALER_SPAWN_Y, false, baCurrentHealerID++, baMaxHealerHealth));
+		} else {
+			baHealers.push(new heHealer(baWAVE10_HEALER_SPAWN_X, baWAVE10_HEALER_SPAWN_Y, true, baCurrentHealerID++, baMaxHealerHealth));
+		}
+		++baHealersAlive;
+	}
+
 	simTickCountSpan.innerHTML = baTickCounter;
 }
 function baDrawOverlays() { 
@@ -1118,6 +1140,10 @@ function baDrawEntities() {
 	rSetDrawColor(10, 10, 240, 127);
 	for (let i = 0; i < baRunners.length; ++i) {
 		rrFill(baRunners[i].x, baRunners[i].y);
+	}
+	rSetDrawColor(10, 240, 10, 127);
+	for (let i = 0; i < baHealers.length; ++i) {
+		rrFill(baHealers[i].x, baHealers[i].y);
 	}
 	if (baCollectorX !== -1) {
 		rSetDrawColor(240, 240, 10, 200);
@@ -1882,6 +1908,11 @@ function heHealer(x, y, isWave10, id, maxHealth) {
 	}
 
 	this.doMovement = function() {
+		if (this.y > 20) {
+			this.y -= 1;
+		} else {
+			this.y += 1;
+		}
 		return true;
 	}
 
@@ -1895,3 +1926,6 @@ var baHealersKilled;
 var baHealersAlive;
 var baTotalHealers;
 var baMaxHealersAlive;
+var baMaxHealerHealth;
+
+var baCurrentHealerID;

@@ -1932,9 +1932,49 @@ var baCurrentHealerID;
 
 // plHealer
 
-function plHealerInit(x, y) {
+function plHealerInit(x, y, stockType) {
 	plHealerX = x;
 	plHealerY = y;
+
+	let rand = 3 * Math.random();
+	if (rand < 1) {
+		currHealerFood = "t";
+	} else if (rand < 2) {
+		currHealerFood = "m";
+	} else {
+		currHealerFood = "w";
+	}
+
+	if (stockType === "reg") {
+		numPoisonTofu = 9;
+		numPoisonWorms = 9;
+		numPoisonMeat = 8;
+	} else if (stockType === "1x") {
+		numPoisonTofu = 7;
+		numPoisonWorms = 7;
+		numPoisonMeat = 7;
+	} else if (stockType === "2x") {
+		numPoisonTofu = 6;
+		numPoisonWorms = 5;
+		numPoisonMeat = 5;
+	} else if (stockType === "3x") {
+		numPoisonTofu = 4;
+		numPoisonWorms = 4;
+		numPoisonMeat = 3;
+	} else if (stockType === "4x") {
+		numPoisonTofu = 2;
+		numPoisonWorms = 2;
+		numPoisonMeat = 2;
+	}
+
+	if (currHealerFood === "t") {
+		numPoisonTofu = 26 - numPoisonMeat - numPoisonWorms;
+	} else if (currHealerFood === "m") {
+		numPoisonMeat = 26 - numPoisonTofu - numPoisonWorms;
+	} else {
+		numPoisonWorms = 26 - numPoisonMeat - numPoisonTofu;
+	}
+
 }
 
 function plHealerTick() {
@@ -1982,3 +2022,5 @@ var numPoisonWorms;
 var currHealerFood;
 
 var plHealerUsingFood;
+
+var stockType;

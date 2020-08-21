@@ -56,7 +56,7 @@ function simReset() {
 	}
 	simIsRunning = false;
 	simStartStopButton.innerHTML = "Start Wave";
-	baInit(0, 0, "");
+	baInit(0, 0, "", 0, 0);
 	plDefInit(-1, 0);
 	simDraw();
 }
@@ -144,7 +144,7 @@ function simStartStopButtonOnClick() {
 			maxHealerHealth = 76;
 			break;
 		}
-		baInit(maxRunnersAlive, totalRunners, movements);
+		baInit(maxRunnersAlive, totalRunners, movements, maxHealersAlive, totalHealers);
 		if (mCurrentMap === mWAVE10) {
 			plDefInit(baWAVE10_DEFENDER_SPAWN_X, baWAVE10_DEFENDER_SPAWN_Y);
 		} else {
@@ -935,7 +935,9 @@ const WAVE10_SE_LOGS_X = 30;
 const WAVE10_SE_LOGS_Y = 38;
 const HAMMER_X = 32;
 const HAMMER_Y = 34;
-function baInit(maxRunnersAlive, totalRunners, runnerMovements) {
+
+
+function baInit(maxRunnersAlive, totalRunners, runnerMovements, maxHealersAlive, totalHealers) {
 	baRunners = [];
 	baRunnersToRemove = [];
 	baTickCounter = 0;
@@ -962,6 +964,13 @@ function baInit(maxRunnersAlive, totalRunners, runnerMovements) {
 	currDefFoodSpan.innerHTML = currDefFood;
 	isPaused = false;
 	foodIDCounter = 0;
+
+	// heHealer
+	baHealers = [];
+	baHealersAlive = 0;
+	baHealersKilled = 0;
+	baMaxHealersAlive = maxHealersAlive;
+	baTotalHealers = totalHealers;
 }
 function baTick() {
 	++baTickCounter;
@@ -1831,6 +1840,8 @@ function heHealer(x, y, isWave10, id, maxHealth) {
 	this.poisonCountdown = 5; // starts reading to take 0 damage, for timing due to inital poison >5 ticks after spawn
 	this.isDying = false;
 	this.target = null; // null, a runner, or a player
+	this.isDelaying = false;
+	this.wanderDelay = false;
 
 	this.tick = function() {
 		// If poison timing and poisoned, take poison damage (every 5 ticks)
@@ -1847,7 +1858,10 @@ function heHealer(x, y, isWave10, id, maxHealth) {
 
 		// if no target, try to get a target
 		if (this.target === null) {
-			this.tryGetNewTarget();
+			this.isDelaying = Math.random() < 0.25; // randomly decide if done delaying
+			if (!this.isDelaying) {
+				this.tryGetNewTarget();
+			}
 		}
 
 		// do movement
@@ -1857,6 +1871,8 @@ function heHealer(x, y, isWave10, id, maxHealth) {
 		if (this.target !== null) {
 			if (Math.abs(this.x - this.target.x) + Math.abs(this.y - this.target.y) === 1) {
 				this.spray();
+				this.isDelaying = true;
+				this.wanderDelay = Math.random() < 0.5; // randomly decide if wanders while delaying
 			}
 		}
 	}
@@ -1873,3 +1889,9 @@ function heHealer(x, y, isWave10, id, maxHealth) {
 		return true;
 	}
 }
+
+var baHealers;
+var baHealersKilled;
+var baHealersAlive;
+var baTotalHealers;
+var baMaxHealersAlive;

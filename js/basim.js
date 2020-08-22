@@ -1928,8 +1928,8 @@ function heHealer(x, y, isWave10, id, maxHealth) {
 
 	this.tryGetNewTarget = function() {
 		if (this.targetType === "player") {
-			let canSeeHealer = mHasLineOfSight(this.x, this.y, plHealerX, plHealerY);
-			let canSeeDef = mHasLineOfSight(this.x, this.y, plDefX, plDefY);
+			let canSeeHealer = canSee(this.x, this.y, plHealerX, plHealerY, 15);
+			let canSeeDef = canSee(this.x, this.y, plDefX, plDefY, 15);
 			if (canSeeHealer) {
 				if (canSeeDef) {
 					if (Math.random() < 0.5) {
@@ -1947,7 +1947,7 @@ function heHealer(x, y, isWave10, id, maxHealth) {
 			let canSeeRunners = [];
 			for (let i = 0; i < baRunners.length; i++) {
 				let thisRunner = baRunners[i];
-				if (mHasLineOfSight(this.x, this.y, thisRunner.x, thisRunner.y)) {
+				if (canSee(this.x, this.y, thisRunner.x, thisRunner.y, 15)) {
 					canSeeRunners.push(thisRunner);
 				}
 			}
@@ -2120,3 +2120,9 @@ var currHealerFood;
 var plHealerUsingFood;
 
 var stockType;
+
+function canSee(x1, y1, x2, y2, range) {
+	let inLOS = mHasLineOfSight(x1, y1, x2, y2);
+	let inRange = Math.max(Math.abs(x1 - x2), Math.abs(y1 - y2)) <= range;
+	return inLOS && inRange;
+}

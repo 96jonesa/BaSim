@@ -58,6 +58,7 @@ function simReset() {
 	simStartStopButton.innerHTML = "Start Wave";
 	baInit(0, 0, "", 0, 0, 0);
 	plDefInit(-1, 0);
+	plHealerInit(-1, 0, "reg");
 	simDraw();
 }
 function simStartStopButtonOnClick() {
@@ -147,8 +148,10 @@ function simStartStopButtonOnClick() {
 		baInit(maxRunnersAlive, totalRunners, movements, maxHealersAlive, totalHealers, maxHealerHealth);
 		if (mCurrentMap === mWAVE10) {
 			plDefInit(baWAVE10_DEFENDER_SPAWN_X, baWAVE10_DEFENDER_SPAWN_Y);
+			plHealerInit(baWAVE10_DEFENDER_SPAWN_X, baWAVE10_DEFENDER_SPAWN_Y);
 		} else {
 			plDefInit(baWAVE1_DEFENDER_SPAWN_X, baWAVE1_DEFENDER_SPAWN_Y);
+			plHealerInit(baWAVE1_DEFENDER_SPAWN_X, baWAVE1_DEFENDER_SPAWN_Y);
 		}
 		console.log("Wave " + wave + " started!");
 		simTick();
@@ -1869,6 +1872,7 @@ function heHealer(x, y, isWave10, id, maxHealth) {
 	this.target = null; // null, a runner, or a player
 	this.isDelaying = false;
 	this.wanderDelay = false;
+	this.targetType = "player";
 
 	this.tick = function() {
 		// If poison timing and poisoned, take poison damage (every 5 ticks)
@@ -1885,7 +1889,9 @@ function heHealer(x, y, isWave10, id, maxHealth) {
 
 		// if no target, try to get a target
 		if (this.target === null) {
-			this.isDelaying = Math.random() < 0.25; // randomly decide if done delaying
+			if (Math.random() < 0.25) { // randomly decide if done delaying
+				this.isDelaying = false;
+			}
 			if (!this.isDelaying) {
 				this.tryGetNewTarget();
 			}
@@ -1896,7 +1902,23 @@ function heHealer(x, y, isWave10, id, maxHealth) {
 
 		// if adjacent to target, spray it
 		if (this.target !== null) {
-			if (Math.abs(this.x - this.target.x) + Math.abs(this.y - this.target.y) === 1) {
+			let targetX = 0;
+			let targetY = 0;
+
+			if (this.targetType) {
+				if (this.target === "healer") { // target is plHealer
+					targetX = plHealerX;
+					targetY = plHealerY;
+				} else if (this.target === "defender") { // target is plDef
+					targetX = plDefX;
+					targetY = plDefY;
+				} else { // target is a ruRunner
+					targetX = this.target.x;
+					targetY = this.target.y;
+				}
+			}
+
+			if (Math.abs(this.x - targetX) + Math.abs(this.y - targetY) < 2) {
 				this.spray();
 				this.isDelaying = true;
 				this.wanderDelay = Math.random() < 0.5; // randomly decide if wanders while delaying
@@ -1905,19 +1927,93 @@ function heHealer(x, y, isWave10, id, maxHealth) {
 	}
 
 	this.tryGetNewTarget = function() {
-		return true;
-	}
-
-	this.doMovement = function() {
-		if (this.y > 20) {
-			this.y -= 1;
+		if (this.targetType === "player") {
+			let canSeeHealer = mHasLineOfSight(this.x, this.y, plHealerX, plHealerY);
+			let canSeeDef = mHasLineOfSight(this.x, this.y, plDefX, plDefY);
+			if (canSeeHealer) {
+				if (canSeeDef) {
+					if (Math.random() < 0.5) {
+						this.target = "healer";
+					} else {
+						this.target = "defender";
+					}
+				} else {
+					this.target = "healer";
+				}
+			} else if (canSeeDef) {
+				this.target = "defender";
+			}
 		} else {
-			this.y += 1;
+			let canSeeRunners = [];
+			for (let i = 0; i < baRunners.length; i++) {
+				let thisRunner = baRunners[i];
+				if (mHasLineOfSight(this.x, this.y, thisRunner.x, thisRunner.y)) {
+					canSeeRunners.push(thisRunner);
+				}
+			}
+			if (canSeeRunners.length < 1) {
+				return false;
+			}
+			let targetIndex = Math.floor(Math.random() * canSeeRunners.length);
+			this.target = canSeeRunners[targetIndex];
 		}
 		return true;
 	}
 
+	this.doMovement = function() {
+		// cases: delayed+stationary, delayed+wandering, target, scanning+wandering
+
+		let targetX = this.x;
+		let targetY = this.y;
+
+		if (this.isDelaying) { // delayed
+			if (this.wanderDelay) { // delayed+wandering
+				// wander
+			} else { // delayed+stationary
+				// do nothing
+			}
+		} else if (this.target !== null) { // target
+			if (this.target === "healer") { // target is plHealer
+				targetX = plHealerX;
+				targetY = plHealerY;
+			} else if (this.target === "defender") { // target is plDef
+				targetX = plDefX;
+				targetY = plDefY;
+			} else { // target is a ruRunner
+				targetX = this.target.x;
+				targetY = this.target.y;
+			}
+			// move toward (targetX, targetY)
+		} else { // scanning+wandering
+			// wander
+		}
+
+		let startX = this.x;
+		if (targetX > startX) {
+			if (!baTileBlocksPenance(startX + 1, this.y) && mCanMoveEast(startX, this.y)) {
+				++this.x;
+			}
+		} else if (targetX < startX && !baTileBlocksPenance(startX - 1, this.y) && mCanMoveWest(startX, this.y)) {
+			--this.x;
+		}
+		if (targetY > this.y) {
+			if (!baTileBlocksPenance(startX, this.y + 1) && !baTileBlocksPenance(this.x, this.y + 1) && mCanMoveNorth(startX, this.y) && mCanMoveNorth(this.x, this.y)) {
+				++this.y;
+			}
+		} else if (targetY < this.y && !baTileBlocksPenance(startX, this.y - 1) && !baTileBlocksPenance(this.x, this.y - 1) && mCanMoveSouth(startX, this.y) && mCanMoveSouth(this.x, this.y)) {
+			--this.y;
+		}
+
+	}
+
 	this.spray = function() {
+		this.target = null;
+		this.isDelaying = true;
+		if (this.targetType === "player") {
+			this.targetType = "runner";
+		} else {
+			this.targetType = "player";
+		}
 		return true;
 	}
 }

@@ -16,10 +16,7 @@ const HTML_TOGGLE_LOG_HAMMER_TO_REPAIR = "toggleloghammertorepair";
 
 var foodList;
 
-var agent;
-var env;
-
-var spec = {}
+var spec = {};
 spec.update = 'qlearn'; // qlearn | sarsa
 spec.gamma = 0.9; // discount factor, [0, 1)
 spec.epsilon = 0.2; // initial epsilon for epsilon-greedy policy, [0, 1)
@@ -28,7 +25,7 @@ spec.experience_add_every = 5; // number of time steps before we add another exp
 spec.experience_size = 10000; // size of experience
 spec.learning_steps_per_iteration = 5;
 spec.tderror_clamp = 1.0; // for robustness
-spec.num_hidden_units = 100 // number of neurons in hidden layer
+spec.num_hidden_units = 100; // number of neurons in hidden layer
 
 var RunnerWave1Agent = function() {
 	this.num_states = 124;
@@ -111,6 +108,9 @@ RunnerWave1Agent.prototype = {
 	}
 }
 
+var agent;
+var env;
+
 // END OF SOME RL VARS
 
 window.onload = simInit;
@@ -146,15 +146,15 @@ function simInit() {
 	ruInit(5);
 	simReset();
 
-	agent = new RunnerWave1Agent();
-	env = agent;
-	//agent.brain = new RL.DQNAgent(env, spec);
-
 	window.onkeydown = simWindowOnKeyDown;
 	canvas.onmousedown = simCanvasOnMouseDown;
 	canvas.oncontextmenu = function (e) {
 		e.preventDefault();
 	};
+
+	agent = new RunnerWave1Agent();
+	env = agent;
+	agent.brain = new RL.DQNAgent(env, spec);
 }
 function simReset() {
 	if (simIsRunning) {

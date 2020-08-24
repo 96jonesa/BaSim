@@ -12,6 +12,107 @@ const HTML_TICK_DURATION = "tickduration";
 const HTML_TOGGLE_INFINITE_FOOD = "toggleinfinitefood";
 const HTML_TOGGLE_LOG_HAMMER_TO_REPAIR = "toggleloghammertorepair";
 
+// SOME RL VARS
+
+var foodList;
+
+var agent;
+var env;
+
+var spec = {}
+spec.update = 'qlearn'; // qlearn | sarsa
+spec.gamma = 0.9; // discount factor, [0, 1)
+spec.epsilon = 0.2; // initial epsilon for epsilon-greedy policy, [0, 1)
+spec.alpha = 0.005; // value function learning rate
+spec.experience_add_every = 5; // number of time steps before we add another experience to replay memory
+spec.experience_size = 10000; // size of experience
+spec.learning_steps_per_iteration = 5;
+spec.tderror_clamp = 1.0; // for robustness
+spec.num_hidden_units = 100 // number of neurons in hidden layer
+
+var RunnerWave1Agent = function() {
+	this.num_states = 123;
+
+	this.actions = [];
+	for (let i = 0; i < 75; i++) {
+		this.actions.push(i);
+	}
+
+	this.action = 0;
+
+	this.brain = null;
+}
+RunnerWave1Agent.prototype = {
+	getNumStates: function() {
+		return this.num_states;
+	},
+	getMaxNumActions: function() {
+		return 75; // drop up to 5 things AND: logs, hammer, repair, move (9), pick t, pick c, pick w
+	},
+	forward: function() {
+		var input_array = new Array(this.num_states);
+
+		input_array[0] = numTofu;
+		input_array[1] = numCrackers;
+		input_array[2] = numWorms;
+
+		if (currDefFood === "t") {
+			input_array[3] = 1;
+		} else {
+			input_array[3] = (currDefFood === "c") ? 2 : 3;
+		}
+
+		input_array[4] = numLogs;
+		input_array[5] = hasHammer ? 1 : 0;
+		input_array[6] = eastTrapState;
+		input_array[7] = westTrapState;
+		input_array[8] = northwestLogsState ? 1 : 0;
+		input_array[9] = southeastLogsState ? 1 : 0;
+		input_array[10] = hammerState ? 1 : 0;
+
+		if (pickingUpFood === "t") {
+			input_array[11] = 1;
+		} else if (pickingUpFood === "c") {
+			input_array[11] = 2;
+		} else {
+			input_array[11] = (pickingUpFood === "w") ? 3 : 4;
+		}
+
+		input_array[12] = pickingUpLogs ? 1 : 0;
+		input_array[13] = pickingUpHammer ? 1 : 0;
+		input_array[14] = repairTicksRemaining;
+		input_array[15] = plDefX;
+		input_array[16] = plDefY;
+		input_array[17] = plDefStandStillCounter;
+		input_array[18] = baTickCounter;
+		input_array[19] = baRunnersAlive;
+		input_array[20] = baRunnersKilled;
+		input_array[21] = baTotalRunners;
+		input_array[22] = baMaxRunnersAlive;
+
+		let foodLocations = getFoodLocations();
+
+		for (let i = 23; i < 104; i++) {
+			input_array[i] = foodLocations[i - 23];
+		}
+
+		let runnerInfo = getRunnerInfo();
+
+		for (let i = 104; i < 124; i++) {
+			input_array[i] = runnerInfo[i - 104];
+		}
+
+		this.action = this.brain.act(input_array);
+	},
+	backward: function() {
+		var reward = (baRunnersKilled === baTotalRunners) ? 1 : 0;
+		this.last_reward = reward;
+		this.brain.learn(reward);
+	}
+}
+
+// END OF SOME RL VARS
+
 window.onload = simInit;
 //{ Simulation - sim
 function simInit() {
@@ -44,6 +145,11 @@ function simInit() {
 	mInit(mWAVE_1_TO_9, 64, 48);
 	ruInit(5);
 	simReset();
+
+	agent = new RunnerWave1Agent();
+	env = agent;
+	//agent.brain = new RL.DQNAgent(env, spec);
+
 	window.onkeydown = simWindowOnKeyDown;
 	canvas.onmousedown = simCanvasOnMouseDown;
 	canvas.oncontextmenu = function (e) {
@@ -121,8 +227,10 @@ function simStartStopButtonOnClick() {
 			plDefInit(baWAVE1_DEFENDER_SPAWN_X, baWAVE1_DEFENDER_SPAWN_Y);
 		}
 		console.log("Wave " + wave + " started!");
-		simTick();
-		simTickTimerId = setInterval(simTick, Number(simTickDurationInput.value)); // tick time in milliseconds (set to 600 for real)
+		rlTick();
+		simTickTimerId = setInterval(rlTick, Number(simTickDurationInput.value));
+		//simTick();
+		//simTickTimerId = setInterval(simTick, Number(simTickDurationInput.value)); // tick time in milliseconds (set to 600 for real)
 	}
 }
 function simParseMovementsInput() {
@@ -715,6 +823,7 @@ function ruRunner(x, y, runnerRNG, isWave10, id) {
 				this.targetState = 0;
 				return true;
 			} else if (this.x === this.foodTarget.x && this.y === this.foodTarget.y) {
+				let targetID = this.foodTarget.id;
 				if (this.foodTarget.isGood) {
 					this.print("Chomp, chomp.");
 
@@ -737,6 +846,11 @@ function ruRunner(x, y, runnerRNG, isWave10, id) {
 					this.setDestinationBlughhhh();
 				}
 				itemZone.splice(foodIndex, 1);
+				for (let i = 0; i < foodList.length; i++) {
+					if (foodList[i].id === targetID) {
+						foodList.splice(i, 1);
+					}
+				}
 				return true;
 			}
 		}
@@ -932,6 +1046,7 @@ function baInit(maxRunnersAlive, totalRunners, runnerMovements) {
 	currDefFoodSpan.innerHTML = currDefFood;
 	isPaused = false;
 	foodIDCounter = 0;
+	foodList = [];
 }
 function baTick() {
 	++baTickCounter;
@@ -1165,6 +1280,7 @@ function mResetMap() {
 }
 function mAddItem(item) {
 	mGetItemZone(item.x >>> 3, item.y >>> 3).push(item);
+	foodList.push(item);
 }
 function mGetItemZone(xZone, yZone) {
 	return mItemZones[xZone + mItemZonesWidth*yZone];
@@ -1785,4 +1901,126 @@ function loadGameState() {
 	logHammerToRepair = simToggleLogHammerToRepair.value;
 
 	simDraw();
+}
+
+// RL HERE
+
+function getFoodLocations() {
+	let result = new Array(81);
+
+	for (let i = 0; i < numTofu; i++) {
+		result[i * 3] = 1; // good=1 bad=0
+		result[i * 3 + 1] = -1; // x
+		result[i * 3 + 2] = -1; // y
+	}
+	let numTofuOnGround = 0;
+	for (let i = 0; i < foodList.length; i++) {
+		let food = foodList[i];
+		if (food.type === "t") {
+			result[numTofu * 3 + i * 3] = food.isGood ? 1 : 0;
+			result[numTofu * 3 + i * 3 + 1] = food.x;
+			result[numTofu * 3 + i * 3 + 2] = food.y;
+			numTofuOnGround += 1;
+		}
+	}
+	for (let i = numTofuOnGround + numTofu; i < 9; i++) {
+		result[i * 3] = -1; // good=1 bad=0
+		result[i * 3 + 1] = -1; // x
+		result[i * 3 + 2] = -1; // y
+	}
+
+	for (let i = 0; i < numCrackers; i++) {
+		result[27 + i * 3] = 1; // good=1 bad=0
+		result[27 + i * 3 + 1] = -1; // x
+		result[27 + i * 3 + 2] = -1; // y
+	}
+	let numCrackersOnGround = 0;
+	for (let i = 0; i < foodList.length; i++) {
+		let food = foodList[i];
+		if (food.type === "c") {
+			result[27 + numCrackers * 3 + i * 3] = food.isGood ? 1 : 0;
+			result[27 + numCrackers * 3 + i * 3 + 1] = food.x;
+			result[27 + numCrackers * 3 + i * 3 + 2] = food.y;
+			numCrackersOnGround += 1;
+		}
+	}
+	for (let i = numCrackersOnGround + numCrackers; i < 9; i++) {
+		result[27 + i * 3] = -1; // good=1 bad=0
+		result[27 + i * 3 + 1] = -1; // x
+		result[27 + i * 3 + 2] = -1; // y
+	}
+
+	for (let i = 0; i < numWorms; i++) {
+		result[54 + i * 3] = 1; // good=1 bad=0
+		result[54 + i * 3 + 1] = -1; // x
+		result[54 + i * 3 + 2] = -1; // y
+	}
+	let numWormsOnGround = 0;
+	for (let i = 0; i < foodList.length; i++) {
+		let food = foodList[i];
+		if (food.type === "w") {
+			result[54 + numWorms * 3 + i * 3] = food.isGood ? 1 : 0;
+			result[54 + numWorms * 3 + i * 3 + 1] = food.x;
+			result[54 + numWorms * 3 + i * 3 + 2] = food.y;
+			numWormsOnGround += 1;
+		}
+	}
+	for (let i = numWormsOnGround + numWorms; i < 9; i++) {
+		result[54 + i * 3] = -1; // good=1 bad=0
+		result[54 + i * 3 + 1] = -1; // x
+		result[54 + i * 3 + 2] = -1; // y
+	}
+
+	return result;
+}
+
+function getRunnerInfo() {
+
+	let result = new Array(10 * 2);
+
+	for (let i = 0; i < baRunners.length; i++) {
+		let runner = baRunners[i];
+		result[i * 10] = runner.isDying ? 1 : 0;
+
+		if (runner.foodTarget !== null) {
+			result[i * 10 + 1] = runner.foodTarget.id;
+			result[i * 10 + 2] = runner.foodTarget.x;
+			result[i * 10 + 3] = runner.foodTarget.y;
+			result[i * 10 + 4] = runner.foodTarget.isGood ? 1 : 0;
+		} else {
+			result[i * 10 + 1] = -1;
+			result[i * 10 + 2] = -1;
+			result[i * 10 + 3] = -1;
+			result[i * 10 + 4] = -1;
+		}
+
+		result[i * 10 + 5] = runner.x;
+		result[i * 10 + 6] = runner.y;
+		result[i * 10 + 7] = runner.standStillCounter;
+		result[i * 10 + 8] = runner.despawnCountdown;
+		result[i * 10 + 9] = runner.blughhhhCountdown;
+	}
+
+	for (let i = baRunners.length; i < 2; i++) {
+		result[i * 10] = -1;
+		result[i * 10 + 1] = -1;
+		result[i * 10 + 2] = -1;
+		result[i * 10 + 3] = -1;
+		result[i * 10 + 4] = -1;
+		result[i * 10 + 5] = -1;
+		result[i * 10 + 6] = -1;
+		result[i * 10 + 7] = -1;
+		result[i * 10 + 8] = -1;
+		result[i * 10 + 9] = -1;
+	}
+
+	return result;
+}
+
+function rlTick() {
+	//agent.forward();
+	baTick();
+	plDefTick();
+	simDraw();
+	//agent.backward();
 }

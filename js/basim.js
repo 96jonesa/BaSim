@@ -31,7 +31,7 @@ spec.tderror_clamp = 1.0; // for robustness
 spec.num_hidden_units = 100 // number of neurons in hidden layer
 
 var RunnerWave1Agent = function() {
-	this.num_states = 123;
+	this.num_states = 124;
 
 	this.actions = [];
 	for (let i = 0; i < 75; i++) {

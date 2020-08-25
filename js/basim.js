@@ -1572,6 +1572,9 @@ Wave1TestAgent.prototype = {
 		input_array[0] = 0;
 		input_array[1] = 1;
 		this.action = this.brain.act(input_array);
+		if (this.action === 1) {
+			pickingUpFood = "t";
+		}
 	},
 	backward: function() {
 		var reward = 0.0;
@@ -1584,7 +1587,7 @@ var RunnerWave1Agent = function() {
 	this.num_states = 124;
 
 	this.actions = [];
-	for (let i = 0; i < 75; i++) {
+	for (let i = 0; i < 403; i++) {
 		this.actions.push(i);
 	}
 
@@ -1597,7 +1600,7 @@ RunnerWave1Agent.prototype = {
 		return this.num_states;
 	},
 	getMaxNumActions: function() {
-		return 75; // drop up to 5 things AND: logs, hammer, repair, move (9), pick t, pick c, pick w
+		return this.actions.length; // drop up to 5 things AND: logs, hammer, repair, move (9), pick t, pick c, pick w
 	},
 	forward: function() {
 		var input_array = new Array(this.num_states);
@@ -1634,7 +1637,7 @@ RunnerWave1Agent.prototype = {
 		input_array[15] = plDefX;
 		input_array[16] = plDefY;
 		input_array[17] = plDefStandStillCounter;
-		input_array[18] = baTickCounter;
+		input_array[18] = 0 //baTickCounter % 50;
 		input_array[19] = baRunnersAlive;
 		input_array[20] = baRunnersKilled;
 		input_array[21] = baTotalRunners;
@@ -1653,11 +1656,145 @@ RunnerWave1Agent.prototype = {
 		}
 
 		this.action = this.brain.act(input_array);
+
+		this.performAction(this.action);
 	},
 	backward: function() {
-		var reward = (baRunnersKilled === baTotalRunners) ? 1 : 0;
+		var reward = (plDefX === 20) ? 1 : 0;
+		//var reward = (baRunnersKilled === baTotalRunners) ? 1 : 0;
 		this.last_reward = reward;
 		this.brain.learn(reward);
+	},
+	performAction: function(a) {
+		// if a % 13 === 0 : drop nothing
+		if (a % 13 === 1) { // drop tofu
+			dropTofuAction();
+		} else if (a % 13 === 2) { // drop crackers
+			dropCrackersAction();
+		} else if (a % 13 === 3) { // drop worms
+			dropWormsAction();
+		} else if (a % 13 === 4) { // drop tofu, drop tofu
+			dropTofuAction();
+			dropTofuAction();
+		} else if (a % 13 === 5) { // drop tofu, drop crackers
+			dropTofuAction();
+			dropCrackersAction();
+		} else if (a % 13 === 6) { // drop tofu, drop worms
+			dropTofuAction();
+			dropWormsAction();
+		} else if (a % 13 === 7) { // drop crackers, drop tofu
+			dropCrackersAction();
+			dropTofuAction();
+		} else if (a % 13 === 8) { // drop crackers, drop crackers
+			dropCrackersAction();
+			dropCrackersAction();
+		} else if (a % 13 === 9) { // drop crackers, drop worms
+			dropCrackersAction();
+			dropWormsAction();
+		} else if (a % 13 === 10) { // drop worms, drop tofu
+			dropWormsAction();
+			dropTofuAction();
+		} else if (a % 13 === 11) { // drop worms, drop crackers
+			dropWormsAction();
+			dropCrackersAction();
+		} else if (a % 13 === 12) { // drop worms, drop worms
+			dropWormsAction();
+			dropWormsAction();
+		}
+
+		let primaryAction = Math.floor(a / 13);
+		let dx = 0;
+		let dy = 0;
+		if (primaryAction === 0) { // pick up logs
+			pickingUpLogs = true;
+		} else if (primaryAction === 1) { // pick up hammer
+			pickingUpHammer = true;
+		} else if (primaryAction === 2) { // repair trap
+			repairTrapAction();
+		} else if (primaryAction === 3) { // pick up tofu
+			pickingUpFood = "t";
+		} else if (primaryAction === 4) { // pick up crackers
+			pickingUpFood = "c";
+		} else if (primaryAction === 5) { // pick up worms
+			pickingUpFood = "w";
+		} else if (primaryAction === 6) { // move center
+			dx = 0;
+			dy = 0;
+		} else if (primaryAction === 7) { // move n
+			dx = 0;
+			dy = 1;
+		} else if (primaryAction === 8) { // move nn
+			dx = 0;
+			dy = 2;
+		} else if (primaryAction === 9) { // move ne
+			dx = 1;
+			dy = 1;
+		} else if (primaryAction === 10) { // move nw
+			dx = -1;
+			dy = 1;
+		} else if (primaryAction === 11) { // move nne
+			dx = 1;
+			dy = 2;
+		} else if (primaryAction === 12) { // move nnw
+			dx = -1;
+			dy = 2;
+		} else if (primaryAction === 13) { // move nee
+			dx = 2;
+			dy = 1;
+		} else if (primaryAction === 14) { // move nww
+			dx = -2;
+			dy = 1;
+		} else if (primaryAction === 15) { // move nnee
+			dx = 2;
+			dy = 2;
+		} else if (primaryAction === 16) { // move nnww
+			dx = -2;
+			dy = 2;
+		} else if (primaryAction === 17) { // move s
+			dx = 0;
+			dy = -1;
+		} else if (primaryAction === 18) { // move ss
+			dx = 0;
+			dy = -2;
+		} else if (primaryAction === 19) { // move se
+			dx = 1;
+			dy = -1;
+		} else if (primaryAction === 20) { // move sw
+			dx = -1;
+			dy = -1;
+		} else if (primaryAction === 21) { // move sse
+			dx = 1;
+			dy = -2;
+		} else if (primaryAction === 22) { // move ssw
+			dx = -1;
+			dy = -2;
+		} else if (primaryAction === 23) { // move see
+			dx = 2;
+			dy = -1;
+		} else if (primaryAction === 24) { // move sww
+			dx = -2;
+			dy = -1;
+		} else if (primaryAction === 25) { // move ssee
+			dx = 2;
+			dy = -2;
+		} else if (primaryAction === 26) { // move ssww
+			dx = -2;
+			dy = -2;
+		} else if (primaryAction === 27) { // move e
+			dx = 1;
+			dy = 0;
+		} else if (primaryAction === 28) { // move ee
+			dx = 2;
+			dy = 0;
+		} else if (primaryAction === 29) { // move w
+			dx = -1;
+			dy = 0;
+		} else if (primaryAction === 30) { // move ww
+			dx = -2;
+			dy = 0;
+		}
+
+		plDefPathfind(plDefX + dx, plDefY + dy);
 	}
 }
 
@@ -1706,8 +1843,8 @@ function simInit() {
 		e.preventDefault();
 	};
 
-	//agent = new RunnerWave1Agent();
-	agent = new Wave1TestAgent();
+	agent = new RunnerWave1Agent();
+	//agent = new Wave1TestAgent();
 
 	env = agent;
 	spec = {};
@@ -1861,6 +1998,38 @@ function simWindowOnKeyDown(e) {
 	if (e.key === " ") {
 		simStartStopButtonOnClick();
 		e.preventDefault();
+	}
+}
+
+function repairTrapAction() {
+	if (repairTicksRemaining === 0 && ((isInEastRepairRange(plDefX, plDefY) && eastTrapState < 2 ) || (isInWestRepairRange(plDefX, plDefY) && westTrapState < 2))) {
+		if ((hasHammer && numLogs > 0) || logHammerToRepair === "no") {
+			repairTicksRemaining = 5;
+			if (plDefStandStillCounter === 0) {
+				++repairTicksRemaining;
+			}
+		}
+	}
+}
+
+function dropTofuAction() {
+	if ((numTofu > 0 || infiniteFood === "yes") && repairTicksRemaining === 0) {
+		numTofu -= 1;
+		mAddItem(new fFood(plDefX, plDefY, currDefFood === "t", "t"));
+	}
+}
+
+function dropCrackersAction() {
+	if ((numCrackers > 0 || infiniteFood === "yes") && repairTicksRemaining === 0) {
+		numCrackers -= 1;
+		mAddItem(new fFood(plDefX, plDefY, currDefFood === "c", "c"));
+	}
+}
+
+function dropWormsAction() {
+	if ((numWorms > 0 || infiniteFood === "yes") && repairTicksRemaining === 0) {
+		numWorms -= 1;
+		mAddItem(new fFood(plDefX, plDefY, currDefFood === "w", "w"));
 	}
 }
 

@@ -2,6 +2,8 @@
 const HTML_CANVAS = "basimcanvas";
 const HTML_RUNNER_MOVEMENTS = "runnermovements";
 const HTML_START_BUTTON = "wavestart";
+const HTML_SAVE_AGENT = "saveagent";
+const HTML_LOAD_AGENT = "loadagent";
 const HTML_WAVE_SELECT = "waveselect";
 const HTML_TICK_COUNT = "tickcount";
 const HTML_DEF_LEVEL_SELECT = "deflevelselect";
@@ -1554,7 +1556,7 @@ var foodList;
 var Wave1TestAgent = function() {
 	this.num_states = 2;
 	this.actions = [];
-	for (let i = 0; i < 2; i++) {
+	for (let i = 0; i < 3; i++) {
 		this.actions.push(i);
 	}
 	this.action = 0;
@@ -1569,17 +1571,27 @@ Wave1TestAgent.prototype = {
 	},
 	forward: function() {
 		var input_array = new Array(this.num_states);
-		input_array[0] = 0;
-		input_array[1] = 1;
+		input_array[0] = plDefX;
+		input_array[1] = plDefY;
 		this.action = this.brain.act(input_array);
-		if (this.action === 1) {
-			pickingUpFood = "t";
-		}
+		this.performAction(this.action);
 	},
 	backward: function() {
-		var reward = 0.0;
+		var reward = (plDefY === 25) ? 1 : 0;
 		this.last_reward = reward;
 		this.brain.learn(reward);
+	},
+	performAction: function(a) {
+		let dx = 0;
+		let dy = 0;
+
+		if (a === 1) {
+			dy = 1;
+		} else if (a === 2) {
+			dy = -1;
+		}
+
+		plDefPathfind(plDefX + dx, plDefY + dy);
 	}
 }
 
@@ -1652,7 +1664,7 @@ RunnerWave1Agent.prototype = {
 		let runnerInfo = getRunnerInfo();
 
 		for (let i = 104; i < 124; i++) {
-			input_array[i] = runnerInfo[i - 104];
+			input_array[i] = 0 //runnerInfo[i - 104];
 		}
 
 		this.action = this.brain.act(input_array);
@@ -1817,6 +1829,10 @@ function simInit() {
 	simTickDurationInput = document.getElementById(HTML_TICK_DURATION);
 	simStartStopButton = document.getElementById(HTML_START_BUTTON);
 	simStartStopButton.onclick = simStartStopButtonOnClick;
+	simSaveAgentButton = document.getElementById(HTML_SAVE_AGENT);
+	simSaveAgentButton.onclick = simSaveAgentButtonOnClick;
+	simLoadAgentButton = document.getElementById(HTML_LOAD_AGENT);
+	simLoadAgentButton.onclick = simLoadAgentButtonOnClick;
 	simWaveSelect = document.getElementById(HTML_WAVE_SELECT);
 	simWaveSelect.onchange = simWaveSelectOnChange;
 	simDefLevelSelect = document.getElementById(HTML_DEF_LEVEL_SELECT);
@@ -1843,14 +1859,14 @@ function simInit() {
 		e.preventDefault();
 	};
 
-	agent = new RunnerWave1Agent();
-	//agent = new Wave1TestAgent();
+	//agent = new RunnerWave1Agent();
+	agent = new Wave1TestAgent();
 
 	env = agent;
 	spec = {};
 	spec.update = 'qlearn'; // qlearn | sarsa
 	spec.gamma = 0.9; // discount factor, [0, 1)
-	spec.epsilon = 0.2; // initial epsilon for epsilon-greedy policy, [0, 1)
+	spec.epsilon = 0.2;//0.2 // initial epsilon for epsilon-greedy policy, [0, 1)
 	spec.alpha = 0.005; // value function learning rate
 	spec.experience_add_every = 5; // number of time steps before we add another experience to replay memory
 	spec.experience_size = 10000; // size of experience
@@ -1866,9 +1882,22 @@ function simReset() {
 	}
 	simIsRunning = false;
 	simStartStopButton.innerHTML = "Start Wave";
+	simSaveAgentButton.innerHTML = "Save Agent";
+	simLoadAgentButton.innerHTML = "Load Agent";
 	baInit(0, 0, "");
 	plDefInit(-1, 0);
 	simDraw();
+}
+//const fs = require('fs');
+function simSaveAgentButtonOnClick() {
+	let jsonData = agent.brain.toJSON();
+
+	//require('fs').writeFileSync("agent.json", jsonData); // node.js
+}
+function simLoadAgentButtonOnClick() {
+	let jsonData = require('fs').readFileSync("agent.json");
+
+	//agent.brain.fromJSON(jsonData); // node.js
 }
 function simStartStopButtonOnClick() {
 	if (simIsRunning) {
@@ -2099,6 +2128,8 @@ function simDraw() {
 var simTickTimerId;
 var simMovementsInput;
 var simStartStopButton;
+var simSaveAgentButton;
+var simLoadAgentButton;
 var simWaveSelect;
 var simDefLevelSelect;
 var simToggleRepair;

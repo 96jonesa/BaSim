@@ -19,3 +19,4 @@ I am using this as an opportunity to learn JavaScript + Node.js and test out rei
 - Save/load game state
 - Toggleable infinite food
 - Toggleable hammer+log requirement to repair
+- Healers with basic logic (need refinement and proper RNG distributions)

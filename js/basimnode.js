@@ -1813,7 +1813,7 @@ function simInit() {
     spec = {};
     spec.update = 'qlearn'; // qlearn | sarsa
     spec.gamma = 0.9; // discount factor, [0, 1)
-    spec.epsilon = 0.2;//0.2 // initial epsilon for epsilon-greedy policy, [0, 1)
+    spec.epsilon = 0.8;//0.2 // initial epsilon for epsilon-greedy policy, [0, 1)
     spec.alpha = 0.005; // value function learning rate
     spec.experience_add_every = 5; // number of time steps before we add another experience to replay memory
     spec.experience_size = 10000; // size of experience
@@ -1833,7 +1833,7 @@ function simReset() {
 }
 //const fs = require('fs');
 function simSaveAgent() {
-    let jsonData = agent.brain.toJSON();
+    let jsonData = JSON.stringify(agent.brain.toJSON());
 
     require('fs').writeFileSync("agent.json", jsonData); // node.js
 }
@@ -3293,8 +3293,16 @@ function rlTick() {
     baTick();
     plDefTick();
     agent.backward();
-    if (baTickCounter % 10000 === 0) {
+
+    if (baTickCounter % 100000 === 0) {
         console.log(baTickCounter);
+    }
+    if (baTickCounter % 500000 === 0) {
+        simSaveAgent();
+        console.log("agent saved!");
+    }
+    if (baTickCounter === 5000000) {
+        clearInterval(simTickTimerId);
     }
 }
 

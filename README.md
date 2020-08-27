@@ -21,3 +21,7 @@ I am using this as an opportunity to learn JavaScript + Node.js and test out rei
 - Toggleable hammer+log requirement to repair
 - REINFORCEjs DQNAgent (deep Q-learning agent)
 - Learning on Node.js
+
+# Current Focus
+
+The project's code has grown quite a bit, so I will be spending the next few days learning JavaScript + Node.js away from this project so that I can better organize the current and future code.

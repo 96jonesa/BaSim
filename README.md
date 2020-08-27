@@ -20,3 +20,7 @@ I am using this as an opportunity to learn JavaScript + Node.js and test out rei
 - Toggleable infinite food
 - Toggleable hammer+log requirement to repair
 - Healers with basic logic (need refinement and proper RNG distributions)
+
+# Current Focus
+
+The project's code has grown quite a bit, so I will be spending the next few days learning JavaScript + Node.js away from this project so that I can better organize the current and future code.

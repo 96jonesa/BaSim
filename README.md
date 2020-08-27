@@ -23,10 +23,6 @@ I am using this as an opportunity to learn JavaScript + Node.js and test out rei
 
 # Current Focus
 
-The project's code has grown quite a bit, so I will be spending the next few days learning JavaScript + Node.js away from this project so that I can better organize the current and future code.
-
-# Current Focus
-
 The project's code has grown quite a bit, so I will be spending the next few days learning JavaScript + Node.js away from this project so that I can better organize the current and future code. Tentative study to include:
 
 - https://www.coursera.org/learn/javascript-jquery-json/

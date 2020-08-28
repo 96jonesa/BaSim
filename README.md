@@ -23,7 +23,7 @@ I am using this as an opportunity to learn JavaScript + Node.js and test out rei
 
 # Current Focus
 
-(August 27, 2020) The project's code has grown quite a bit, so I will be spending the next few days learning JavaScript + Node.js away from this project so that I can better organize the current and future code. Tentative study to include:
+(August 27, 2020) The project's code has grown quite a bit and I have proven the concept enough to motivate going forward with it, so I will be spending the next couple weeks learning JavaScript + Node.js away from this project so that I can better organize the current and future code. Tentative study to include:
 
 - https://www.coursera.org/learn/javascript-jquery-json/
 - https://www.coursera.org/learn/bootstrap-4

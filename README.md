@@ -21,3 +21,14 @@ I am using this as an opportunity to learn JavaScript + Node.js and test out rei
 - Toggleable hammer+log requirement to repair
 - REINFORCEjs DQNAgent (deep Q-learning agent)
 - Learning on Node.js
+
+# Current Focus
+
+(August 27, 2020) The project's code has grown quite a bit and I have proven the concept enough to motivate going forward with it, so I will be spending the next couple weeks learning JavaScript + Node.js away from this project so that I can better organize the current and future code. Tentative study to include:
+
+- https://www.coursera.org/learn/web-applications-php
+- https://www.coursera.org/learn/database-applications-php
+- https://www.coursera.org/learn/javascript-jquery-json/
+- https://www.coursera.org/learn/bootstrap-4
+- https://www.coursera.org/learn/front-end-react
+- https://www.coursera.org/learn/server-side-nodejs

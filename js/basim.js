@@ -1892,6 +1892,7 @@ function simLoadAgentButtonOnClick() {
 	agent.brain.epsilon = 0.0;
 	// kill learning rate to not learn
 	agent.brain.alpha = 0.0;
+	console.log("AGENT LOADED");
 
 	//agent.brain.fromJSON(jsonData); // node.js
 }

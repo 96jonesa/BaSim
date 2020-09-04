@@ -12,245 +12,305 @@ const HTML_TICK_DURATION = "tickduration";
 const HTML_TOGGLE_INFINITE_FOOD = "toggleinfinitefood";
 const HTML_TOGGLE_LOG_HAMMER_TO_REPAIR = "toggleloghammertorepair";
 
+var firstRunner;
+
 window.onload = simInit;
 //{ Simulation - sim
 function simInit() {
-	let canvas = document.getElementById(HTML_CANVAS);
-	simMovementsInput = document.getElementById(HTML_RUNNER_MOVEMENTS);
-	simMovementsInput.onkeypress = function (e) {
-		if (e.key === " ") {
-			e.preventDefault();
-		}
-	};
-	simTickDurationInput = document.getElementById(HTML_TICK_DURATION);
-	simStartStopButton = document.getElementById(HTML_START_BUTTON);
-	simStartStopButton.onclick = simStartStopButtonOnClick;
-	simWaveSelect = document.getElementById(HTML_WAVE_SELECT);
-	simWaveSelect.onchange = simWaveSelectOnChange;
-	simDefLevelSelect = document.getElementById(HTML_DEF_LEVEL_SELECT);
-	simToggleRepair = document.getElementById(HTML_TOGGLE_REPAIR);
-	simToggleRepair.onchange = simToggleRepairOnChange;
-	simTogglePauseSL = document.getElementById(HTML_TOGGLE_PAUSE_SL);
-	simTogglePauseSL.onchange = simTogglePauseSLOnChange;
-	simToggleInfiniteFood = document.getElementById(HTML_TOGGLE_INFINITE_FOOD);
-	simToggleInfiniteFood.onchange = simToggleInfiniteFoodOnChange;
-	simToggleLogHammerToRepair = document.getElementById(HTML_TOGGLE_LOG_HAMMER_TO_REPAIR);
-	simToggleLogHammerToRepair.onchange = simToggleLogHammerToRepairOnChange;
-	simDefLevelSelect.onchange = simDefLevelSelectOnChange;
-	simTickCountSpan = document.getElementById(HTML_TICK_COUNT);
-	currDefFoodSpan = document.getElementById(HTML_CURRENT_DEF_FOOD);
-	rInit(canvas, 64*12, 48*12);
-	rrInit(12);
-	mInit(mWAVE_1_TO_9, 64, 48);
-	ruInit(5);
-	simReset();
-	window.onkeydown = simWindowOnKeyDown;
-	canvas.onmousedown = simCanvasOnMouseDown;
-	canvas.oncontextmenu = function (e) {
-		e.preventDefault();
-	};
+    let canvas = document.getElementById(HTML_CANVAS);
+    simMovementsInput = document.getElementById(HTML_RUNNER_MOVEMENTS);
+    simMovementsInput.onkeypress = function (e) {
+        if (e.key === " ") {
+            e.preventDefault();
+        }
+    };
+    simTickDurationInput = document.getElementById(HTML_TICK_DURATION);
+    simStartStopButton = document.getElementById(HTML_START_BUTTON);
+    simStartStopButton.onclick = simStartStopButtonOnClick;
+    simWaveSelect = document.getElementById(HTML_WAVE_SELECT);
+    simWaveSelect.onchange = simWaveSelectOnChange;
+    simDefLevelSelect = document.getElementById(HTML_DEF_LEVEL_SELECT);
+    simToggleRepair = document.getElementById(HTML_TOGGLE_REPAIR);
+    simToggleRepair.onchange = simToggleRepairOnChange;
+    simTogglePauseSL = document.getElementById(HTML_TOGGLE_PAUSE_SL);
+    simTogglePauseSL.onchange = simTogglePauseSLOnChange;
+    simToggleInfiniteFood = document.getElementById(HTML_TOGGLE_INFINITE_FOOD);
+    simToggleInfiniteFood.onchange = simToggleInfiniteFoodOnChange;
+    simToggleLogHammerToRepair = document.getElementById(HTML_TOGGLE_LOG_HAMMER_TO_REPAIR);
+    simToggleLogHammerToRepair.onchange = simToggleLogHammerToRepairOnChange;
+    simDefLevelSelect.onchange = simDefLevelSelectOnChange;
+    simTickCountSpan = document.getElementById(HTML_TICK_COUNT);
+    currDefFoodSpan = document.getElementById(HTML_CURRENT_DEF_FOOD);
+    rInit(canvas, 64*12, 48*12);
+    rrInit(12);
+    mInit(mWAVE_1_TO_9, 64, 48);
+    ruInit(5);
+    simReset();
+    window.onkeydown = simWindowOnKeyDown;
+    canvas.onmousedown = simCanvasOnMouseDown;
+    canvas.oncontextmenu = function (e) {
+        e.preventDefault();
+    };
 }
 function simReset() {
-	if (simIsRunning) {
-		clearInterval(simTickTimerId);
-	}
-	simIsRunning = false;
-	simStartStopButton.innerHTML = "Start Wave";
-	baInit(0, 0, "");
-	plDefInit(-1, 0);
-	simDraw();
+    if (simIsRunning) {
+        clearInterval(simTickTimerId);
+    }
+    simIsRunning = false;
+    simStartStopButton.innerHTML = "Start Wave";
+    baInit(0, 0, "");
+    plDefInit(-1, 0);
+    simDraw();
 }
 function simStartStopButtonOnClick() {
-	if (simIsRunning) {
-		mResetMap();
-		simReset();
-	} else {
-		let movements = simParseMovementsInput();
-		if (movements === null) {
-			alert("Invalid runner movements. Example: ws-s");
-			return;
-		}
-		simIsRunning = true;
-		simStartStopButton.innerHTML = "Stop Wave";
-		let maxRunnersAlive = 0;
-		let totalRunners = 0;
-		let wave = simWaveSelect.value;
-		switch(Number(wave)) {
-		case 1:
-			maxRunnersAlive = 2;
-			totalRunners = 2;
-			break;
-		case 2:
-			maxRunnersAlive = 2;
-			totalRunners = 3;
-			break;
-		case 3:
-			maxRunnersAlive = 2;
-			totalRunners = 4;
-			break;
-		case 4:
-			maxRunnersAlive = 3;
-			totalRunners = 4;
-			break;
-		case 5:
-			maxRunnersAlive = 4;
-			totalRunners = 5;
-			break;
-		case 6:
-			maxRunnersAlive = 4;
-			totalRunners = 6;
-			break;
-		case 7:
-		case 10:
-			maxRunnersAlive = 5;
-			totalRunners = 6;
-			break;
-		case 8:
-			maxRunnersAlive = 5;
-			totalRunners = 7;
-			break;
-		case 9:
-			maxRunnersAlive = 5;
-			totalRunners = 9;
-			break;
-		}
-		baInit(maxRunnersAlive, totalRunners, movements);
-		if (mCurrentMap === mWAVE10) {
-			plDefInit(baWAVE10_DEFENDER_SPAWN_X, baWAVE10_DEFENDER_SPAWN_Y);
-		} else {
-			plDefInit(baWAVE1_DEFENDER_SPAWN_X, baWAVE1_DEFENDER_SPAWN_Y);
-		}
-		console.log("Wave " + wave + " started!");
-		simTick();
-		simTickTimerId = setInterval(simTick, Number(simTickDurationInput.value)); // tick time in milliseconds (set to 600 for real)
-	}
+    if (simIsRunning) {
+        mResetMap();
+        simReset();
+    } else {
+        let movements = simParseMovementsInput();
+        if (movements === null) {
+            alert("Invalid runner movements. Example: ws-s");
+            return;
+        }
+        simIsRunning = true;
+        simStartStopButton.innerHTML = "Stop Wave";
+        let maxRunnersAlive = 0;
+        let totalRunners = 0;
+        let wave = simWaveSelect.value;
+        switch(Number(wave)) {
+            case 1:
+                maxRunnersAlive = 2;
+                totalRunners = 2;
+                break;
+            case 2:
+                maxRunnersAlive = 2;
+                totalRunners = 3;
+                break;
+            case 3:
+                maxRunnersAlive = 2;
+                totalRunners = 4;
+                break;
+            case 4:
+                maxRunnersAlive = 3;
+                totalRunners = 4;
+                break;
+            case 5:
+                maxRunnersAlive = 4;
+                totalRunners = 5;
+                break;
+            case 6:
+                maxRunnersAlive = 4;
+                totalRunners = 6;
+                break;
+            case 7:
+            case 10:
+                maxRunnersAlive = 5;
+                totalRunners = 6;
+                break;
+            case 8:
+                maxRunnersAlive = 5;
+                totalRunners = 7;
+                break;
+            case 9:
+                maxRunnersAlive = 5;
+                totalRunners = 9;
+                break;
+        }
+        baInit(maxRunnersAlive, totalRunners, movements);
+        if (mCurrentMap === mWAVE10) {
+            plDefInit(baWAVE10_DEFENDER_SPAWN_X, baWAVE10_DEFENDER_SPAWN_Y);
+        } else {
+            plDefInit(baWAVE1_DEFENDER_SPAWN_X, baWAVE1_DEFENDER_SPAWN_Y);
+        }
+        console.log("Wave " + wave + " started!");
+        simTick();
+        simTickTimerId = setInterval(simTick, Number(simTickDurationInput.value)); // tick time in milliseconds (set to 600 for real)
+    }
 }
 function simParseMovementsInput() {
-	let movements = simMovementsInput.value.split("-");
-	for (let i = 0; i < movements.length; ++i) {
-		let moves = movements[i];
-		for (let j = 0; j < moves.length; ++j) {
-			let move = moves[j];
-			if (move !== "" && move !== "s" && move !== "w" && move !== "e") {
-				return null;
-			}
-		}
-	}
-	return movements;
+    let movements = simMovementsInput.value.split("-");
+    for (let i = 0; i < movements.length; ++i) {
+        let moves = movements[i];
+        for (let j = 0; j < moves.length; ++j) {
+            let move = moves[j];
+            if (move !== "" && move !== "s" && move !== "w" && move !== "e") {
+                return null;
+            }
+        }
+    }
+    return movements;
 }
 function simWindowOnKeyDown(e) {
-	if (simIsRunning) {
-		if (e.key === "t" && (numTofu > 0 || infiniteFood === "yes") && repairTicksRemaining === 0) {
-			numTofu -= 1;
-			mAddItem(new fFood(plDefX, plDefY, currDefFood === "t", "t"));
-		} else if (e.key === "c" && (numCrackers > 0 || infiniteFood === "yes") && repairTicksRemaining === 0) {
-			numCrackers -= 1;
-			mAddItem(new fFood(plDefX, plDefY, currDefFood === "c", "c"));
-		} else if (e.key === "w" && (numWorms > 0 || infiniteFood === "yes") && repairTicksRemaining === 0) {
-			numWorms -= 1;
-			mAddItem(new fFood(plDefX, plDefY, currDefFood === "w", "w"));
-		} else if (e.key === "1") {
-			pickingUpFood = "t";
-		} else if (e.key === "2") {
-			pickingUpFood = "c";
-		} else if (e.key === "3") {
-			pickingUpFood = "w";
-		} else if (e.key === "l") {
-			pickingUpLogs = true;
-		} else if (e.key === "h") {
-			pickingUpHammer = true;
-		} else if (e.key === "r") {
-			if (repairTicksRemaining === 0 && ((isInEastRepairRange(plDefX, plDefY) && eastTrapState < 2 ) || (isInWestRepairRange(plDefX, plDefY) && westTrapState < 2))) {
-				if ((hasHammer && numLogs > 0) || logHammerToRepair === "no") {
-					repairTicksRemaining = 5;
-					if (plDefStandStillCounter === 0) {
-						++repairTicksRemaining;
-					}
-				}
-			}
-		} else if (e.key === "p") {
-			isPaused = !isPaused;
-		} else if (e.key === "s") {
-			if (isPaused || pauseSL !== "yes") {
-				isPaused = true;
-				saveGameState();
-				saveExists = true;
-			}
-		} else if (e.key === "y" && saveExists) {
-			if (isPaused || pauseSL !== "yes") {
-				isPaused = true;
-				loadGameState();
-			}
-		}
-	}
-	if (e.key === " ") {
-		simStartStopButtonOnClick();
-		e.preventDefault();
-	}
+    if (simIsRunning) {
+        if (e.key === "t" && (numTofu > 0 || infiniteFood === "yes") && repairTicksRemaining === 0) {
+            numTofu -= 1;
+            mAddItem(new fFood(plDefX, plDefY, currDefFood === "t", "t"));
+        } else if (e.key === "c" && (numCrackers > 0 || infiniteFood === "yes") && repairTicksRemaining === 0) {
+            numCrackers -= 1;
+            mAddItem(new fFood(plDefX, plDefY, currDefFood === "c", "c"));
+        } else if (e.key === "w" && (numWorms > 0 || infiniteFood === "yes") && repairTicksRemaining === 0) {
+            numWorms -= 1;
+            mAddItem(new fFood(plDefX, plDefY, currDefFood === "w", "w"));
+        } else if (e.key === "1") {
+            pickingUpFood = "t";
+        } else if (e.key === "2") {
+            pickingUpFood = "c";
+        } else if (e.key === "3") {
+            pickingUpFood = "w";
+        } else if (e.key === "l") {
+            pickingUpLogs = true;
+        } else if (e.key === "h") {
+            pickingUpHammer = true;
+        } else if (e.key === "r") {
+            if (repairTicksRemaining === 0 && ((isInEastRepairRange(plDefX, plDefY) && eastTrapState < 2 ) || (isInWestRepairRange(plDefX, plDefY) && westTrapState < 2))) {
+                if ((hasHammer && numLogs > 0) || logHammerToRepair === "no") {
+                    repairTicksRemaining = 5;
+                    if (plDefStandStillCounter === 0) {
+                        ++repairTicksRemaining;
+                    }
+                }
+            }
+        } else if (e.key === "p") {
+            isPaused = !isPaused;
+        } else if (e.key === "s") {
+            if (isPaused || pauseSL !== "yes") {
+                isPaused = true;
+                saveGameState();
+                saveExists = true;
+            }
+        } else if (e.key === "y" && saveExists) {
+            if (isPaused || pauseSL !== "yes") {
+                isPaused = true;
+                loadGameState();
+            }
+        }
+    }
+    if (e.key === " ") {
+        simStartStopButtonOnClick();
+        e.preventDefault();
+    }
 }
 
 var saveExists = false;
 var isPaused; // true/false
 
 function simCanvasOnMouseDown(e) {
-	var canvasRect = rCanvas.getBoundingClientRect();
-	let xTile = Math.trunc((e.clientX - canvasRect.left) / rrTileSize);
-	let yTile = Math.trunc((canvasRect.bottom - 1 - e.clientY) / rrTileSize);
-	if (e.button === 0) {
-		plDefPathfind(xTile, yTile);
-	} else if (e.button === 2) {
-		if (xTile === baCollectorX && yTile === baCollectorY) {
-			baCollectorX = -1;
-		} else {
-			baCollectorX = xTile;
-			baCollectorY = yTile;
-		}
-	}
+    var canvasRect = rCanvas.getBoundingClientRect();
+    let xTile = Math.trunc((e.clientX - canvasRect.left) / rrTileSize);
+    let yTile = Math.trunc((canvasRect.bottom - 1 - e.clientY) / rrTileSize);
+    if (e.button === 0) {
+        plDefPathfind(xTile, yTile);
+    } else if (e.button === 2) {
+        if (xTile === baCollectorX && yTile === baCollectorY) {
+            baCollectorX = -1;
+        } else {
+            baCollectorX = xTile;
+            baCollectorY = yTile;
+        }
+    }
 }
 //*/
 
 function simWaveSelectOnChange(e) {
-	if (simWaveSelect.value === "10") {
-		mInit(mWAVE10, 64, 48);
-	} else {
-		mInit(mWAVE_1_TO_9, 64, 48);
-	}
-	simReset();
+    if (simWaveSelect.value === "10") {
+        mInit(mWAVE10, 64, 48);
+    } else {
+        mInit(mWAVE_1_TO_9, 64, 48);
+    }
+    simReset();
 }
 function simDefLevelSelectOnChange(e) {
-	mResetMap();
-	simReset();
-	ruInit(Number(simDefLevelSelect.value));
+    mResetMap();
+    simReset();
+    ruInit(Number(simDefLevelSelect.value));
 }
 function simToggleRepairOnChange(e) {
-	requireRepairs = simToggleRepair.value;
+    requireRepairs = simToggleRepair.value;
 }
 function simTogglePauseSLOnChange(e) {
-	pauseSL = simTogglePauseSL.value;
+    pauseSL = simTogglePauseSL.value;
 }
 function simToggleInfiniteFoodOnChange(e) {
-	infiniteFood = simToggleInfiniteFood.value;
+    infiniteFood = simToggleInfiniteFood.value;
 }
 function simToggleLogHammerToRepairOnChange(e) {
-	logHammerToRepair = simToggleLogHammerToRepair.value;
+    logHammerToRepair = simToggleLogHammerToRepair.value;
 }
 //*/
-function simTick() {
-	if (!isPaused) {
-		baTick();
-		plDefTick();
-		simDraw();
-	}
+function isRunnerOnStack() {
+    for (let i = 0; i < baRunners.length; i++) {
+        var thisRunner = baRunners[i];
+        if ((thisRunner.x === baEAST_TRAP_X) && (thisRunner.y === baEAST_TRAP_Y + 1)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+var tiles = [ [ 41, 31 ], [ 41, 36 ], [ 46, 33 ], [ 45, 29 ], [ 44, 26 ] ]; // 41,31, 41,36, 46,33, 45,29, 44,26
+var fourthDropTick = 110;
+
+    function simTick() {
+    if (!isPaused) {
+
+        if (baTickCounter === 24) { // trap food
+            mAddItem(new fFood(baEAST_TRAP_X, baEAST_TRAP_Y + 1, true, "t"));
+            mAddItem(new fFood(baEAST_TRAP_X, baEAST_TRAP_Y + 1, true, "t"));
+            mAddItem(new fFood(baEAST_TRAP_X, baEAST_TRAP_Y + 1, true, "t"));
+        } else if (baTickCounter === 27) { // trail food
+            mAddItem(new fFood(baEAST_TRAP_X - 6, baEAST_TRAP_Y + 5, false, "w"));
+        } else if (baTickCounter === 29) { // main stack
+            mAddItem(new fFood(baEAST_TRAP_X - 10, baEAST_TRAP_Y + 9, true, "t"));
+            mAddItem(new fFood(baEAST_TRAP_X - 10, baEAST_TRAP_Y + 9, true, "t"));
+            mAddItem(new fFood(baEAST_TRAP_X - 10, baEAST_TRAP_Y + 9, true, "t"));
+            mAddItem(new fFood(baEAST_TRAP_X - 10, baEAST_TRAP_Y + 9, true, "t"));
+            mAddItem(new fFood(baEAST_TRAP_X - 10, baEAST_TRAP_Y + 9, true, "t"));
+        } else if (!firstRunner && isRunnerOnStack()) {
+            firstRunner = true;
+            plDefX = baEAST_TRAP_X;
+            plDefY = baEAST_TRAP_Y + 1;
+        } else if (baTickCounter === 61) { // move off trap food on tick 61
+            plDefPathfind(tiles[0][0], tiles[0][1]);
+        } else if ((plDefX === tiles[0][0]) && (plDefY === tiles[0][1])) { // drop bait food asap, then move to tile2
+            mAddItem(new fFood(plDefX, plDefY, true, "w"));
+            plDefPathfind(tiles[1][0], tiles[1][1]);
+        } else if ((plDefX === tiles[1][0]) && (plDefY === tiles[1][1])) {
+            mAddItem(new fFood(plDefX, plDefY, true, "c"));
+            plDefPathfind(tiles[2][0], tiles[2][1]);
+        } else if ((plDefX === tiles[2][0]) && (plDefY === tiles[2][1])) {
+            mAddItem(new fFood(plDefX, plDefY, true, "c"));
+            plDefPathfind(tiles[3][0], tiles[3][1]);
+        } else if ((plDefX === tiles[3][0]) && (plDefY === tiles[3][1])) { // drop bait food asap, then teleport to tile3 to avoid bumping
+            mAddItem(new fFood(plDefX, plDefY, true, "c"));
+            plDefX = baWAVE1_DEFENDER_SPAWN_X;
+            plDefY = baWAVE1_DEFENDER_SPAWN_Y;
+            fourthDropTick = baTickCounter;
+        } else if (baTickCounter === fourthDropTick + 5) { // should take 5 ticks to get to tile3 from tile2, then teleport away to not block
+            plDefX = tiles[4][0];
+            plDefY = tiles[4][1];
+            mAddItem(new fFood(plDefX, plDefY, true, "c"));
+            mAddItem(new fFood(plDefX, plDefY, true, "c"));
+            mAddItem(new fFood(plDefX, plDefY, true, "c"));
+            mAddItem(new fFood(plDefX, plDefY, true, "c"));
+            mAddItem(new fFood(plDefX, plDefY, true, "c"));
+            plDefX = baWAVE1_DEFENDER_SPAWN_X;
+            plDefY = baWAVE1_DEFENDER_SPAWN_Y;
+        }
+
+        baTick();
+        plDefTick();
+        simDraw();
+    }
 }
 function simDraw() {
-	mDrawMap();
-	baDrawDetails();
-	mDrawItems();
-	baDrawEntities();
-	plDefDrawPlayer();
-	mDrawGrid();
-	baDrawOverlays();
-	rPresent();
+    mDrawMap();
+    baDrawDetails();
+    mDrawItems();
+    baDrawEntities();
+    plDefDrawPlayer();
+    mDrawGrid();
+    baDrawOverlays();
+    rPresent();
 }
 var simTickTimerId;
 var simMovementsInput;
@@ -290,226 +350,226 @@ var repairTicksRemaining; // 0-5
 //}
 //{ PlayerDefender - plDef
 function plDefInit(x, y) {
-	plDefX = x;
-	plDefY = y;
-	pickingUpFood = "n";
-	pickingUpLogs = false;
-	pickingUpHammer = false;
-	repairTicksRemaining = 0;
-	plDefPathQueuePos = 0;
-	plDefPathQueueX = [];
-	plDefPathQueueY = [];
-	plDefShortestDistances = [];
-	plDefWayPoints = [];
-	plDefStandStillCounter = 0;
+    plDefX = x;
+    plDefY = y;
+    pickingUpFood = "n";
+    pickingUpLogs = false;
+    pickingUpHammer = false;
+    repairTicksRemaining = 0;
+    plDefPathQueuePos = 0;
+    plDefPathQueueX = [];
+    plDefPathQueueY = [];
+    plDefShortestDistances = [];
+    plDefWayPoints = [];
+    plDefStandStillCounter = 0;
 }
 function plDefTick() {
-	++plDefStandStillCounter;
-	let prevX = plDefX;
-	let prevY = plDefY;
-	if (repairTicksRemaining > 0) {
-		if (repairTicksRemaining === 1) {
-			numLogs -=1;
-			if (isInEastRepairRange(plDefX, plDefY)) {
-				eastTrapState = 2;
-			} else {
-				westTrapState = 2;
-			}
-		}
-		repairTicksRemaining -= 1;
-		plDefPathQueuePos = 0;
-		pickingUpFood = "n";
-	} else if (pickingUpFood !== "n") {
-		let itemZone = mGetItemZone(plDefX >>> 3, plDefY >>> 3);
-		for (let i = 0; i < itemZone.length; ++i) {
-			let item = itemZone[i];
-			if (plDefX === item.x && plDefY === item.y && item.type === pickingUpFood) {
-				itemZone.splice(i, 1);
-				if (pickingUpFood === "t") {
-					numTofu += 1;
-				} else if (pickingUpFood === "c") {
-					numCrackers += 1;
-				} else {
-					numWorms += 1;
-				}
-				break;
-			}
-		}
-		pickingUpFood = "n";
-		plDefPathQueuePos = 0;
-	} else if (pickingUpLogs) {
-		let waveIs10 = mCurrentMap === mWAVE10;
-		if ((waveIs10 && plDefX === WAVE10_NW_LOGS_X && plDefY === WAVE10_NW_LOGS_Y) || (!waveIs10 && plDefX === WAVE1_NW_LOGS_X && plDefY === WAVE1_NW_LOGS_Y)) {
-			if (northwestLogsState) {
-				numLogs += 1;
-				northwestLogsState = false;
-			}
-		}  else if ((waveIs10 && plDefX === WAVE10_SE_LOGS_X && plDefY === WAVE10_SE_LOGS_Y) || (!waveIs10 && plDefX === WAVE1_SE_LOGS_X && plDefY === WAVE1_SE_LOGS_Y)) {
-			if (southeastLogsState) {
-				numLogs += 1;
-				southeastLogsState = false;
-			}
-		}
-		pickingUpLogs = false;
-	} else if (pickingUpHammer) {
-		if (hammerState && plDefX === HAMMER_X && plDefY === HAMMER_Y) {
-			hasHammer = true;
-			hammerState = false;
-		}
-		pickingUpHammer = false;
-	} else if (plDefPathQueuePos > 0) {
-		plDefX = plDefPathQueueX[--plDefPathQueuePos];
-		plDefY = plDefPathQueueY[plDefPathQueuePos];
-		if (plDefPathQueuePos > 0) {
-			plDefX = plDefPathQueueX[--plDefPathQueuePos];
-			plDefY = plDefPathQueueY[plDefPathQueuePos];
-		}
-	}
-	if (prevX !== plDefX || prevY !== plDefY) {
-		plDefStandStillCounter = 0;
-	}
+    ++plDefStandStillCounter;
+    let prevX = plDefX;
+    let prevY = plDefY;
+    if (repairTicksRemaining > 0) {
+        if (repairTicksRemaining === 1) {
+            numLogs -=1;
+            if (isInEastRepairRange(plDefX, plDefY)) {
+                eastTrapState = 2;
+            } else {
+                westTrapState = 2;
+            }
+        }
+        repairTicksRemaining -= 1;
+        plDefPathQueuePos = 0;
+        pickingUpFood = "n";
+    } else if (pickingUpFood !== "n") {
+        let itemZone = mGetItemZone(plDefX >>> 3, plDefY >>> 3);
+        for (let i = 0; i < itemZone.length; ++i) {
+            let item = itemZone[i];
+            if (plDefX === item.x && plDefY === item.y && item.type === pickingUpFood) {
+                itemZone.splice(i, 1);
+                if (pickingUpFood === "t") {
+                    numTofu += 1;
+                } else if (pickingUpFood === "c") {
+                    numCrackers += 1;
+                } else {
+                    numWorms += 1;
+                }
+                break;
+            }
+        }
+        pickingUpFood = "n";
+        plDefPathQueuePos = 0;
+    } else if (pickingUpLogs) {
+        let waveIs10 = mCurrentMap === mWAVE10;
+        if ((waveIs10 && plDefX === WAVE10_NW_LOGS_X && plDefY === WAVE10_NW_LOGS_Y) || (!waveIs10 && plDefX === WAVE1_NW_LOGS_X && plDefY === WAVE1_NW_LOGS_Y)) {
+            if (northwestLogsState) {
+                numLogs += 1;
+                northwestLogsState = false;
+            }
+        }  else if ((waveIs10 && plDefX === WAVE10_SE_LOGS_X && plDefY === WAVE10_SE_LOGS_Y) || (!waveIs10 && plDefX === WAVE1_SE_LOGS_X && plDefY === WAVE1_SE_LOGS_Y)) {
+            if (southeastLogsState) {
+                numLogs += 1;
+                southeastLogsState = false;
+            }
+        }
+        pickingUpLogs = false;
+    } else if (pickingUpHammer) {
+        if (hammerState && plDefX === HAMMER_X && plDefY === HAMMER_Y) {
+            hasHammer = true;
+            hammerState = false;
+        }
+        pickingUpHammer = false;
+    } else if (plDefPathQueuePos > 0) {
+        plDefX = plDefPathQueueX[--plDefPathQueuePos];
+        plDefY = plDefPathQueueY[plDefPathQueuePos];
+        if (plDefPathQueuePos > 0) {
+            plDefX = plDefPathQueueX[--plDefPathQueuePos];
+            plDefY = plDefPathQueueY[plDefPathQueuePos];
+        }
+    }
+    if (prevX !== plDefX || prevY !== plDefY) {
+        plDefStandStillCounter = 0;
+    }
 }
 function plDefDrawPlayer() {
-	if (plDefX >= 0) {
-		rSetDrawColor(240, 240, 240, 200);
-		rrFill(plDefX, plDefY);
-	}
+    if (plDefX >= 0) {
+        rSetDrawColor(240, 240, 240, 200);
+        rrFill(plDefX, plDefY);
+    }
 }
 function plDefPathfind(destX, destY) {
-	for (let i = 0; i < mWidthTiles*mHeightTiles; ++i) {
-		plDefShortestDistances[i] = 99999999;
-		plDefWayPoints[i] = 0;
-	}
-	plDefWayPoints[plDefX + plDefY*mWidthTiles] = 99;
-	plDefShortestDistances[plDefX + plDefY*mWidthTiles] = 0;
-	plDefPathQueuePos = 0;
-	let pathQueueEnd = 0;
-	plDefPathQueueX[pathQueueEnd] = plDefX;
-	plDefPathQueueY[pathQueueEnd++] = plDefY;
-	let currentX;
-	let currentY;
-	let foundDestination = false;
-	while (plDefPathQueuePos !== pathQueueEnd) {
-		currentX = plDefPathQueueX[plDefPathQueuePos];
-		currentY = plDefPathQueueY[plDefPathQueuePos++];
-		if (currentX === destX && currentY === destY) {
-			foundDestination = true;
-			break;
-		}
-		let newDistance = plDefShortestDistances[currentX + currentY*mWidthTiles] + 1;
-		let index = currentX - 1 + currentY*mWidthTiles;
-		if (currentX > 0 && plDefWayPoints[index] === 0 && (mCurrentMap[index] & 19136776) === 0) {
-			plDefPathQueueX[pathQueueEnd] = currentX - 1;
-			plDefPathQueueY[pathQueueEnd++] = currentY;
-			plDefWayPoints[index] = 2;
-			plDefShortestDistances[index] = newDistance;
-		}
-		index = currentX + 1 + currentY*mWidthTiles;
-		if (currentX < mWidthTiles - 1 && plDefWayPoints[index] === 0 && (mCurrentMap[index] & 19136896) === 0) {
-			plDefPathQueueX[pathQueueEnd] = currentX + 1;
-			plDefPathQueueY[pathQueueEnd++] = currentY;
-			plDefWayPoints[index] = 8;
-			plDefShortestDistances[index] = newDistance;
-		}
-		index = currentX + (currentY - 1)*mWidthTiles;
-		if (currentY > 0 && plDefWayPoints[index] === 0 && (mCurrentMap[index] & 19136770) === 0) {
-			plDefPathQueueX[pathQueueEnd] = currentX;
-			plDefPathQueueY[pathQueueEnd++] = currentY - 1;
-			plDefWayPoints[index] = 1;
-			plDefShortestDistances[index] = newDistance;
-		}
-		index = currentX + (currentY + 1)*mWidthTiles;
-		if (currentY < mHeightTiles - 1 && plDefWayPoints[index] === 0 && (mCurrentMap[index] & 19136800) === 0) {
-			plDefPathQueueX[pathQueueEnd] = currentX;
-			plDefPathQueueY[pathQueueEnd++] = currentY + 1;
-			plDefWayPoints[index] = 4;
-			plDefShortestDistances[index] = newDistance;
-		}
-		index = currentX - 1 + (currentY - 1)*mWidthTiles;
-		if (currentX > 0 && currentY > 0 && plDefWayPoints[index] === 0 &&
-		(mCurrentMap[index] & 19136782) == 0 &&
-		(mCurrentMap[currentX - 1 + currentY*mWidthTiles] & 19136776) === 0 &&
-		(mCurrentMap[currentX + (currentY - 1)*mWidthTiles] & 19136770) === 0) {
-			plDefPathQueueX[pathQueueEnd] = currentX - 1;
-			plDefPathQueueY[pathQueueEnd++] = currentY - 1;
-			plDefWayPoints[index] = 3;
-			plDefShortestDistances[index] = newDistance;
-		}
-		index = currentX + 1 + (currentY - 1)*mWidthTiles;
-		if (currentX < mWidthTiles - 1 && currentY > 0 && plDefWayPoints[index] === 0 &&
-		(mCurrentMap[index] & 19136899) == 0 &&
-		(mCurrentMap[currentX + 1 + currentY*mWidthTiles] & 19136896) === 0 &&
-		(mCurrentMap[currentX + (currentY - 1)*mWidthTiles] & 19136770) === 0) {
-			plDefPathQueueX[pathQueueEnd] = currentX + 1;
-			plDefPathQueueY[pathQueueEnd++] = currentY - 1;
-			plDefWayPoints[index] = 9;
-			plDefShortestDistances[index] = newDistance;
-		}
-		index = currentX - 1 + (currentY + 1)*mWidthTiles;
-		if (currentX > 0 && currentY < mHeightTiles - 1 && plDefWayPoints[index] === 0 &&
-		(mCurrentMap[index] & 19136824) == 0 &&
-		(mCurrentMap[currentX - 1 + currentY*mWidthTiles] & 19136776) === 0 &&
-		(mCurrentMap[currentX + (currentY + 1)*mWidthTiles] & 19136800) === 0) {
-			plDefPathQueueX[pathQueueEnd] = currentX - 1;
-			plDefPathQueueY[pathQueueEnd++] = currentY + 1;
-			plDefWayPoints[index] = 6;
-			plDefShortestDistances[index] = newDistance;
-		}
-		index = currentX + 1 + (currentY + 1)*mWidthTiles;
-		if (currentX < mWidthTiles - 1 && currentY < mHeightTiles - 1 && plDefWayPoints[index] === 0 &&
-		(mCurrentMap[index] & 19136992) == 0 &&
-		(mCurrentMap[currentX + 1 + currentY*mWidthTiles] & 19136896) === 0 &&
-		(mCurrentMap[currentX + (currentY + 1)*mWidthTiles] & 19136800) === 0) {
-			plDefPathQueueX[pathQueueEnd] = currentX + 1;
-			plDefPathQueueY[pathQueueEnd++] = currentY + 1;
-			plDefWayPoints[index] = 12;
-			plDefShortestDistances[index] = newDistance;
-		}
-	}
-	if (!foundDestination) {
-		let bestDistanceStart = 0x7FFFFFFF;
-		let bestDistanceEnd = 0x7FFFFFFF;
-		let deviation = 10;
-		for (let x = destX - deviation; x <= destX + deviation; ++x) {
-			for (let y = destY - deviation; y <= destY + deviation; ++y) {
-				if (x >= 0 && y >= 0 && x < mWidthTiles && y < mHeightTiles) {
-					let distanceStart = plDefShortestDistances[x + y*mWidthTiles];
-					if (distanceStart < 100) {
-						let dx = Math.max(destX - x);
-						let dy = Math.max(destY - y);
-						let distanceEnd = dx*dx + dy*dy;
-						if (distanceEnd < bestDistanceEnd || (distanceEnd === bestDistanceEnd && distanceStart < bestDistanceStart)) {
-							bestDistanceStart = distanceStart;
-							bestDistanceEnd = distanceEnd;
-							currentX = x;
-							currentY = y;
-							foundDestination = true;
-						}
-					}
-				}
-			}
-		}
-		if (!foundDestination) {
-			plDefPathQueuePos = 0;
-			return;
-		}
-	}
-	plDefPathQueuePos = 0;
-	while (currentX !== plDefX || currentY !== plDefY) {
-		let waypoint = plDefWayPoints[currentX + currentY*mWidthTiles];
-		plDefPathQueueX[plDefPathQueuePos] = currentX;
-		plDefPathQueueY[plDefPathQueuePos++] = currentY;
-		if ((waypoint & 2) !== 0) {
-			++currentX;
-		} else if ((waypoint & 8) !== 0) {
-			--currentX;
-		}
-		if ((waypoint & 1) !== 0) {
-			++currentY;
-		} else if ((waypoint & 4) !== 0) {
-			--currentY;
-		}
-	}
+    for (let i = 0; i < mWidthTiles*mHeightTiles; ++i) {
+        plDefShortestDistances[i] = 99999999;
+        plDefWayPoints[i] = 0;
+    }
+    plDefWayPoints[plDefX + plDefY*mWidthTiles] = 99;
+    plDefShortestDistances[plDefX + plDefY*mWidthTiles] = 0;
+    plDefPathQueuePos = 0;
+    let pathQueueEnd = 0;
+    plDefPathQueueX[pathQueueEnd] = plDefX;
+    plDefPathQueueY[pathQueueEnd++] = plDefY;
+    let currentX;
+    let currentY;
+    let foundDestination = false;
+    while (plDefPathQueuePos !== pathQueueEnd) {
+        currentX = plDefPathQueueX[plDefPathQueuePos];
+        currentY = plDefPathQueueY[plDefPathQueuePos++];
+        if (currentX === destX && currentY === destY) {
+            foundDestination = true;
+            break;
+        }
+        let newDistance = plDefShortestDistances[currentX + currentY*mWidthTiles] + 1;
+        let index = currentX - 1 + currentY*mWidthTiles;
+        if (currentX > 0 && plDefWayPoints[index] === 0 && (mCurrentMap[index] & 19136776) === 0) {
+            plDefPathQueueX[pathQueueEnd] = currentX - 1;
+            plDefPathQueueY[pathQueueEnd++] = currentY;
+            plDefWayPoints[index] = 2;
+            plDefShortestDistances[index] = newDistance;
+        }
+        index = currentX + 1 + currentY*mWidthTiles;
+        if (currentX < mWidthTiles - 1 && plDefWayPoints[index] === 0 && (mCurrentMap[index] & 19136896) === 0) {
+            plDefPathQueueX[pathQueueEnd] = currentX + 1;
+            plDefPathQueueY[pathQueueEnd++] = currentY;
+            plDefWayPoints[index] = 8;
+            plDefShortestDistances[index] = newDistance;
+        }
+        index = currentX + (currentY - 1)*mWidthTiles;
+        if (currentY > 0 && plDefWayPoints[index] === 0 && (mCurrentMap[index] & 19136770) === 0) {
+            plDefPathQueueX[pathQueueEnd] = currentX;
+            plDefPathQueueY[pathQueueEnd++] = currentY - 1;
+            plDefWayPoints[index] = 1;
+            plDefShortestDistances[index] = newDistance;
+        }
+        index = currentX + (currentY + 1)*mWidthTiles;
+        if (currentY < mHeightTiles - 1 && plDefWayPoints[index] === 0 && (mCurrentMap[index] & 19136800) === 0) {
+            plDefPathQueueX[pathQueueEnd] = currentX;
+            plDefPathQueueY[pathQueueEnd++] = currentY + 1;
+            plDefWayPoints[index] = 4;
+            plDefShortestDistances[index] = newDistance;
+        }
+        index = currentX - 1 + (currentY - 1)*mWidthTiles;
+        if (currentX > 0 && currentY > 0 && plDefWayPoints[index] === 0 &&
+            (mCurrentMap[index] & 19136782) == 0 &&
+            (mCurrentMap[currentX - 1 + currentY*mWidthTiles] & 19136776) === 0 &&
+            (mCurrentMap[currentX + (currentY - 1)*mWidthTiles] & 19136770) === 0) {
+            plDefPathQueueX[pathQueueEnd] = currentX - 1;
+            plDefPathQueueY[pathQueueEnd++] = currentY - 1;
+            plDefWayPoints[index] = 3;
+            plDefShortestDistances[index] = newDistance;
+        }
+        index = currentX + 1 + (currentY - 1)*mWidthTiles;
+        if (currentX < mWidthTiles - 1 && currentY > 0 && plDefWayPoints[index] === 0 &&
+            (mCurrentMap[index] & 19136899) == 0 &&
+            (mCurrentMap[currentX + 1 + currentY*mWidthTiles] & 19136896) === 0 &&
+            (mCurrentMap[currentX + (currentY - 1)*mWidthTiles] & 19136770) === 0) {
+            plDefPathQueueX[pathQueueEnd] = currentX + 1;
+            plDefPathQueueY[pathQueueEnd++] = currentY - 1;
+            plDefWayPoints[index] = 9;
+            plDefShortestDistances[index] = newDistance;
+        }
+        index = currentX - 1 + (currentY + 1)*mWidthTiles;
+        if (currentX > 0 && currentY < mHeightTiles - 1 && plDefWayPoints[index] === 0 &&
+            (mCurrentMap[index] & 19136824) == 0 &&
+            (mCurrentMap[currentX - 1 + currentY*mWidthTiles] & 19136776) === 0 &&
+            (mCurrentMap[currentX + (currentY + 1)*mWidthTiles] & 19136800) === 0) {
+            plDefPathQueueX[pathQueueEnd] = currentX - 1;
+            plDefPathQueueY[pathQueueEnd++] = currentY + 1;
+            plDefWayPoints[index] = 6;
+            plDefShortestDistances[index] = newDistance;
+        }
+        index = currentX + 1 + (currentY + 1)*mWidthTiles;
+        if (currentX < mWidthTiles - 1 && currentY < mHeightTiles - 1 && plDefWayPoints[index] === 0 &&
+            (mCurrentMap[index] & 19136992) == 0 &&
+            (mCurrentMap[currentX + 1 + currentY*mWidthTiles] & 19136896) === 0 &&
+            (mCurrentMap[currentX + (currentY + 1)*mWidthTiles] & 19136800) === 0) {
+            plDefPathQueueX[pathQueueEnd] = currentX + 1;
+            plDefPathQueueY[pathQueueEnd++] = currentY + 1;
+            plDefWayPoints[index] = 12;
+            plDefShortestDistances[index] = newDistance;
+        }
+    }
+    if (!foundDestination) {
+        let bestDistanceStart = 0x7FFFFFFF;
+        let bestDistanceEnd = 0x7FFFFFFF;
+        let deviation = 10;
+        for (let x = destX - deviation; x <= destX + deviation; ++x) {
+            for (let y = destY - deviation; y <= destY + deviation; ++y) {
+                if (x >= 0 && y >= 0 && x < mWidthTiles && y < mHeightTiles) {
+                    let distanceStart = plDefShortestDistances[x + y*mWidthTiles];
+                    if (distanceStart < 100) {
+                        let dx = Math.max(destX - x);
+                        let dy = Math.max(destY - y);
+                        let distanceEnd = dx*dx + dy*dy;
+                        if (distanceEnd < bestDistanceEnd || (distanceEnd === bestDistanceEnd && distanceStart < bestDistanceStart)) {
+                            bestDistanceStart = distanceStart;
+                            bestDistanceEnd = distanceEnd;
+                            currentX = x;
+                            currentY = y;
+                            foundDestination = true;
+                        }
+                    }
+                }
+            }
+        }
+        if (!foundDestination) {
+            plDefPathQueuePos = 0;
+            return;
+        }
+    }
+    plDefPathQueuePos = 0;
+    while (currentX !== plDefX || currentY !== plDefY) {
+        let waypoint = plDefWayPoints[currentX + currentY*mWidthTiles];
+        plDefPathQueueX[plDefPathQueuePos] = currentX;
+        plDefPathQueueY[plDefPathQueuePos++] = currentY;
+        if ((waypoint & 2) !== 0) {
+            ++currentX;
+        } else if ((waypoint & 8) !== 0) {
+            --currentX;
+        }
+        if ((waypoint & 1) !== 0) {
+            ++currentY;
+        } else if ((waypoint & 4) !== 0) {
+            --currentY;
+        }
+    }
 }
 var plDefPathQueuePos;
 var plDefShortestDistances;
@@ -522,20 +582,20 @@ var plDefStandStillCounter;
 //}
 //{ Food - f
 function fFood(x, y, isGood, type = "t") {
-	this.x = x;
-	this.y = y;
-	this.isGood = isGood;
-	this.type = type;
-	if (this.isGood) {
-		this.colorRed = 0;
-		this.colorGreen = 255;
-	} else {
-		this.colorRed = 255;
-		this.colorGreen = 0;
-	}
-	this.colorBlue = 0;
-	this.id = foodIDCounter;
-	foodIDCounter++;
+    this.x = x;
+    this.y = y;
+    this.isGood = isGood;
+    this.type = type;
+    if (this.isGood) {
+        this.colorRed = 0;
+        this.colorGreen = 255;
+    } else {
+        this.colorRed = 255;
+        this.colorGreen = 0;
+    }
+    this.colorBlue = 0;
+    this.id = foodIDCounter;
+    foodIDCounter++;
 }
 var foodIDCounter;
 //}
@@ -544,339 +604,339 @@ const rngSOUTH = 0;
 const rngWEST = 1;
 const rngEAST = 2;
 function rngRunnerRNG(forcedMovements) {
-	this.forcedMovements = forcedMovements;
-	this.forcedMovementsIndex = 0;
+    this.forcedMovements = forcedMovements;
+    this.forcedMovementsIndex = 0;
 
-	this.rollMovement = function() {
-		if (this.forcedMovements.length > this.forcedMovementsIndex) {
-			let movement = this.forcedMovements.charAt(this.forcedMovementsIndex++);
-			if (movement === "s") {
-				return rngSOUTH;
-			}
-			if (movement === "w") {
-				return rngWEST;
-			}
-			if (movement === "e") {
-				return rngEAST;
-			}
-		}
-		let rnd = Math.floor(Math.random() * 6);
-		if (rnd < 4) {
-			return rngSOUTH;
-		}
-		if (rnd === 4) {
-			return rngWEST;
-		}
-		return rngEAST;
-	}
+    this.rollMovement = function() {
+        if (this.forcedMovements.length > this.forcedMovementsIndex) {
+            let movement = this.forcedMovements.charAt(this.forcedMovementsIndex++);
+            if (movement === "s") {
+                return rngSOUTH;
+            }
+            if (movement === "w") {
+                return rngWEST;
+            }
+            if (movement === "e") {
+                return rngEAST;
+            }
+        }
+        let rnd = Math.floor(Math.random() * 6);
+        if (rnd < 4) {
+            return rngSOUTH;
+        }
+        if (rnd === 4) {
+            return rngWEST;
+        }
+        return rngEAST;
+    }
 }
 //}
 //{ Runner - ru
 function ruInit(sniffDistance) {
-	ruSniffDistance = sniffDistance;
+    ruSniffDistance = sniffDistance;
 }
 function ruRunner(x, y, runnerRNG, isWave10, id) {
-	this.x = x;
-	this.y = y;
-	this.destinationX = x;
-	this.destinationY = y;
-	this.cycleTick = 1;
-	this.targetState = 0;
-	this.foodTarget = null;
-	this.blughhhhCountdown = 0;
-	this.standStillCounter = 0;
-	this.despawnCountdown = -1;
-	this.isDying = false;
-	this.runnerRNG = runnerRNG;
-	this.isWave10 = isWave10;
-	this.id = id;
+    this.x = x;
+    this.y = y;
+    this.destinationX = x;
+    this.destinationY = y;
+    this.cycleTick = 1;
+    this.targetState = 0;
+    this.foodTarget = null;
+    this.blughhhhCountdown = 0;
+    this.standStillCounter = 0;
+    this.despawnCountdown = -1;
+    this.isDying = false;
+    this.runnerRNG = runnerRNG;
+    this.isWave10 = isWave10;
+    this.id = id;
 
-	this.tick = function() {
-		if (++this.cycleTick > 10) {
-			this.cycleTick = 1;
-		}
-		++this.standStillCounter;
-		if (this.despawnCountdown !== -1) {
-			if (--this.despawnCountdown === 0) {
-				baRunnersToRemove.push(this);
-				if (!this.isDying) {
-					--baRunnersAlive;
-				} else {
-					if (baIsNearEastTrap(this.x, this.y)) {
-						if (eastTrapState > 0) --eastTrapState;
-					}
-					if (baIsNearWestTrap(this.x, this.y)) {
-						if (westTrapState > 0) --westTrapState;
-					}
-				}
-			}
-		} else {
-			if (!this.isDying) {
-				switch(this.cycleTick) {
-					case 1:
-						this.doTick1();
-						break;
-					case 2:
-						this.doTick2Or5();
-						break;
-					case 3:
-						this.doTick3();
-						break;
-					case 4:
-						this.doTick4();
-						break;
-					case 5:
-						this.doTick2Or5();
-						break;
-					case 6:
-						this.doTick6();
-						break;
-					case 7:
-					case 8:
-					case 9:
-					case 10:
-						this.doTick7To10();
-						break;
-				}
-			}
-			if (this.isDying) {
-				if (this.standStillCounter > 2) {
-					++baRunnersKilled;
-					--baRunnersAlive;
-					this.print("Urghhh!");
-					this.despawnCountdown = 2;
-				}
-			}
-		}
-	}
+    this.tick = function() {
+        if (++this.cycleTick > 10) {
+            this.cycleTick = 1;
+        }
+        ++this.standStillCounter;
+        if (this.despawnCountdown !== -1) {
+            if (--this.despawnCountdown === 0) {
+                baRunnersToRemove.push(this);
+                if (!this.isDying) {
+                    --baRunnersAlive;
+                } else {
+                    if (baIsNearEastTrap(this.x, this.y)) {
+                        if (eastTrapState > 0) --eastTrapState;
+                    }
+                    if (baIsNearWestTrap(this.x, this.y)) {
+                        if (westTrapState > 0) --westTrapState;
+                    }
+                }
+            }
+        } else {
+            if (!this.isDying) {
+                switch(this.cycleTick) {
+                    case 1:
+                        this.doTick1();
+                        break;
+                    case 2:
+                        this.doTick2Or5();
+                        break;
+                    case 3:
+                        this.doTick3();
+                        break;
+                    case 4:
+                        this.doTick4();
+                        break;
+                    case 5:
+                        this.doTick2Or5();
+                        break;
+                    case 6:
+                        this.doTick6();
+                        break;
+                    case 7:
+                    case 8:
+                    case 9:
+                    case 10:
+                        this.doTick7To10();
+                        break;
+                }
+            }
+            if (this.isDying) {
+                if (this.standStillCounter > 2) {
+                    ++baRunnersKilled;
+                    --baRunnersAlive;
+                    this.print("Urghhh!");
+                    this.despawnCountdown = 2;
+                }
+            }
+        }
+    }
 
-	this.doMovement = function() { // TODO: Doesn't consider diagonal movement block flags
-		let startX = this.x;
-		if (this.destinationX > startX) {
-			if (!baTileBlocksPenance(startX + 1, this.y) && mCanMoveEast(startX, this.y)) {
-				++this.x;
-				this.standStillCounter = 0;
-			}
-		} else if (this.destinationX < startX && !baTileBlocksPenance(startX - 1, this.y) && mCanMoveWest(startX, this.y)) {
-			--this.x;
-			this.standStillCounter = 0;
-		}
-		if (this.destinationY > this.y) {
-			if (!baTileBlocksPenance(startX, this.y + 1) && !baTileBlocksPenance(this.x, this.y + 1) && mCanMoveNorth(startX, this.y) && mCanMoveNorth(this.x, this.y)) {
-				++this.y;
-				this.standStillCounter = 0;
-			}
-		} else if (this.destinationY < this.y && !baTileBlocksPenance(startX, this.y - 1) && !baTileBlocksPenance(this.x, this.y - 1) && mCanMoveSouth(startX, this.y) && mCanMoveSouth(this.x, this.y)) {
-			--this.y;
-			this.standStillCounter = 0;
-		}
-	}
+    this.doMovement = function() { // TODO: Doesn't consider diagonal movement block flags
+        let startX = this.x;
+        if (this.destinationX > startX) {
+            if (!baTileBlocksPenance(startX + 1, this.y) && mCanMoveEast(startX, this.y)) {
+                ++this.x;
+                this.standStillCounter = 0;
+            }
+        } else if (this.destinationX < startX && !baTileBlocksPenance(startX - 1, this.y) && mCanMoveWest(startX, this.y)) {
+            --this.x;
+            this.standStillCounter = 0;
+        }
+        if (this.destinationY > this.y) {
+            if (!baTileBlocksPenance(startX, this.y + 1) && !baTileBlocksPenance(this.x, this.y + 1) && mCanMoveNorth(startX, this.y) && mCanMoveNorth(this.x, this.y)) {
+                ++this.y;
+                this.standStillCounter = 0;
+            }
+        } else if (this.destinationY < this.y && !baTileBlocksPenance(startX, this.y - 1) && !baTileBlocksPenance(this.x, this.y - 1) && mCanMoveSouth(startX, this.y) && mCanMoveSouth(this.x, this.y)) {
+            --this.y;
+            this.standStillCounter = 0;
+        }
+    }
 
-	this.tryTargetFood = function() {
-		let xZone = this.x >> 3;
-		let yZone = this.y >> 3;
-		let firstFoodFound = null;
-		let endXZone = Math.max(xZone - 1 , 0);
-		let endYZone = Math.max(yZone - 1, 0);
-		for (let x = Math.min(xZone + 1, mItemZonesWidth - 1); x >= endXZone; --x) {
-			for (let y = Math.min(yZone + 1, mItemZonesHeight - 1); y >= endYZone; --y) {
-				let itemZone = mGetItemZone(x, y);
-				for (let foodIndex = itemZone.length - 1; foodIndex >= 0; --foodIndex) {
-					let food = itemZone[foodIndex];
-					if (!mHasLineOfSight(this.x, this.y, food.x, food.y)) {
-						continue;
-					}
-					if (firstFoodFound === null) {
-						firstFoodFound = food;
-					}
-					if (Math.max(Math.abs(this.x - food.x), Math.abs(this.y - food.y)) <= ruSniffDistance) {
-						this.foodTarget = firstFoodFound;
-						this.destinationX = firstFoodFound.x;
-						this.destinationY = firstFoodFound.y;
-						this.targetState = 0;
-						return;
-					}
-				}
-			}
-		}
-	}
+    this.tryTargetFood = function() {
+        let xZone = this.x >> 3;
+        let yZone = this.y >> 3;
+        let firstFoodFound = null;
+        let endXZone = Math.max(xZone - 1 , 0);
+        let endYZone = Math.max(yZone - 1, 0);
+        for (let x = Math.min(xZone + 1, mItemZonesWidth - 1); x >= endXZone; --x) {
+            for (let y = Math.min(yZone + 1, mItemZonesHeight - 1); y >= endYZone; --y) {
+                let itemZone = mGetItemZone(x, y);
+                for (let foodIndex = itemZone.length - 1; foodIndex >= 0; --foodIndex) {
+                    let food = itemZone[foodIndex];
+                    if (!mHasLineOfSight(this.x, this.y, food.x, food.y)) {
+                        continue;
+                    }
+                    if (firstFoodFound === null) {
+                        firstFoodFound = food;
+                    }
+                    if (Math.max(Math.abs(this.x - food.x), Math.abs(this.y - food.y)) <= ruSniffDistance) {
+                        this.foodTarget = firstFoodFound;
+                        this.destinationX = firstFoodFound.x;
+                        this.destinationY = firstFoodFound.y;
+                        this.targetState = 0;
+                        return;
+                    }
+                }
+            }
+        }
+    }
 
-	this.tryEatAndCheckTarget = function() {
-		// experimental retarget mechanism on multikill tick
-		/*
+    this.tryEatAndCheckTarget = function() {
+        // experimental retarget mechanism on multikill tick
+        /*
         if (baTickCounter > 1 && baTickCounter % 10 === 4) { // multikill tick
             this.tryTargetFood();
         }*/
-		if (this.foodTarget !== null) {
-			let itemZone = mGetItemZone(this.foodTarget.x >>> 3, this.foodTarget.y >>> 3);
-			let foodIndex = itemZone.indexOf(this.foodTarget);
-			if (foodIndex === -1) {
-				this.foodTarget = null;
-				this.targetState = 0;
-				return true;
-			} else if (this.x === this.foodTarget.x && this.y === this.foodTarget.y) {
-				if (this.foodTarget.isGood) {
-					this.print("Chomp, chomp.");
+        if (this.foodTarget !== null) {
+            let itemZone = mGetItemZone(this.foodTarget.x >>> 3, this.foodTarget.y >>> 3);
+            let foodIndex = itemZone.indexOf(this.foodTarget);
+            if (foodIndex === -1) {
+                this.foodTarget = null;
+                this.targetState = 0;
+                return true;
+            } else if (this.x === this.foodTarget.x && this.y === this.foodTarget.y) {
+                if (this.foodTarget.isGood) {
+                    this.print("Chomp, chomp.");
 
-					if (baIsNearEastTrap(this.x, this.y)) {
-						if (eastTrapState > 0 || requireRepairs === "no") {
-							this.isDying = true;
-						}
-					} else if (baIsNearWestTrap(this.x, this.y)) {
-						if (westTrapState > 0 || requireRepairs === "no") {
-							this.isDying = true;
-						}
-					}
-				} else {
-					this.print("Blughhhh.");
-					this.blughhhhCountdown = 3;
-					this.targetState = 0;
-					if (this.cycleTick > 5) {
-						this.cycleTick -= 5;
-					}
-					this.setDestinationBlughhhh();
-				}
-				itemZone.splice(foodIndex, 1);
-				return true;
-			}
-		}
-		return false;
-	}
+                    if (baIsNearEastTrap(this.x, this.y)) {
+                        if (eastTrapState > 0 || requireRepairs === "no") {
+                            this.isDying = true;
+                        }
+                    } else if (baIsNearWestTrap(this.x, this.y)) {
+                        if (westTrapState > 0 || requireRepairs === "no") {
+                            this.isDying = true;
+                        }
+                    }
+                } else {
+                    this.print("Blughhhh.");
+                    this.blughhhhCountdown = 3;
+                    this.targetState = 0;
+                    if (this.cycleTick > 5) {
+                        this.cycleTick -= 5;
+                    }
+                    this.setDestinationBlughhhh();
+                }
+                itemZone.splice(foodIndex, 1);
+                return true;
+            }
+        }
+        return false;
+    }
 
-	this.cancelDestination = function() {
-		this.destinationX = this.x;
-		this.destinationY = this.y;
-	}
+    this.cancelDestination = function() {
+        this.destinationX = this.x;
+        this.destinationY = this.y;
+    }
 
-	this.setDestinationBlughhhh = function() {
-		this.destinationX = this.x;
-		if (this.isWave10) {
-			this.destinationY = baEAST_TRAP_Y - 4;
-		} else {
-			this.destinationY = baEAST_TRAP_Y + 4;
-		}
-	}
+    this.setDestinationBlughhhh = function() {
+        this.destinationX = this.x;
+        if (this.isWave10) {
+            this.destinationY = baEAST_TRAP_Y - 4;
+        } else {
+            this.destinationY = baEAST_TRAP_Y + 4;
+        }
+    }
 
-	this.setDestinationRandomWalk = function() {
-		if (this.x <= 27) { // TODO: These same for wave 10?
-			if (this.y === 8 || this.y === 9) {
-				this.destinationX = 30;
-				this.destinationY = 8;
-				return;
-			} else if (this.x === 25 && this.y === 7) {
-				this.destinationX = 26;
-				this.destinationY = 8;
-				return;
-			}
-		} else if (this.x <= 32) {
-			if (this.y <= 8) {
-				this.destinationX = 30;
-				this.destinationY = 6;
-				return;
-			}
-		} else if (this.y === 7 || this.y === 8){
-			this.destinationX = 31;
-			this.destinationY = 8;
-			return;
-		}
-		let direction = this.runnerRNG.rollMovement();
-		if (direction === rngSOUTH) {
-			this.destinationX = this.x;
-			this.destinationY = this.y - 5;
-		} else if (direction === rngWEST) {
-			this.destinationX = this.x - 5;
-			if (this.destinationX < baWEST_TRAP_X - 1) { // TODO: Same for wave 10?
-				this.destinationX = baWEST_TRAP_X - 1;
-			}
-			this.destinationY = this.y;
-		} else {
-			this.destinationX = this.x + 5;
-			if (this.isWave10) {
-				if (this.destinationX > baEAST_TRAP_X - 1) {
-					this.destinationX = baEAST_TRAP_X - 1;
-				}
-			} else if (this.destinationX > baEAST_TRAP_X) {
-				this.destinationX = baEAST_TRAP_X;
-			}
-			this.destinationY = this.y;
-		}
-	}
+    this.setDestinationRandomWalk = function() {
+        if (this.x <= 27) { // TODO: These same for wave 10?
+            if (this.y === 8 || this.y === 9) {
+                this.destinationX = 30;
+                this.destinationY = 8;
+                return;
+            } else if (this.x === 25 && this.y === 7) {
+                this.destinationX = 26;
+                this.destinationY = 8;
+                return;
+            }
+        } else if (this.x <= 32) {
+            if (this.y <= 8) {
+                this.destinationX = 30;
+                this.destinationY = 6;
+                return;
+            }
+        } else if (this.y === 7 || this.y === 8){
+            this.destinationX = 31;
+            this.destinationY = 8;
+            return;
+        }
+        let direction = this.runnerRNG.rollMovement();
+        if (direction === rngSOUTH) {
+            this.destinationX = this.x;
+            this.destinationY = this.y - 5;
+        } else if (direction === rngWEST) {
+            this.destinationX = this.x - 5;
+            if (this.destinationX < baWEST_TRAP_X - 1) { // TODO: Same for wave 10?
+                this.destinationX = baWEST_TRAP_X - 1;
+            }
+            this.destinationY = this.y;
+        } else {
+            this.destinationX = this.x + 5;
+            if (this.isWave10) {
+                if (this.destinationX > baEAST_TRAP_X - 1) {
+                    this.destinationX = baEAST_TRAP_X - 1;
+                }
+            } else if (this.destinationX > baEAST_TRAP_X) {
+                this.destinationX = baEAST_TRAP_X;
+            }
+            this.destinationY = this.y;
+        }
+    }
 
-	this.doTick1 = function() {
-		if (this.y === 6) {
-			this.despawnCountdown = 3;
-			this.print("Raaa!");
-			return;
-		}
-		if (this.blughhhhCountdown > 0) {
-			--this.blughhhhCountdown;
-		} else {
-			++this.targetState;
-			if (this.targetState > 3) {
-				this.targetState = 1;
-			}
-		}
-		let ateOrTargetGone = this.tryEatAndCheckTarget();
-		if (this.blughhhhCountdown === 0 && this.foodTarget === null) { // Could make this line same as tick 6 without any difference?
-			this.cancelDestination();
-		}
-		if (!ateOrTargetGone) {
-			this.doMovement();
-		}
-	}
+    this.doTick1 = function() {
+        if (this.y === 6) {
+            this.despawnCountdown = 3;
+            this.print("Raaa!");
+            return;
+        }
+        if (this.blughhhhCountdown > 0) {
+            --this.blughhhhCountdown;
+        } else {
+            ++this.targetState;
+            if (this.targetState > 3) {
+                this.targetState = 1;
+            }
+        }
+        let ateOrTargetGone = this.tryEatAndCheckTarget();
+        if (this.blughhhhCountdown === 0 && this.foodTarget === null) { // Could make this line same as tick 6 without any difference?
+            this.cancelDestination();
+        }
+        if (!ateOrTargetGone) {
+            this.doMovement();
+        }
+    }
 
-	this.doTick2Or5 = function() {
-		if (this.targetState === 2) {
-			this.tryTargetFood();
-		}
-		this.doTick7To10();
-	}
+    this.doTick2Or5 = function() {
+        if (this.targetState === 2) {
+            this.tryTargetFood();
+        }
+        this.doTick7To10();
+    }
 
-	this.doTick3 = function() {
-		if (this.targetState === 3) {
-			this.tryTargetFood();
-		}
-		this.doTick7To10();
-	}
+    this.doTick3 = function() {
+        if (this.targetState === 3) {
+            this.tryTargetFood();
+        }
+        this.doTick7To10();
+    }
 
-	this.doTick4 = function() {
-		if (this.targetState === 1) {
-			this.tryTargetFood();
-		}
-		this.doTick7To10();
-	}
+    this.doTick4 = function() {
+        if (this.targetState === 1) {
+            this.tryTargetFood();
+        }
+        this.doTick7To10();
+    }
 
-	this.doTick6 = function() {
-		if (this.y === 6) {
-			this.despawnCountdown = 3;
-			this.print("Raaa!");
-			return;
-		}
-		if (this.blughhhhCountdown > 0) {
-			--this.blughhhhCountdown;
-		}
-		if (this.targetState === 3) {
-			this.tryTargetFood();
-		}
-		let ateOrTargetGone = this.tryEatAndCheckTarget();
-		if (this.blughhhhCountdown === 0 && (this.foodTarget === null || ateOrTargetGone)) {
-			this.setDestinationRandomWalk();
-		}
-		if (!ateOrTargetGone) {
-			this.doMovement();
-		}
-	}
+    this.doTick6 = function() {
+        if (this.y === 6) {
+            this.despawnCountdown = 3;
+            this.print("Raaa!");
+            return;
+        }
+        if (this.blughhhhCountdown > 0) {
+            --this.blughhhhCountdown;
+        }
+        if (this.targetState === 3) {
+            this.tryTargetFood();
+        }
+        let ateOrTargetGone = this.tryEatAndCheckTarget();
+        if (this.blughhhhCountdown === 0 && (this.foodTarget === null || ateOrTargetGone)) {
+            this.setDestinationRandomWalk();
+        }
+        if (!ateOrTargetGone) {
+            this.doMovement();
+        }
+    }
 
-	this.doTick7To10 = function() {
-		let ateOrTargetGone = this.tryEatAndCheckTarget();
-		if (!ateOrTargetGone) {
-			this.doMovement();
-		}
-	}
+    this.doTick7To10 = function() {
+        let ateOrTargetGone = this.tryEatAndCheckTarget();
+        if (!ateOrTargetGone) {
+            this.doMovement();
+        }
+    }
 
-	this.print = function(string) {
-		console.log(baTickCounter + ": Runner " + this.id + ": " + string);
-	}
+    this.print = function(string) {
+        console.log(baTickCounter + ": Runner " + this.id + ": " + string);
+    }
 
 }
 var ruSniffDistance;
@@ -906,220 +966,221 @@ const WAVE10_SE_LOGS_Y = 38;
 const HAMMER_X = 32;
 const HAMMER_Y = 34;
 function baInit(maxRunnersAlive, totalRunners, runnerMovements) {
-	baRunners = [];
-	baRunnersToRemove = [];
-	baTickCounter = 0;
-	baRunnersAlive = 0;
-	baRunnersKilled = 0;
-	baMaxRunnersAlive = maxRunnersAlive;
-	baTotalRunners = totalRunners;
-	numCrackers = 9;
-	numTofu = 9;
-	numWorms = 9;
-	numLogs = 0;
-	hasHammer = false;
-	eastTrapState = 2;
-	westTrapState = 2;
-	currDefFood = "t";
-	northwestLogsState = true;
-	southeastLogsState = true;
-	hammerState = true;
-	baCollectorX = -1;
-	baRunnerMovements = runnerMovements;
-	baRunnerMovementsIndex = 0;
-	baCurrentRunnerId = 1;
-	simTickCountSpan.innerHTML = baTickCounter;
-	currDefFoodSpan.innerHTML = currDefFood;
-	isPaused = false;
-	foodIDCounter = 0;
+    baRunners = [];
+    baRunnersToRemove = [];
+    baTickCounter = 0;
+    baRunnersAlive = 0;
+    baRunnersKilled = 0;
+    baMaxRunnersAlive = maxRunnersAlive;
+    baTotalRunners = totalRunners;
+    numCrackers = 9;
+    numTofu = 9;
+    numWorms = 9;
+    numLogs = 0;
+    hasHammer = false;
+    eastTrapState = 2;
+    westTrapState = 2;
+    currDefFood = "t";
+    northwestLogsState = true;
+    southeastLogsState = true;
+    hammerState = true;
+    baCollectorX = -1;
+    baRunnerMovements = runnerMovements;
+    baRunnerMovementsIndex = 0;
+    baCurrentRunnerId = 1;
+    simTickCountSpan.innerHTML = baTickCounter;
+    currDefFoodSpan.innerHTML = currDefFood;
+    isPaused = false;
+    foodIDCounter = 0;
+    firstRunner = false;
 }
 function baTick() {
-	++baTickCounter;
-	baRunnersToRemove.length = 0;
-	for (let i = 0; i < baRunners.length; ++i) {
-		baRunners[i].tick();
-	}
-	for (let i = 0; i < baRunnersToRemove.length; ++i) {
-		let runner = baRunnersToRemove[i];
-		let index = baRunners.indexOf(runner);
-		baRunners.splice(index, 1);
-	}
-	// hammer and logs respawn
-	if (baTickCounter > 1 && baTickCounter % 10 === 1) {
-		northwestLogsState = true;
-		southeastLogsState = true;
-		hammerState = true;
-	}
-	// currDefFood changes
-	if (baTickCounter > 2 && baTickCounter % 50 === 2) {
-		if (currDefFood === "t") {
-			if (Math.random() < 0.5) {
-				currDefFood = "c";
-			} else {
-				currDefFood = "w";
-			}
-		} else if (currDefFood === "c") {
-			if (Math.random() < 0.5) {
-				currDefFood = "w";
-			} else {
-				currDefFood = "t";
-			}
-		} else {
-			if (Math.random() < 0.5) {
-				currDefFood = "t";
-			} else {
-				currDefFood = "c";
-			}
-		}
-		currDefFoodSpan.innerHTML = currDefFood;
-	}
-	if (baTickCounter > 1 && baTickCounter % 10 === 1 && baRunnersAlive < baMaxRunnersAlive && baRunnersKilled + baRunnersAlive < baTotalRunners) {
-		let movements;
-		if (baRunnerMovements.length > baRunnerMovementsIndex) {
-			movements = baRunnerMovements[baRunnerMovementsIndex++];
-		} else {
-			movements = "";
-		}
-		if (mCurrentMap === mWAVE_1_TO_9) {
-			baRunners.push(new ruRunner(baWAVE1_RUNNER_SPAWN_X, baWAVE1_RUNNER_SPAWN_Y, new rngRunnerRNG(movements), false, baCurrentRunnerId++));
-		} else {
-			baRunners.push(new ruRunner(baWAVE10_RUNNER_SPAWN_X, baWAVE10_RUNNER_SPAWN_Y, new rngRunnerRNG(movements), true, baCurrentRunnerId++));
-		}
-		++baRunnersAlive;
-	}
-	simTickCountSpan.innerHTML = baTickCounter;
+    ++baTickCounter;
+    baRunnersToRemove.length = 0;
+    for (let i = 0; i < baRunners.length; ++i) {
+        baRunners[i].tick();
+    }
+    for (let i = 0; i < baRunnersToRemove.length; ++i) {
+        let runner = baRunnersToRemove[i];
+        let index = baRunners.indexOf(runner);
+        baRunners.splice(index, 1);
+    }
+    // hammer and logs respawn
+    if (baTickCounter > 1 && baTickCounter % 10 === 1) {
+        northwestLogsState = true;
+        southeastLogsState = true;
+        hammerState = true;
+    }
+    // currDefFood changes
+    if (baTickCounter > 2 && baTickCounter % 50 === 2) {
+        if (currDefFood === "t") {
+            if (Math.random() < 0.5) {
+                currDefFood = "c";
+            } else {
+                currDefFood = "w";
+            }
+        } else if (currDefFood === "c") {
+            if (Math.random() < 0.5) {
+                currDefFood = "w";
+            } else {
+                currDefFood = "t";
+            }
+        } else {
+            if (Math.random() < 0.5) {
+                currDefFood = "t";
+            } else {
+                currDefFood = "c";
+            }
+        }
+        currDefFoodSpan.innerHTML = currDefFood;
+    }
+    if (baTickCounter > 1 && baTickCounter % 10 === 1 && baRunnersAlive < baMaxRunnersAlive && baRunnersKilled + baRunnersAlive < baTotalRunners) {
+        let movements;
+        if (baRunnerMovements.length > baRunnerMovementsIndex) {
+            movements = baRunnerMovements[baRunnerMovementsIndex++];
+        } else {
+            movements = "";
+        }
+        if (mCurrentMap === mWAVE_1_TO_9) {
+            baRunners.push(new ruRunner(baWAVE1_RUNNER_SPAWN_X, baWAVE1_RUNNER_SPAWN_Y, new rngRunnerRNG(movements), false, baCurrentRunnerId++));
+        } else {
+            baRunners.push(new ruRunner(baWAVE10_RUNNER_SPAWN_X, baWAVE10_RUNNER_SPAWN_Y, new rngRunnerRNG(movements), true, baCurrentRunnerId++));
+        }
+        ++baRunnersAlive;
+    }
+    simTickCountSpan.innerHTML = baTickCounter;
 }
-function baDrawOverlays() { 
-	if (mCurrentMap !== mWAVE_1_TO_9 && mCurrentMap !== mWAVE10) {
-		return;
-	}
-	rSetDrawColor(240, 10, 10, 220);
-	if (mCurrentMap === mWAVE_1_TO_9) {
-		rrOutline(18, 37);
-	} else {
-		rrOutline(18, 38);
-	}
-	rrOutline(24, 39);
-	rrFill(33, 6);
-	rSetDrawColor(10, 10, 240, 220);
-	if (mCurrentMap === mWAVE_1_TO_9) {
-		rrOutline(36, 39);
-	} else {
-		rrOutline(42, 38);
-	}
-	rrFill(34, 6);
-	rSetDrawColor(10, 240, 10, 220);
-	if (mCurrentMap === mWAVE_1_TO_9) {
-		rrOutline(42, 37);
-	} else {
-		rrOutline(36, 39);
-	}
-	rrFill(35, 6);
-	rSetDrawColor(240, 240, 10, 220);
-	rrFill(36, 6);
+function baDrawOverlays() {
+    if (mCurrentMap !== mWAVE_1_TO_9 && mCurrentMap !== mWAVE10) {
+        return;
+    }
+    rSetDrawColor(240, 10, 10, 220);
+    if (mCurrentMap === mWAVE_1_TO_9) {
+        rrOutline(18, 37);
+    } else {
+        rrOutline(18, 38);
+    }
+    rrOutline(24, 39);
+    rrFill(33, 6);
+    rSetDrawColor(10, 10, 240, 220);
+    if (mCurrentMap === mWAVE_1_TO_9) {
+        rrOutline(36, 39);
+    } else {
+        rrOutline(42, 38);
+    }
+    rrFill(34, 6);
+    rSetDrawColor(10, 240, 10, 220);
+    if (mCurrentMap === mWAVE_1_TO_9) {
+        rrOutline(42, 37);
+    } else {
+        rrOutline(36, 39);
+    }
+    rrFill(35, 6);
+    rSetDrawColor(240, 240, 10, 220);
+    rrFill(36, 6);
 }
 function baDrawDetails() {
-	if (mCurrentMap !== mWAVE_1_TO_9 && mCurrentMap !== mWAVE10) {
-		return;
-	}
-	rSetDrawColor(160, 82, 45, 255); // logs and trap color
-	rrCone(40, 32);
-	rrCone(40, 31);
-	rrCone(41, 32);
-	rrCone(41, 31);
-	rrCone(43, 31);
-	rrCone(36, 34);
-	rrCone(36, 35);
-	rrCone(37, 34);
-	rrCone(37, 35);
-	rrCone(39, 36);
-	rrCone(43, 22);
-	rrCone(43, 23);
-	rrCone(44, 22);
-	rrCone(44, 23);
-	rrCone(45, 24);
-	if (mCurrentMap === mWAVE_1_TO_9) {
-		if (southeastLogsState) {
-			rrFillItem(WAVE1_SE_LOGS_X, WAVE1_SE_LOGS_Y); // se logs 1-9
-		}
-		if (northwestLogsState) {
-			rrFillItem(WAVE1_NW_LOGS_X, WAVE1_NW_LOGS_Y); // nw logs 1-9
-		}
-	} else {
-		if (southeastLogsState) {
-			rrFillItem(WAVE10_SE_LOGS_X, WAVE10_SE_LOGS_Y); // se logs 10
-		}
-		if (northwestLogsState) {
-			rrFillItem(WAVE10_NW_LOGS_X, WAVE10_NW_LOGS_Y); // nw logs 10
-		}
-	}
-	if (eastTrapState < 1) {
-		rSetDrawColor(255, 0, 0, 255);
-	} else if (eastTrapState === 1) {
-		rSetDrawColor(255, 140, 0, 255);
-	}
-	rrOutline(45, 26); // e trap
-	rSetDrawColor(160, 82, 45, 255);
-	if (westTrapState < 1) {
-		rSetDrawColor(255, 0, 0, 255);
-	} else if (westTrapState === 1) {
-		rSetDrawColor(255, 140, 0, 255);
-	}
-	rrOutline(15, 25); // w trap
-	rSetDrawColor(160, 82, 45, 255);
-	if (mCurrentMap === mWAVE10) {
-		rrOutlineBig(27, 20, 8, 8); // queen thing
-	}
-	rSetDrawColor(127, 127, 127, 255); // hammer color
-	if (hammerState) {
-		rrFillItem(HAMMER_X, HAMMER_Y); // hammer
-	}
+    if (mCurrentMap !== mWAVE_1_TO_9 && mCurrentMap !== mWAVE10) {
+        return;
+    }
+    rSetDrawColor(160, 82, 45, 255); // logs and trap color
+    rrCone(40, 32);
+    rrCone(40, 31);
+    rrCone(41, 32);
+    rrCone(41, 31);
+    rrCone(43, 31);
+    rrCone(36, 34);
+    rrCone(36, 35);
+    rrCone(37, 34);
+    rrCone(37, 35);
+    rrCone(39, 36);
+    rrCone(43, 22);
+    rrCone(43, 23);
+    rrCone(44, 22);
+    rrCone(44, 23);
+    rrCone(45, 24);
+    if (mCurrentMap === mWAVE_1_TO_9) {
+        if (southeastLogsState) {
+            rrFillItem(WAVE1_SE_LOGS_X, WAVE1_SE_LOGS_Y); // se logs 1-9
+        }
+        if (northwestLogsState) {
+            rrFillItem(WAVE1_NW_LOGS_X, WAVE1_NW_LOGS_Y); // nw logs 1-9
+        }
+    } else {
+        if (southeastLogsState) {
+            rrFillItem(WAVE10_SE_LOGS_X, WAVE10_SE_LOGS_Y); // se logs 10
+        }
+        if (northwestLogsState) {
+            rrFillItem(WAVE10_NW_LOGS_X, WAVE10_NW_LOGS_Y); // nw logs 10
+        }
+    }
+    if (eastTrapState < 1) {
+        rSetDrawColor(255, 0, 0, 255);
+    } else if (eastTrapState === 1) {
+        rSetDrawColor(255, 140, 0, 255);
+    }
+    rrOutline(45, 26); // e trap
+    rSetDrawColor(160, 82, 45, 255);
+    if (westTrapState < 1) {
+        rSetDrawColor(255, 0, 0, 255);
+    } else if (westTrapState === 1) {
+        rSetDrawColor(255, 140, 0, 255);
+    }
+    rrOutline(15, 25); // w trap
+    rSetDrawColor(160, 82, 45, 255);
+    if (mCurrentMap === mWAVE10) {
+        rrOutlineBig(27, 20, 8, 8); // queen thing
+    }
+    rSetDrawColor(127, 127, 127, 255); // hammer color
+    if (hammerState) {
+        rrFillItem(HAMMER_X, HAMMER_Y); // hammer
+    }
 }
 function baDrawEntities() {
-	rSetDrawColor(10, 10, 240, 127);
-	for (let i = 0; i < baRunners.length; ++i) {
-		rrFill(baRunners[i].x, baRunners[i].y);
-	}
-	if (baCollectorX !== -1) {
-		rSetDrawColor(240, 240, 10, 200);
-		rrFill(baCollectorX, baCollectorY);
-	}
+    rSetDrawColor(10, 10, 240, 127);
+    for (let i = 0; i < baRunners.length; ++i) {
+        rrFill(baRunners[i].x, baRunners[i].y);
+    }
+    if (baCollectorX !== -1) {
+        rSetDrawColor(240, 240, 10, 200);
+        rrFill(baCollectorX, baCollectorY);
+    }
 }
 function baIsNearTrap(x, y) {
-	return (Math.abs(x - baEAST_TRAP_X) < 2 && Math.abs(y - baEAST_TRAP_Y) < 2) || (Math.abs(x - baWEST_TRAP_X) < 2 && Math.abs(y - baWEST_TRAP_Y) < 2);
+    return (Math.abs(x - baEAST_TRAP_X) < 2 && Math.abs(y - baEAST_TRAP_Y) < 2) || (Math.abs(x - baWEST_TRAP_X) < 2 && Math.abs(y - baWEST_TRAP_Y) < 2);
 }
 function baIsNearEastTrap(x, y) {
-	return (Math.abs(x - baEAST_TRAP_X) < 2 && Math.abs(y - baEAST_TRAP_Y) < 2);
+    return (Math.abs(x - baEAST_TRAP_X) < 2 && Math.abs(y - baEAST_TRAP_Y) < 2);
 }
 function baIsNearWestTrap(x, y) {
-	return (Math.abs(x - baWEST_TRAP_X) < 2 && Math.abs(y - baWEST_TRAP_Y) < 2);
+    return (Math.abs(x - baWEST_TRAP_X) < 2 && Math.abs(y - baWEST_TRAP_Y) < 2);
 }
 function isInEastRepairRange(x, y) {
-	return Math.abs(x - baEAST_TRAP_X) + Math.abs(y - baEAST_TRAP_Y) < 2;
+    return Math.abs(x - baEAST_TRAP_X) + Math.abs(y - baEAST_TRAP_Y) < 2;
 }
 function isInWestRepairRange(x, y) {
-	return Math.abs(x - baWEST_TRAP_X) + Math.abs(y - baWEST_TRAP_Y) < 2;
+    return Math.abs(x - baWEST_TRAP_X) + Math.abs(y - baWEST_TRAP_Y) < 2;
 }
 function baTileBlocksPenance(x, y) {
-	if (x === plDefX && y === plDefY) {
-		return true;
-	}
-	if (x === baCollectorX && y === baCollectorY) {
-		return true;
-	}
-	if (y === 22) {
-		if (x >= 20 && x <= 22) {
-			return true;
-		}
-		if (mCurrentMap === mWAVE_1_TO_9 && x >= 39 && x <= 41) {
-			return true;
-		}
-	} else if (x === 46 && y >= 9 && y <= 12) {
-		return true;
-	} else if (mCurrentMap === mWAVE_1_TO_9 && x === 27 && y === 24) {
-		return true;
-	}
-	return false;
+    if (x === plDefX && y === plDefY) {
+        return true;
+    }
+    if (x === baCollectorX && y === baCollectorY) {
+        return true;
+    }
+    if (y === 22) {
+        if (x >= 20 && x <= 22) {
+            return true;
+        }
+        if (mCurrentMap === mWAVE_1_TO_9 && x >= 39 && x <= 41) {
+            return true;
+        }
+    } else if (x === 46 && y >= 9 && y <= 12) {
+        return true;
+    } else if (mCurrentMap === mWAVE_1_TO_9 && x === 27 && y === 24) {
+        return true;
+    }
+    return false;
 }
 var baRunners;
 var baRunnersToRemove;
@@ -1148,191 +1209,191 @@ const mMOVE_WEST_MASK = 0x80;
 const mMOVE_NORTH_MASK = 0x2;
 const mMOVE_SOUTH_MASK = 0x20;
 function mInit(map, widthTiles, heightTiles) {
-	mCurrentMap = map;
-	mWidthTiles = widthTiles;
-	mHeightTiles = heightTiles;
-	mResetMap();
+    mCurrentMap = map;
+    mWidthTiles = widthTiles;
+    mHeightTiles = heightTiles;
+    mResetMap();
 }
 function mResetMap() {
-	mItemZones = [];
-	mItemZonesWidth = 1 + ((mWidthTiles - 1) >> 3);
-	mItemZonesHeight = 1 + ((mHeightTiles - 1) >> 3);
-	for (let xZone = 0; xZone < mItemZonesWidth; ++xZone) {
-		for (let yZone = 0; yZone < mItemZonesHeight; ++yZone) {
-			mItemZones[xZone + mItemZonesWidth*yZone] = [];
-		}
-	}
+    mItemZones = [];
+    mItemZonesWidth = 1 + ((mWidthTiles - 1) >> 3);
+    mItemZonesHeight = 1 + ((mHeightTiles - 1) >> 3);
+    for (let xZone = 0; xZone < mItemZonesWidth; ++xZone) {
+        for (let yZone = 0; yZone < mItemZonesHeight; ++yZone) {
+            mItemZones[xZone + mItemZonesWidth*yZone] = [];
+        }
+    }
 }
 function mAddItem(item) {
-	mGetItemZone(item.x >>> 3, item.y >>> 3).push(item);
+    mGetItemZone(item.x >>> 3, item.y >>> 3).push(item);
 }
 function mGetItemZone(xZone, yZone) {
-	return mItemZones[xZone + mItemZonesWidth*yZone];
+    return mItemZones[xZone + mItemZonesWidth*yZone];
 }
 function mGetTileFlag(x, y) {
-	return mCurrentMap[x + y*mWidthTiles];
+    return mCurrentMap[x + y*mWidthTiles];
 }
 function mCanMoveEast(x, y) {
-	return (mGetTileFlag(x + 1, y) & (mMOVE_WEST_MASK | mMOVE_FULL_MASK)) === 0;
+    return (mGetTileFlag(x + 1, y) & (mMOVE_WEST_MASK | mMOVE_FULL_MASK)) === 0;
 }
 function mCanMoveWest(x, y) {
-	return (mGetTileFlag(x - 1, y) & (mMOVE_EAST_MASK | mMOVE_FULL_MASK)) === 0;
+    return (mGetTileFlag(x - 1, y) & (mMOVE_EAST_MASK | mMOVE_FULL_MASK)) === 0;
 }
 function mCanMoveNorth(x, y) {
-	return (mGetTileFlag(x, y + 1) & (mMOVE_SOUTH_MASK | mMOVE_FULL_MASK)) === 0;
+    return (mGetTileFlag(x, y + 1) & (mMOVE_SOUTH_MASK | mMOVE_FULL_MASK)) === 0;
 }
 function mCanMoveSouth(x, y) {
-	return (mGetTileFlag(x, y - 1) & (mMOVE_NORTH_MASK | mMOVE_FULL_MASK)) === 0;
+    return (mGetTileFlag(x, y - 1) & (mMOVE_NORTH_MASK | mMOVE_FULL_MASK)) === 0;
 }
 function mDrawGrid() {
-	for (var xTile = 0; xTile < mWidthTiles; ++xTile) {
-		if (xTile % 8 == 7) {
-			rSetDrawColor(0, 0, 0, 72);
-		} else {
-			rSetDrawColor(0, 0, 0, 48);
-		}
-		rrEastLineBig(xTile, 0, mHeightTiles);
-	}
-	for (var yTile = 0; yTile < mHeightTiles; ++yTile) {
-		if (yTile % 8 == 7) {
-			rSetDrawColor(0, 0, 0, 72);
-		} else {
-			rSetDrawColor(0, 0, 0, 48);
-		}
-		rrNorthLineBig(0, yTile, mWidthTiles);
-	}
+    for (var xTile = 0; xTile < mWidthTiles; ++xTile) {
+        if (xTile % 8 == 7) {
+            rSetDrawColor(0, 0, 0, 72);
+        } else {
+            rSetDrawColor(0, 0, 0, 48);
+        }
+        rrEastLineBig(xTile, 0, mHeightTiles);
+    }
+    for (var yTile = 0; yTile < mHeightTiles; ++yTile) {
+        if (yTile % 8 == 7) {
+            rSetDrawColor(0, 0, 0, 72);
+        } else {
+            rSetDrawColor(0, 0, 0, 48);
+        }
+        rrNorthLineBig(0, yTile, mWidthTiles);
+    }
 }
 function mDrawItems() {
-	let endI = mItemZones.length;
-	for (let i = 0; i < endI; ++i) {
-		let itemZone = mItemZones[i];
-		let endJ = itemZone.length;
-		for (let j = 0; j < endJ; ++j) {
-			let item = itemZone[j];
-			rSetDrawColor(item.colorRed, item.colorGreen, item.colorBlue, 127);
-			rrFillItem(item.x, item.y);
-		}
-	}
+    let endI = mItemZones.length;
+    for (let i = 0; i < endI; ++i) {
+        let itemZone = mItemZones[i];
+        let endJ = itemZone.length;
+        for (let j = 0; j < endJ; ++j) {
+            let item = itemZone[j];
+            rSetDrawColor(item.colorRed, item.colorGreen, item.colorBlue, 127);
+            rrFillItem(item.x, item.y);
+        }
+    }
 }
 function mDrawMap() {
-	rSetDrawColor(206, 183, 117, 255);
-	rClear();
-	for (let y = 0; y < mHeightTiles; ++y) {	
-		for (let x = 0; x < mWidthTiles; ++x) {
-			let tileFlag = mGetTileFlag(x, y);
-			if ((tileFlag & mLOS_FULL_MASK) !== 0) {
-				rSetDrawColor(0, 0, 0, 255);
-				rrFillOpaque(x, y);
-			} else  {
-				if ((tileFlag & mMOVE_FULL_MASK) !== 0) {
-					rSetDrawColor(127, 127, 127, 255);
-					rrFillOpaque(x, y);
-				}
-				if ((tileFlag & mLOS_EAST_MASK) !== 0) {
-					rSetDrawColor(0, 0, 0, 255);
-					rrEastLine(x, y);
-				} else if ((tileFlag & mMOVE_EAST_MASK) !== 0) {
-					rSetDrawColor(127, 127, 127, 255);
-					rrEastLine(x, y);
-				}
-				if ((tileFlag & mLOS_WEST_MASK) !== 0) {
-					rSetDrawColor(0, 0, 0, 255);
-					rrWestLine(x, y);
-				} else if ((tileFlag & mMOVE_WEST_MASK) !== 0) {
-					rSetDrawColor(127, 127, 127, 255);
-					rrWestLine(x, y);
-				}
-				if ((tileFlag & mLOS_NORTH_MASK) !== 0) {
-					rSetDrawColor(0, 0, 0, 255);
-					rrNorthLine(x, y);
-				} else if ((tileFlag & mMOVE_NORTH_MASK) !== 0) {
-					rSetDrawColor(127, 127, 127, 255);
-					rrNorthLine(x, y);
-				}
-				if ((tileFlag & mLOS_SOUTH_MASK) !== 0) {
-					rSetDrawColor(0, 0, 0, 255);
-					rrSouthLine(x, y);
-				} else if ((tileFlag & mMOVE_SOUTH_MASK) !== 0) {
-					rSetDrawColor(127, 127, 127, 255);
-					rrSouthLine(x, y);
-				}
-			}
-		}
-	}
+    rSetDrawColor(206, 183, 117, 255);
+    rClear();
+    for (let y = 0; y < mHeightTiles; ++y) {
+        for (let x = 0; x < mWidthTiles; ++x) {
+            let tileFlag = mGetTileFlag(x, y);
+            if ((tileFlag & mLOS_FULL_MASK) !== 0) {
+                rSetDrawColor(0, 0, 0, 255);
+                rrFillOpaque(x, y);
+            } else  {
+                if ((tileFlag & mMOVE_FULL_MASK) !== 0) {
+                    rSetDrawColor(127, 127, 127, 255);
+                    rrFillOpaque(x, y);
+                }
+                if ((tileFlag & mLOS_EAST_MASK) !== 0) {
+                    rSetDrawColor(0, 0, 0, 255);
+                    rrEastLine(x, y);
+                } else if ((tileFlag & mMOVE_EAST_MASK) !== 0) {
+                    rSetDrawColor(127, 127, 127, 255);
+                    rrEastLine(x, y);
+                }
+                if ((tileFlag & mLOS_WEST_MASK) !== 0) {
+                    rSetDrawColor(0, 0, 0, 255);
+                    rrWestLine(x, y);
+                } else if ((tileFlag & mMOVE_WEST_MASK) !== 0) {
+                    rSetDrawColor(127, 127, 127, 255);
+                    rrWestLine(x, y);
+                }
+                if ((tileFlag & mLOS_NORTH_MASK) !== 0) {
+                    rSetDrawColor(0, 0, 0, 255);
+                    rrNorthLine(x, y);
+                } else if ((tileFlag & mMOVE_NORTH_MASK) !== 0) {
+                    rSetDrawColor(127, 127, 127, 255);
+                    rrNorthLine(x, y);
+                }
+                if ((tileFlag & mLOS_SOUTH_MASK) !== 0) {
+                    rSetDrawColor(0, 0, 0, 255);
+                    rrSouthLine(x, y);
+                } else if ((tileFlag & mMOVE_SOUTH_MASK) !== 0) {
+                    rSetDrawColor(127, 127, 127, 255);
+                    rrSouthLine(x, y);
+                }
+            }
+        }
+    }
 }
 function mHasLineOfSight(x1, y1, x2, y2) {
-	let dx = x2 - x1;
-	let dxAbs = Math.abs(dx);
-	let dy = y2 - y1;
-	let dyAbs = Math.abs(dy);
-	if (dxAbs > dyAbs) {
-		let xTile = x1;
-		let y = y1 << 16;
-		let slope = Math.trunc((dy << 16) / dxAbs);
-		let xInc;
-		let xMask;
-		if (dx > 0) {
-			xInc = 1;
-			xMask = mLOS_WEST_MASK | mLOS_FULL_MASK;
-		} else {
-			xInc = -1;
-			xMask = mLOS_EAST_MASK | mLOS_FULL_MASK;
-		}
-		let yMask;
-		y += 0x8000;
-		if (dy < 0) {
-			y -= 1;
-			yMask = mLOS_NORTH_MASK | mLOS_FULL_MASK;
-		} else {
-			yMask = mLOS_SOUTH_MASK | mLOS_FULL_MASK;
-		}
-		while (xTile !== x2) {
-			xTile += xInc;
-			let yTile = y >>> 16;
-			if ((mGetTileFlag(xTile, yTile) & xMask) !== 0) {
-				return false;
-			}
-			y += slope;
-			let newYTile = y >>> 16;
-			if (newYTile !== yTile && (mGetTileFlag(xTile, newYTile) & yMask) !== 0) {
-				return false;
-			}
-		}
-	} else {
-		let yTile = y1;
-		let x = x1 << 16;
-		let slope = Math.trunc((dx << 16) / dyAbs);
-		let yInc;
-		let yMask;
-		if (dy > 0) {
-			yInc = 1;
-			yMask = mLOS_SOUTH_MASK | mLOS_FULL_MASK;
-		} else {
-			yInc = -1;
-			yMask = mLOS_NORTH_MASK | mLOS_FULL_MASK;
-		}
-		let xMask;
-		x += 0x8000;
-		if (dx < 0) {
-			x -= 1;
-			xMask = mLOS_EAST_MASK | mLOS_FULL_MASK;
-		} else {
-			xMask = mLOS_WEST_MASK | mLOS_FULL_MASK;
-		}
-		while (yTile !== y2) {
-			yTile += yInc;
-			let xTile = x >>> 16;
-			if ((mGetTileFlag(xTile, yTile) & yMask) !== 0) {
-				return false;
-			}
-			x += slope;
-			let newXTile = x >>> 16;
-			if (newXTile !== xTile && (mGetTileFlag(newXTile, yTile) & xMask) !== 0) {
-				return false;
-			}
-		}
-	}
-	return true;
+    let dx = x2 - x1;
+    let dxAbs = Math.abs(dx);
+    let dy = y2 - y1;
+    let dyAbs = Math.abs(dy);
+    if (dxAbs > dyAbs) {
+        let xTile = x1;
+        let y = y1 << 16;
+        let slope = Math.trunc((dy << 16) / dxAbs);
+        let xInc;
+        let xMask;
+        if (dx > 0) {
+            xInc = 1;
+            xMask = mLOS_WEST_MASK | mLOS_FULL_MASK;
+        } else {
+            xInc = -1;
+            xMask = mLOS_EAST_MASK | mLOS_FULL_MASK;
+        }
+        let yMask;
+        y += 0x8000;
+        if (dy < 0) {
+            y -= 1;
+            yMask = mLOS_NORTH_MASK | mLOS_FULL_MASK;
+        } else {
+            yMask = mLOS_SOUTH_MASK | mLOS_FULL_MASK;
+        }
+        while (xTile !== x2) {
+            xTile += xInc;
+            let yTile = y >>> 16;
+            if ((mGetTileFlag(xTile, yTile) & xMask) !== 0) {
+                return false;
+            }
+            y += slope;
+            let newYTile = y >>> 16;
+            if (newYTile !== yTile && (mGetTileFlag(xTile, newYTile) & yMask) !== 0) {
+                return false;
+            }
+        }
+    } else {
+        let yTile = y1;
+        let x = x1 << 16;
+        let slope = Math.trunc((dx << 16) / dyAbs);
+        let yInc;
+        let yMask;
+        if (dy > 0) {
+            yInc = 1;
+            yMask = mLOS_SOUTH_MASK | mLOS_FULL_MASK;
+        } else {
+            yInc = -1;
+            yMask = mLOS_NORTH_MASK | mLOS_FULL_MASK;
+        }
+        let xMask;
+        x += 0x8000;
+        if (dx < 0) {
+            x -= 1;
+            xMask = mLOS_EAST_MASK | mLOS_FULL_MASK;
+        } else {
+            xMask = mLOS_WEST_MASK | mLOS_FULL_MASK;
+        }
+        while (yTile !== y2) {
+            yTile += yInc;
+            let xTile = x >>> 16;
+            if ((mGetTileFlag(xTile, yTile) & yMask) !== 0) {
+                return false;
+            }
+            x += slope;
+            let newXTile = x >>> 16;
+            if (newXTile !== xTile && (mGetTileFlag(newXTile, yTile) & xMask) !== 0) {
+                return false;
+            }
+        }
+    }
+    return true;
 }
 var mCurrentMap;
 var mWidthTiles;
@@ -1343,163 +1404,163 @@ var mItemZonesHeight;
 //}
 //{ RsRenderer - rr
 function rrInit(tileSize) {
-	rrTileSize = tileSize;
+    rrTileSize = tileSize;
 }
 function rrSetTileSize(size) {
-	rrTileSize = size;
+    rrTileSize = size;
 }
 function rrSetSize(widthTiles, heightTiles) {
-	rrWidthTiles = widthTiles;
-	rrHeightTiles = heightTiles;
-	rResizeCanvas(rrTileSize*rrWidthTiles, rrTileSize*rrHeightTiles);
+    rrWidthTiles = widthTiles;
+    rrHeightTiles = heightTiles;
+    rResizeCanvas(rrTileSize*rrWidthTiles, rrTileSize*rrHeightTiles);
 }
 function rrFillOpaque(x, y) {
-	rSetFilledRect(x*rrTileSize, y*rrTileSize, rrTileSize, rrTileSize);
+    rSetFilledRect(x*rrTileSize, y*rrTileSize, rrTileSize, rrTileSize);
 }
 function rrFill(x, y) {
-	rDrawFilledRect(x*rrTileSize, y*rrTileSize, rrTileSize, rrTileSize);
+    rDrawFilledRect(x*rrTileSize, y*rrTileSize, rrTileSize, rrTileSize);
 }
 function rrFillBig(x, y, width, height) {
-	rDrawFilledRect(x*rrTileSize, y*rrTileSize, width*rrTileSize, height*rrTileSize);
+    rDrawFilledRect(x*rrTileSize, y*rrTileSize, width*rrTileSize, height*rrTileSize);
 }
 function rrOutline(x, y) {
-	rDrawOutlinedRect(x*rrTileSize, y*rrTileSize, rrTileSize, rrTileSize);
+    rDrawOutlinedRect(x*rrTileSize, y*rrTileSize, rrTileSize, rrTileSize);
 }
 function rrOutlineBig(x, y, width, height) {
-	rDrawOutlinedRect(x*rrTileSize, y*rrTileSize, rrTileSize*width, rrTileSize*height);
+    rDrawOutlinedRect(x*rrTileSize, y*rrTileSize, rrTileSize*width, rrTileSize*height);
 }
 function rrWestLine(x, y) {
-	rDrawVerticalLine(x*rrTileSize, y*rrTileSize, rrTileSize);
+    rDrawVerticalLine(x*rrTileSize, y*rrTileSize, rrTileSize);
 }
 function rrWestLineBig(x, y, length) {
-	rDrawHorizontalLine(x*rrTileSize, y*rrTileSize, rrTileSize*length)
+    rDrawHorizontalLine(x*rrTileSize, y*rrTileSize, rrTileSize*length)
 }
 function rrEastLine(x, y) {
-	rDrawVerticalLine((x + 1)*rrTileSize - 1, y*rrTileSize, rrTileSize);
+    rDrawVerticalLine((x + 1)*rrTileSize - 1, y*rrTileSize, rrTileSize);
 }
 function rrEastLineBig(x, y, length) {
-	rDrawVerticalLine((x + 1)*rrTileSize - 1, y*rrTileSize, rrTileSize*length);
+    rDrawVerticalLine((x + 1)*rrTileSize - 1, y*rrTileSize, rrTileSize*length);
 }
 function rrSouthLine(x, y) {
-	rDrawHorizontalLine(x*rrTileSize, y*rrTileSize, rrTileSize);
+    rDrawHorizontalLine(x*rrTileSize, y*rrTileSize, rrTileSize);
 }
 function rrSouthLineBig(x, y, length) {
-	rDrawHorizontalLine(x*rrTileSize, y*rrTileSize, rrTileSize*length);
+    rDrawHorizontalLine(x*rrTileSize, y*rrTileSize, rrTileSize*length);
 }
 function rrNorthLine(x, y) {
-	rDrawHorizontalLine(x*rrTileSize, (y + 1)*rrTileSize - 1, rrTileSize);
+    rDrawHorizontalLine(x*rrTileSize, (y + 1)*rrTileSize - 1, rrTileSize);
 }
 function rrNorthLineBig(x, y, length) {
-	rDrawHorizontalLine(x*rrTileSize, (y + 1)*rrTileSize - 1, rrTileSize*length);
+    rDrawHorizontalLine(x*rrTileSize, (y + 1)*rrTileSize - 1, rrTileSize*length);
 }
 function rrCone(x, y) {
-	rDrawCone(x*rrTileSize, y*rrTileSize, rrTileSize);
+    rDrawCone(x*rrTileSize, y*rrTileSize, rrTileSize);
 }
 function rrFillItem(x, y) {
-	let padding = rrTileSize >>> 2;
-	let size = rrTileSize - 2*padding;
-	rDrawFilledRect(x*rrTileSize + padding, y*rrTileSize + padding, size, size);
+    let padding = rrTileSize >>> 2;
+    let size = rrTileSize - 2*padding;
+    rDrawFilledRect(x*rrTileSize + padding, y*rrTileSize + padding, size, size);
 }
 var rrTileSize;
 //}
 //{ Renderer - r
 const rPIXEL_ALPHA = 255 << 24;
 function rInit(canvas, width, height) {
-	rCanvas = canvas;
-	rContext = canvas.getContext("2d");
-	rResizeCanvas(width, height);
-	rSetDrawColor(255, 255, 255, 255);
+    rCanvas = canvas;
+    rContext = canvas.getContext("2d");
+    rResizeCanvas(width, height);
+    rSetDrawColor(255, 255, 255, 255);
 }
 function rResizeCanvas(width, height) {
-	rCanvas.width = width;
-	rCanvas.height = height;
-	rCanvasWidth = width;
-	rCanvasHeight = height;
-	rCanvasYFixOffset = (rCanvasHeight - 1)*rCanvasWidth;
-	rImageData = rContext.createImageData(width, height);
-	rPixels = new ArrayBuffer(rImageData.data.length);
-	rPixels8 = new Uint8ClampedArray(rPixels);
-	rPixels32 = new Uint32Array(rPixels);
+    rCanvas.width = width;
+    rCanvas.height = height;
+    rCanvasWidth = width;
+    rCanvasHeight = height;
+    rCanvasYFixOffset = (rCanvasHeight - 1)*rCanvasWidth;
+    rImageData = rContext.createImageData(width, height);
+    rPixels = new ArrayBuffer(rImageData.data.length);
+    rPixels8 = new Uint8ClampedArray(rPixels);
+    rPixels32 = new Uint32Array(rPixels);
 }
 function rSetDrawColor(r, g, b, a) {
-	rDrawColorRB = r | (b << 16);
-	rDrawColorG = rPIXEL_ALPHA | (g << 8);
-	rDrawColor = rDrawColorRB | rDrawColorG;
-	rDrawColorA = a + 1;
+    rDrawColorRB = r | (b << 16);
+    rDrawColorG = rPIXEL_ALPHA | (g << 8);
+    rDrawColor = rDrawColorRB | rDrawColorG;
+    rDrawColorA = a + 1;
 }
 function rClear() {
-	let endI = rPixels32.length;
-	for (let i = 0; i < endI; ++i) {
-		rPixels32[i] = rDrawColor;
-	}
+    let endI = rPixels32.length;
+    for (let i = 0; i < endI; ++i) {
+        rPixels32[i] = rDrawColor;
+    }
 }
 function rPresent() {
-	rImageData.data.set(rPixels8);
-	rContext.putImageData(rImageData, 0, 0);
+    rImageData.data.set(rPixels8);
+    rContext.putImageData(rImageData, 0, 0);
 }
 function rDrawPixel(i) {
-	let color = rPixels32[i];
-	let oldRB = color & 0xFF00FF;
-	let oldAG = color & 0xFF00FF00;
-	let rb = oldRB + (rDrawColorA*(rDrawColorRB - oldRB) >> 8) & 0xFF00FF;
-	let g = oldAG + (rDrawColorA*(rDrawColorG - oldAG) >> 8) & 0xFF00FF00;
-	rPixels32[i] = rb | g;
+    let color = rPixels32[i];
+    let oldRB = color & 0xFF00FF;
+    let oldAG = color & 0xFF00FF00;
+    let rb = oldRB + (rDrawColorA*(rDrawColorRB - oldRB) >> 8) & 0xFF00FF;
+    let g = oldAG + (rDrawColorA*(rDrawColorG - oldAG) >> 8) & 0xFF00FF00;
+    rPixels32[i] = rb | g;
 }
 function rDrawHorizontalLine(x, y, length) {
-	let i = rXYToI(x, y)
-	let endI = i + length;
-	for (; i < endI; ++i) {
-		rDrawPixel(i);
-	}
+    let i = rXYToI(x, y)
+    let endI = i + length;
+    for (; i < endI; ++i) {
+        rDrawPixel(i);
+    }
 }
 function rDrawVerticalLine(x, y, length) {
-	let i = rXYToI(x, y);
-	let endI = i - length*rCanvasWidth;
-	for (; i > endI; i -= rCanvasWidth) {
-		rDrawPixel(i);
-	}
+    let i = rXYToI(x, y);
+    let endI = i - length*rCanvasWidth;
+    for (; i > endI; i -= rCanvasWidth) {
+        rDrawPixel(i);
+    }
 }
 function rSetFilledRect(x, y, width, height) {
-	let i = rXYToI(x, y);
-	let rowDelta = width + rCanvasWidth;
-	let endYI = i - height*rCanvasWidth;
-	while (i > endYI) {
-		let endXI = i + width;
-		for (; i < endXI; ++i) {
-			rPixels32[i] = rDrawColor;
-		}
-		i -= rowDelta;
-	}
+    let i = rXYToI(x, y);
+    let rowDelta = width + rCanvasWidth;
+    let endYI = i - height*rCanvasWidth;
+    while (i > endYI) {
+        let endXI = i + width;
+        for (; i < endXI; ++i) {
+            rPixels32[i] = rDrawColor;
+        }
+        i -= rowDelta;
+    }
 }
 function rDrawFilledRect(x, y, width, height) {
-	let i = rXYToI(x, y);
-	let rowDelta = width + rCanvasWidth;
-	let endYI = i - height*rCanvasWidth;
-	while (i > endYI) {
-		let endXI = i + width;
-		for (; i < endXI; ++i) {
-			rDrawPixel(i);
-		}
-		i -= rowDelta;
-	}
+    let i = rXYToI(x, y);
+    let rowDelta = width + rCanvasWidth;
+    let endYI = i - height*rCanvasWidth;
+    while (i > endYI) {
+        let endXI = i + width;
+        for (; i < endXI; ++i) {
+            rDrawPixel(i);
+        }
+        i -= rowDelta;
+    }
 }
 function rDrawOutlinedRect(x, y, width, height) {
-	rDrawHorizontalLine(x, y, width);
-	rDrawHorizontalLine(x, y + height - 1, width);
-	rDrawVerticalLine(x, y + 1, height - 2);
-	rDrawVerticalLine(x + width - 1, y + 1, height - 2);
+    rDrawHorizontalLine(x, y, width);
+    rDrawHorizontalLine(x, y + height - 1, width);
+    rDrawVerticalLine(x, y + 1, height - 2);
+    rDrawVerticalLine(x + width - 1, y + 1, height - 2);
 }
 function rDrawCone(x, y, width) { // Not optimised to use i yet
-	let lastX = x + width - 1;
-	let endI = (width >>> 1) + (width & 1);
-	for (let i = 0; i < endI; ++i) {
-		rDrawPixel(rXYToI(x + i, y));
-		rDrawPixel(rXYToI(lastX - i, y));
-		++y;
-	}
+    let lastX = x + width - 1;
+    let endI = (width >>> 1) + (width & 1);
+    for (let i = 0; i < endI; ++i) {
+        rDrawPixel(rXYToI(x + i, y));
+        rDrawPixel(rXYToI(lastX - i, y));
+        ++y;
+    }
 }
 function rXYToI(x, y) {
-	return rCanvasYFixOffset + x - y*rCanvasWidth;
+    return rCanvasYFixOffset + x - y*rCanvasWidth;
 }
 var rCanvas;
 var rCanvasWidth;
@@ -1599,190 +1660,190 @@ var saverDrawColorA;
 var saveruSniffDistance;
 
 function deepCopy(obj) {
-	return JSON.parse(JSON.stringify(obj));
+    return JSON.parse(JSON.stringify(obj));
 }
 
 function otherDeepCopy(obj) {
-	return obj.map(a => Object.assign({}, a))
+    return obj.map(a => Object.assign({}, a))
 }
 
 const v8 = require('v8');
 
 function v8deepCopy(obj) {
-	return v8.deserialize(v8.serialize(obj));
+    return v8.deserialize(v8.serialize(obj));
 }
 
 const clonedeep = require('lodash.clonedeep');
 
 function lodashDeepCopy(obj) {
-	return clonedeep(obj);
+    return clonedeep(obj);
 }
 
 function saveGameState() {
-	isPaused = true; // pause before saving
+    isPaused = true; // pause before saving
 
-	// WEIRD STUFF
-	savesimTickCountSpaninnerHTML = simTickCountSpan.innerHTML;
-	savecurrDefFoodSpaninnerHTML = currDefFoodSpan.innerHTML;
-	// NO MORE WEIRD STUFF
+    // WEIRD STUFF
+    savesimTickCountSpaninnerHTML = simTickCountSpan.innerHTML;
+    savecurrDefFoodSpaninnerHTML = currDefFoodSpan.innerHTML;
+    // NO MORE WEIRD STUFF
 
-	savebaRunners = otherDeepCopy(baRunners);
-	savebaRunnersToRemove = otherDeepCopy(baRunnersToRemove);
-	savebaTickCounter = baTickCounter;
-	savebaRunnersAlive = baRunnersAlive;
-	savebaRunnersKilled = baRunnersKilled;
-	savebaMaxRunnersAlive = baMaxRunnersAlive;
-	savebaTotalRunners = baTotalRunners;
-	savenumCrackers = numCrackers;
-	savenumTofu = numTofu;
-	savenumWorms = numWorms;
-	savenumLogs = numLogs;
-	savehasHammer = hasHammer;
-	saveeastTrapState = eastTrapState;
-	savewestTrapState = westTrapState;
-	savecurrDefFood = currDefFood;
-	savenorthwestLogsState = northwestLogsState;
-	savesoutheastLogsState = southeastLogsState;
-	savehammerState = hammerState;
-	savebaCollectorX = baCollectorX;
-	savebaRunnerMovements = deepCopy(baRunnerMovements);
-	savebaRunnerMovementsIndex = baRunnerMovementsIndex;
-	savebaCurrentRunnerId = baCurrentRunnerId;
-	saveisPaused = isPaused;
-	savebaCollectorY = baCollectorY;
+    savebaRunners = otherDeepCopy(baRunners);
+    savebaRunnersToRemove = otherDeepCopy(baRunnersToRemove);
+    savebaTickCounter = baTickCounter;
+    savebaRunnersAlive = baRunnersAlive;
+    savebaRunnersKilled = baRunnersKilled;
+    savebaMaxRunnersAlive = baMaxRunnersAlive;
+    savebaTotalRunners = baTotalRunners;
+    savenumCrackers = numCrackers;
+    savenumTofu = numTofu;
+    savenumWorms = numWorms;
+    savenumLogs = numLogs;
+    savehasHammer = hasHammer;
+    saveeastTrapState = eastTrapState;
+    savewestTrapState = westTrapState;
+    savecurrDefFood = currDefFood;
+    savenorthwestLogsState = northwestLogsState;
+    savesoutheastLogsState = southeastLogsState;
+    savehammerState = hammerState;
+    savebaCollectorX = baCollectorX;
+    savebaRunnerMovements = deepCopy(baRunnerMovements);
+    savebaRunnerMovementsIndex = baRunnerMovementsIndex;
+    savebaCurrentRunnerId = baCurrentRunnerId;
+    saveisPaused = isPaused;
+    savebaCollectorY = baCollectorY;
 
-	//saverequireRepairs = requireRepairs;
-	savepickingUpFood = pickingUpFood;
-	savepickingUpHammer = pickingUpHammer;
-	saverepairTicksRemaining = repairTicksRemaining;
+    //saverequireRepairs = requireRepairs;
+    savepickingUpFood = pickingUpFood;
+    savepickingUpHammer = pickingUpHammer;
+    saverepairTicksRemaining = repairTicksRemaining;
 
-	saveplDefPathQueuePos = plDefPathQueuePos;
-	saveplDefShortestDistances = deepCopy(plDefShortestDistances);
-	saveplDefWayPoints = deepCopy(plDefWayPoints);
-	saveplDefPathQueueX = deepCopy(plDefPathQueueX);
-	saveplDefPathQueueY = deepCopy(plDefPathQueueY);
-	saveplDefX = plDefX;
-	saveplDefY = plDefY;
-	saveplDefStandStillCounter = plDefStandStillCounter;
+    saveplDefPathQueuePos = plDefPathQueuePos;
+    saveplDefShortestDistances = deepCopy(plDefShortestDistances);
+    saveplDefWayPoints = deepCopy(plDefWayPoints);
+    saveplDefPathQueueX = deepCopy(plDefPathQueueX);
+    saveplDefPathQueueY = deepCopy(plDefPathQueueY);
+    saveplDefX = plDefX;
+    saveplDefY = plDefY;
+    saveplDefStandStillCounter = plDefStandStillCounter;
 
-	savemCurrentMap = mCurrentMap;
-	savemWidthTiles = mWidthTiles;
-	savemHeightTiles = mHeightTiles;
-	savemItemZones = deepCopy(mItemZones);
-	savemItemZonesWidth = mItemZonesWidth;
-	savemItemZonesHeight = mItemZonesHeight;
+    savemCurrentMap = mCurrentMap;
+    savemWidthTiles = mWidthTiles;
+    savemHeightTiles = mHeightTiles;
+    savemItemZones = deepCopy(mItemZones);
+    savemItemZonesWidth = mItemZonesWidth;
+    savemItemZonesHeight = mItemZonesHeight;
 
-	saverrTileSize = rrTileSize;
+    saverrTileSize = rrTileSize;
 
-	saverCanvas = rCanvas;
-	saverCanvasWidth = rCanvasWidth;
-	saverCanvasHeight = rCanvasHeight;
-	saverCanvasYFixOffset = rCanvasYFixOffset;
-	saverContext = rContext;
-	saverImageData = rImageData;
-	saverPixels = rPixels;
-	saverPixels8 = rPixels8;
-	saverPixels32 = rPixels32;
-	saverDrawColor = rDrawColor;
-	saverDrawColorRB = rDrawColorRB;
-	saverDrawColorG = rDrawColorG;
-	saverDrawColorA = rDrawColorA;
+    saverCanvas = rCanvas;
+    saverCanvasWidth = rCanvasWidth;
+    saverCanvasHeight = rCanvasHeight;
+    saverCanvasYFixOffset = rCanvasYFixOffset;
+    saverContext = rContext;
+    saverImageData = rImageData;
+    saverPixels = rPixels;
+    saverPixels8 = rPixels8;
+    saverPixels32 = rPixels32;
+    saverDrawColor = rDrawColor;
+    saverDrawColorRB = rDrawColorRB;
+    saverDrawColorG = rDrawColorG;
+    saverDrawColorA = rDrawColorA;
 
-	saveruSniffDistance = ruSniffDistance;
+    saveruSniffDistance = ruSniffDistance;
 }
 
 function loadGameState() {
-	isPaused = true;
+    isPaused = true;
 
-	// WEIRD STUFF
-	simTickCountSpan.innerHTML = savesimTickCountSpaninnerHTML;
-	currDefFoodSpan.innerHTML = savecurrDefFoodSpaninnerHTML;
-	// NO MORE WEIRD STUFF
+    // WEIRD STUFF
+    simTickCountSpan.innerHTML = savesimTickCountSpaninnerHTML;
+    currDefFoodSpan.innerHTML = savecurrDefFoodSpaninnerHTML;
+    // NO MORE WEIRD STUFF
 
-	baRunners = otherDeepCopy(savebaRunners);
-	baRunnersToRemove = otherDeepCopy(savebaRunnersToRemove);
-	baTickCounter = savebaTickCounter;
-	baRunnersAlive = savebaRunnersAlive;
-	baRunnersKilled = savebaRunnersKilled;
-	baMaxRunnersAlive = savebaMaxRunnersAlive;
-	baTotalRunners = savebaTotalRunners;
-	numCrackers = savenumCrackers;
-	numTofu = savenumTofu;
-	numWorms = savenumWorms;
-	numLogs = savenumLogs;
-	hasHammer = savehasHammer;
-	eastTrapState = saveeastTrapState;
-	westTrapState = savewestTrapState;
-	currDefFood = savecurrDefFood;
-	northwestLogsState = savenorthwestLogsState;
-	southeastLogsState = savesoutheastLogsState;
-	hammerState = savehammerState;
-	baCollectorX = savebaCollectorX;
-	baRunnerMovements = deepCopy(savebaRunnerMovements);
-	baRunnerMovementsIndex = savebaRunnerMovementsIndex;
-	baCurrentRunnerId = savebaCurrentRunnerId;
-	isPaused = saveisPaused;
-	baCollectorY = savebaCollectorY;
+    baRunners = otherDeepCopy(savebaRunners);
+    baRunnersToRemove = otherDeepCopy(savebaRunnersToRemove);
+    baTickCounter = savebaTickCounter;
+    baRunnersAlive = savebaRunnersAlive;
+    baRunnersKilled = savebaRunnersKilled;
+    baMaxRunnersAlive = savebaMaxRunnersAlive;
+    baTotalRunners = savebaTotalRunners;
+    numCrackers = savenumCrackers;
+    numTofu = savenumTofu;
+    numWorms = savenumWorms;
+    numLogs = savenumLogs;
+    hasHammer = savehasHammer;
+    eastTrapState = saveeastTrapState;
+    westTrapState = savewestTrapState;
+    currDefFood = savecurrDefFood;
+    northwestLogsState = savenorthwestLogsState;
+    southeastLogsState = savesoutheastLogsState;
+    hammerState = savehammerState;
+    baCollectorX = savebaCollectorX;
+    baRunnerMovements = deepCopy(savebaRunnerMovements);
+    baRunnerMovementsIndex = savebaRunnerMovementsIndex;
+    baCurrentRunnerId = savebaCurrentRunnerId;
+    isPaused = saveisPaused;
+    baCollectorY = savebaCollectorY;
 
-	//requireRepairs = saverequireRepairs;
-	pickingUpFood = savepickingUpFood;
-	pickingUpHammer = savepickingUpHammer;
-	repairTicksRemaining = saverepairTicksRemaining;
+    //requireRepairs = saverequireRepairs;
+    pickingUpFood = savepickingUpFood;
+    pickingUpHammer = savepickingUpHammer;
+    repairTicksRemaining = saverepairTicksRemaining;
 
-	plDefPathQueuePos = saveplDefPathQueuePos;
-	plDefShortestDistances = deepCopy(saveplDefShortestDistances);
-	plDefWayPoints = deepCopy(saveplDefWayPoints);
-	plDefPathQueueX = deepCopy(saveplDefPathQueueX);
-	plDefPathQueueY = deepCopy(saveplDefPathQueueY);
-	plDefX = saveplDefX;
-	plDefY = saveplDefY;
-	plDefStandStillCounter = saveplDefStandStillCounter;
+    plDefPathQueuePos = saveplDefPathQueuePos;
+    plDefShortestDistances = deepCopy(saveplDefShortestDistances);
+    plDefWayPoints = deepCopy(saveplDefWayPoints);
+    plDefPathQueueX = deepCopy(saveplDefPathQueueX);
+    plDefPathQueueY = deepCopy(saveplDefPathQueueY);
+    plDefX = saveplDefX;
+    plDefY = saveplDefY;
+    plDefStandStillCounter = saveplDefStandStillCounter;
 
-	mCurrentMap = savemCurrentMap;
-	mWidthTiles = savemWidthTiles;
-	mHeightTiles = savemHeightTiles;
-	mItemZones = deepCopy(savemItemZones);
-	mItemZonesWidth = savemItemZonesWidth;
-	mItemZonesHeight = savemItemZonesHeight;
+    mCurrentMap = savemCurrentMap;
+    mWidthTiles = savemWidthTiles;
+    mHeightTiles = savemHeightTiles;
+    mItemZones = deepCopy(savemItemZones);
+    mItemZonesWidth = savemItemZonesWidth;
+    mItemZonesHeight = savemItemZonesHeight;
 
-	rrTileSize = saverrTileSize;
+    rrTileSize = saverrTileSize;
 
-	rCanvas = saverCanvas;
-	rCanvasWidth = saverCanvasWidth;
-	rCanvasHeight = saverCanvasHeight;
-	rCanvasYFixOffset = saverCanvasYFixOffset;
-	rContext = saverContext;
-	rImageData = saverImageData;
-	rPixels = saverPixels;
-	rPixels8 = saverPixels8;
-	rPixels32 = saverPixels32;
-	rDrawColor = saverDrawColor;
-	rDrawColorRB = saverDrawColorRB;
-	rDrawColorG = saverDrawColorG;
-	rDrawColorA = saverDrawColorA;
+    rCanvas = saverCanvas;
+    rCanvasWidth = saverCanvasWidth;
+    rCanvasHeight = saverCanvasHeight;
+    rCanvasYFixOffset = saverCanvasYFixOffset;
+    rContext = saverContext;
+    rImageData = saverImageData;
+    rPixels = saverPixels;
+    rPixels8 = saverPixels8;
+    rPixels32 = saverPixels32;
+    rDrawColor = saverDrawColor;
+    rDrawColorRB = saverDrawColorRB;
+    rDrawColorG = saverDrawColorG;
+    rDrawColorA = saverDrawColorA;
 
-	ruSniffDistance = saveruSniffDistance;
+    ruSniffDistance = saveruSniffDistance;
 
-	for (let i = 0; i < baRunners.length; i++) {
-		let thisRunner = baRunners[i];
-		if (thisRunner.foodTarget !== null) {
-			let thisRunnerFoodID = thisRunner.foodTarget.id;
-			for (let j = 0; j < mItemZones.length; j++) {
-				let itemZone = mItemZones[j];
-				for (let k = 0; k < itemZone.length; k++) {
-					let thisFood = itemZone[k];
-					if (thisFood.id === thisRunnerFoodID) {
-						thisRunner.foodTarget = thisFood;
-					}
-				}
-			}
-		}
-	}
+    for (let i = 0; i < baRunners.length; i++) {
+        let thisRunner = baRunners[i];
+        if (thisRunner.foodTarget !== null) {
+            let thisRunnerFoodID = thisRunner.foodTarget.id;
+            for (let j = 0; j < mItemZones.length; j++) {
+                let itemZone = mItemZones[j];
+                for (let k = 0; k < itemZone.length; k++) {
+                    let thisFood = itemZone[k];
+                    if (thisFood.id === thisRunnerFoodID) {
+                        thisRunner.foodTarget = thisFood;
+                    }
+                }
+            }
+        }
+    }
 
-	requireRepairs = simToggleRepair.value;
-	pauseSL = simTogglePauseSL.value;
-	infiniteFood = simToggleInfiniteFood.value;
-	logHammerToRepair = simToggleLogHammerToRepair.value;
+    requireRepairs = simToggleRepair.value;
+    pauseSL = simTogglePauseSL.value;
+    infiniteFood = simToggleInfiniteFood.value;
+    logHammerToRepair = simToggleLogHammerToRepair.value;
 
-	simDraw();
+    simDraw();
 }

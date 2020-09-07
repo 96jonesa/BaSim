@@ -247,7 +247,7 @@ function isRunnerOnStack() {
     return false;
 }
 
-var tiles = [ [ 41, 31 ], [ 41, 36 ], [ 46, 33 ], [ 45, 29 ], [ 44, 26 ] ]; // 41,31, 41,36, 46,33, 45,29, 44,26
+var tiles = [ [ 41, 31 ], [ 43, 36 ], [ 40, 36 ], [ 45, 26 ] ]; // [ [ 41, 31 ], [ 40, 36 ], [ 44, 32 ], [ 44, 26 ] ];// [ [ 41, 31 ], [ 43, 35 ], [ 40, 36 ], [ 44, 25 ] ];
 var fourthDropTick = 110;
 
     function simTick() {
@@ -276,18 +276,18 @@ var fourthDropTick = 110;
             plDefPathfind(tiles[1][0], tiles[1][1]);
         } else if ((plDefX === tiles[1][0]) && (plDefY === tiles[1][1])) {
             mAddItem(new fFood(plDefX, plDefY, true, "c"));
-            plDefPathfind(tiles[2][0], tiles[2][1]);
+            plDefPathfind(tiles[2][0], tiles[2][1]);/*
         } else if ((plDefX === tiles[2][0]) && (plDefY === tiles[2][1])) {
             mAddItem(new fFood(plDefX, plDefY, true, "c"));
-            plDefPathfind(tiles[3][0], tiles[3][1]);
-        } else if ((plDefX === tiles[3][0]) && (plDefY === tiles[3][1])) { // drop bait food asap, then teleport to tile3 to avoid bumping
+            plDefPathfind(tiles[3][0], tiles[3][1]);*/
+        } else if ((plDefX === tiles[2][0]) && (plDefY === tiles[2][1])) { // drop bait food asap, then teleport to tile3 to avoid bumping
             mAddItem(new fFood(plDefX, plDefY, true, "c"));
             plDefX = baWAVE1_DEFENDER_SPAWN_X;
             plDefY = baWAVE1_DEFENDER_SPAWN_Y;
             fourthDropTick = baTickCounter;
         } else if (baTickCounter === fourthDropTick + 5) { // should take 5 ticks to get to tile3 from tile2, then teleport away to not block
-            plDefX = tiles[4][0];
-            plDefY = tiles[4][1];
+            plDefX = tiles[3][0];
+            plDefY = tiles[3][1];
             mAddItem(new fFood(plDefX, plDefY, true, "c"));
             mAddItem(new fFood(plDefX, plDefY, true, "c"));
             mAddItem(new fFood(plDefX, plDefY, true, "c"));

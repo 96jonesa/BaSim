@@ -3426,7 +3426,7 @@ function solveForFourTiles() {
 
                                                 var tile4 = [x4, y4];
 
-                                                if (isValidTile(tile4) && isInRange(x4, y4, baEAST_TRAP_X, baEAST_TRAP_Y, 1) && (getWalkDistance(x4, y4, x3, y3) === 10)) {
+                                                if (isValidTile(tile4) && isInRange(x4, y4, baEAST_TRAP_X, baEAST_TRAP_Y, 1) && (getWalkDistance(x4, y4, x2, y2) === 10)) {
 
                                                     if (checkFourTiles(tile1, tile2, tile3, tile4)) {
                                                         tiles.push([tile1, tile2, tile3, tile4]);
@@ -3915,11 +3915,12 @@ function isValidTile(tile) {
 //var threeTileSolution = solveForThreeTiles();
 //console.log(threeTileSolution.length);
 //console.log(threeTileSolution);
+const util = require('util')
 
-//var fourTileSolution = solveForFourTiles();
-//console.log(fourTileSolution.length);
-//console.log(fourTileSolution);
+var fourTileSolution = solveForFourTiles();
+console.log(fourTileSolution.length);
+console.log(util.inspect(fourTileSolution, {'maxArrayLength': null}));
 
-var fiveTileSolution = solveForFiveTiles();
-console.log(fiveTileSolution.length);
-console.log(fiveTileSolution, {'maxArrayLength': null});
+//var fiveTileSolution = solveForFiveTiles();
+//console.log(fiveTileSolution.length);
+//console.log(fiveTileSolution, {'maxArrayLength': null});

@@ -3888,7 +3888,7 @@ function checkWaveSix(inputList) {
         var firstRunner = false;
         var secondDropTick = 100;
 
-        for (let i = 0; i < 51; i++) {
+        for (let i = 0; i < 56; i++) {
             simTick();
 
             if (baTickCounter === 24) { // trap food
@@ -3903,7 +3903,16 @@ function checkWaveSix(inputList) {
                 mAddItem(new fFood(baEAST_TRAP_X - 9, baEAST_TRAP_Y + 8, true, "t"));
                 mAddItem(new fFood(baEAST_TRAP_X - 9, baEAST_TRAP_Y + 8, true, "t"));
                 mAddItem(new fFood(baEAST_TRAP_X - 9, baEAST_TRAP_Y + 8, true, "t"));
-            }
+                /*plDefX = baEAST_TRAP_X - 9;
+                plDefY = baEAST_TRAP_Y + 8;
+            } else if (baTickCounter === 30) {
+                plDefX = baWAVE1_DEFENDER_SPAWN_X;
+                plDefY = baWAVE1_DEFENDER_SPAWN_Y;*/
+            } else if ((baTickCounter === 32) && (movements[0] === "ss") && ((movements[1][0] === "s") || movements[1][0] === "e")) { // do this when: ss-s, ss-e,
+                mAddItem(new fFood(baEAST_TRAP_X - 5, baEAST_TRAP_Y + 10, true, "t"));
+            } /*else if (baTickCounter === 46) {
+                mAddItem(new fFood(baEAST_TRAP_X - 3, baEAST_TRAP_Y + 4, true, "c"));
+            }*/
         }
 
         if (baRunnersKilled < 2) {
@@ -4004,3 +4013,6 @@ for (let i = 0; i < testInputList.length; i++) {
     var testInput = [testInputList[i]];
     checkWaveSix(testInput);
 }
+
+console.log("east test");
+checkWaveSix(['ww-ss-e']);

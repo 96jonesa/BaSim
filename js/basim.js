@@ -257,44 +257,16 @@ var fourthDropTick = 110;
             mAddItem(new fFood(baEAST_TRAP_X, baEAST_TRAP_Y + 1, true, "t"));
             mAddItem(new fFood(baEAST_TRAP_X, baEAST_TRAP_Y + 1, true, "t"));
             mAddItem(new fFood(baEAST_TRAP_X, baEAST_TRAP_Y + 1, true, "t"));
+            mAddItem(new fFood(baEAST_TRAP_X, baEAST_TRAP_Y + 1, true, "t"));
         } else if (baTickCounter === 27) { // trail food
             mAddItem(new fFood(baEAST_TRAP_X - 6, baEAST_TRAP_Y + 5, false, "w"));
         } else if (baTickCounter === 29) { // main stack
-            mAddItem(new fFood(baEAST_TRAP_X - 10, baEAST_TRAP_Y + 9, true, "t"));
-            mAddItem(new fFood(baEAST_TRAP_X - 10, baEAST_TRAP_Y + 9, true, "t"));
-            mAddItem(new fFood(baEAST_TRAP_X - 10, baEAST_TRAP_Y + 9, true, "t"));
-            mAddItem(new fFood(baEAST_TRAP_X - 10, baEAST_TRAP_Y + 9, true, "t"));
-            mAddItem(new fFood(baEAST_TRAP_X - 10, baEAST_TRAP_Y + 9, true, "t"));
-        } else if (!firstRunner && isRunnerOnStack()) {
-            firstRunner = true;
-            plDefX = baEAST_TRAP_X;
-            plDefY = baEAST_TRAP_Y + 1;
-        } else if (baTickCounter === 61) { // move off trap food on tick 61
-            plDefPathfind(tiles[0][0], tiles[0][1]);
-        } else if ((plDefX === tiles[0][0]) && (plDefY === tiles[0][1])) { // drop bait food asap, then move to tile2
-            mAddItem(new fFood(plDefX, plDefY, true, "w"));
-            plDefPathfind(tiles[1][0], tiles[1][1]);
-        } else if ((plDefX === tiles[1][0]) && (plDefY === tiles[1][1])) {
-            mAddItem(new fFood(plDefX, plDefY, true, "c"));
-            plDefPathfind(tiles[2][0], tiles[2][1]);/*
-        } else if ((plDefX === tiles[2][0]) && (plDefY === tiles[2][1])) {
-            mAddItem(new fFood(plDefX, plDefY, true, "c"));
-            plDefPathfind(tiles[3][0], tiles[3][1]);*/
-        } else if ((plDefX === tiles[2][0]) && (plDefY === tiles[2][1])) { // drop bait food asap, then teleport to tile3 to avoid bumping
-            mAddItem(new fFood(plDefX, plDefY, true, "c"));
-            plDefX = baWAVE1_DEFENDER_SPAWN_X;
-            plDefY = baWAVE1_DEFENDER_SPAWN_Y;
-            fourthDropTick = baTickCounter;
-        } else if (baTickCounter === fourthDropTick + 5) { // should take 5 ticks to get to tile3 from tile2, then teleport away to not block
-            plDefX = tiles[3][0];
-            plDefY = tiles[3][1];
-            mAddItem(new fFood(plDefX, plDefY, true, "c"));
-            mAddItem(new fFood(plDefX, plDefY, true, "c"));
-            mAddItem(new fFood(plDefX, plDefY, true, "c"));
-            mAddItem(new fFood(plDefX, plDefY, true, "c"));
-            mAddItem(new fFood(plDefX, plDefY, true, "c"));
-            plDefX = baWAVE1_DEFENDER_SPAWN_X;
-            plDefY = baWAVE1_DEFENDER_SPAWN_Y;
+            mAddItem(new fFood(baEAST_TRAP_X - 9, baEAST_TRAP_Y + 8, true, "t"));
+            mAddItem(new fFood(baEAST_TRAP_X - 9, baEAST_TRAP_Y + 8, true, "t"));
+            mAddItem(new fFood(baEAST_TRAP_X - 9, baEAST_TRAP_Y + 8, true, "t"));
+            mAddItem(new fFood(baEAST_TRAP_X - 9, baEAST_TRAP_Y + 8, true, "t"));
+        } else if (baTickCounter === 32) {
+            mAddItem(new fFood(baEAST_TRAP_X - 5, baEAST_TRAP_Y + 10, true, "t"));
         }
 
         baTick();

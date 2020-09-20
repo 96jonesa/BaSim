@@ -3910,7 +3910,9 @@ function checkWaveSix(inputList) {
                 plDefY = baWAVE1_DEFENDER_SPAWN_Y;*/
             } else if ((baTickCounter === 32) && (movements[0] === "ss") && ((movements[1][0] === "s") || movements[1][0] === "e")) { // do this when: ss-s, ss-e,
                 mAddItem(new fFood(baEAST_TRAP_X - 5, baEAST_TRAP_Y + 10, true, "t"));
-            } /*else if (baTickCounter === 46) {
+            } else if ((baTickCounter === 35) && (movements[0][0] === "e")) {
+                mAddItem(new fFood(baEAST_TRAP_X - 1, baEAST_TRAP_Y + 1, true, "t"));
+            }/*else if (baTickCounter === 46) {
                 mAddItem(new fFood(baEAST_TRAP_X - 3, baEAST_TRAP_Y + 4, true, "c"));
             }*/
         }
@@ -4006,6 +4008,7 @@ var testInputList = ['ss', 'sw', 'se', 'ws', 'ww', 'we', 'es', 'ew', 'ee'];
 var testOptions = ['ss', 'sw', 'se', 'ws', 'ww', 'we', 'es', 'ew', 'ee'];
 
 testInputList = appendMovement(testInputList, testOptions);
+//testInputList = appendMovement(testInputList, ['s', 'w', 'e']);
 
 console.log(testInputList);
 

@@ -252,6 +252,8 @@ var fourthDropTick = 110;
 
     function simTick() {
     if (!isPaused) {
+        hasHammer = true;
+        numLogs = 1;
 
         if (baTickCounter === 24) { // trap food
             mAddItem(new fFood(baEAST_TRAP_X, baEAST_TRAP_Y + 1, true, "t"));
@@ -265,9 +267,13 @@ var fourthDropTick = 110;
             mAddItem(new fFood(baEAST_TRAP_X - 9, baEAST_TRAP_Y + 8, true, "t"));
             mAddItem(new fFood(baEAST_TRAP_X - 9, baEAST_TRAP_Y + 8, true, "t"));
             mAddItem(new fFood(baEAST_TRAP_X - 9, baEAST_TRAP_Y + 8, true, "t"));
-        } else if (baTickCounter === 32) {
+            plDefX = baEAST_TRAP_X;
+            plDefY = baEAST_TRAP_Y + 1;
+        } else if (baTickCounter === 51) {
+            plDefPathfind(baEAST_TRAP_X + 1, baEAST_TRAP_Y - 1);
+        }/*else if ((baTickCounter === 32)) {
             mAddItem(new fFood(baEAST_TRAP_X - 5, baEAST_TRAP_Y + 10, true, "t"));
-        }
+        }*/
 
         baTick();
         plDefTick();
@@ -577,11 +583,10 @@ const rngWEST = 1;
 const rngEAST = 2;
 function rngRunnerRNG(forcedMovements) {
     this.forcedMovements = forcedMovements;
-    this.forcedMovementsIndex = 0;
 
-    this.rollMovement = function() {
-        if (this.forcedMovements.length > this.forcedMovementsIndex) {
-            let movement = this.forcedMovements.charAt(this.forcedMovementsIndex++);
+    this.rollMovement = function(forcedMovementsIndex) {
+        if (this.forcedMovements.length > forcedMovementsIndex) {
+            let movement = this.forcedMovements.charAt(forcedMovementsIndex++);
             if (movement === "s") {
                 return rngSOUTH;
             }
@@ -622,6 +627,7 @@ function ruRunner(x, y, runnerRNG, isWave10, id) {
     this.runnerRNG = runnerRNG;
     this.isWave10 = isWave10;
     this.id = id;
+    this.forcedMovementsIndex = 0;
 
     this.tick = function() {
         if (++this.cycleTick > 10) {
@@ -811,7 +817,8 @@ function ruRunner(x, y, runnerRNG, isWave10, id) {
             this.destinationY = 8;
             return;
         }
-        let direction = this.runnerRNG.rollMovement();
+        let direction = this.runnerRNG.rollMovement(this.forcedMovementsIndex);
+        this.forcedMovementsIndex++;
         if (direction === rngSOUTH) {
             this.destinationX = this.x;
             this.destinationY = this.y - 5;

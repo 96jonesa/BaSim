@@ -3850,6 +3850,72 @@ function checkThreeTiles(tile1, tile2, tile3) {
     return true;
 }
 
+function checkWaveSix(inputList) {
+
+    var movementsInputList = inputList;
+    //console.log(movementsInputList);
+    var movementOptions = ['ss', 'sw', 'se', 'ws', 'ww', 'we', 'es', 'ew', 'ee'];
+
+    movementsInputList = appendMovement(movementsInputList, movementOptions);
+    movementsInputList = appendMovement(movementsInputList, movementOptions);
+    movementsInputList = appendMovement(movementsInputList, movementOptions);
+    movementsInputList = appendMovement(movementsInputList, movementOptions);
+
+    //console.log(movementsInputList[0]);
+
+    //var movementsInputList = ['s-s-s', 's-s-w', 's-s-e', 's-w-s', 's-w-w', 's-w-e', 's-e-s', 's-e-w', 's-e-e', 'w-s-s', 'w-s-w', 'w-s-e', 'w-w-s', 'w-w-w', 'w-w-e', 'w-e-s', 'w-e-w', 'w-e-e', 'e-s-s', 'e-s-w', 'e-s-e', 'e-w-s', 'e-w-w', 'e-w-e', 'e-e-s', 'e-e-w', 'e-e-e'];
+
+    for (let movementsIndex = 0; movementsIndex < movementsInputList.length; movementsIndex++) {
+        simInit();
+
+        mResetMap();
+        simIsRunning = false;
+        baInit(0, 0, "");
+        plDefInit(-1, 0);
+
+        let movements = simParseMovementsInput(movementsInputList[movementsIndex]);
+        //if (movementsIndex === 0) {
+        //    console.log(movements);
+        //}
+        //let movements = simParseMovementsInput('ss-ss-ss-' + movementsInputList[movementsIndex]);
+        simIsRunning = true;
+        let maxRunnersAlive = 4;
+        let totalRunners = 6;
+        let wave = 6;
+        baInit(maxRunnersAlive, totalRunners, movements);
+        plDefInit(baWAVE1_DEFENDER_SPAWN_X, baWAVE1_DEFENDER_SPAWN_Y);
+
+        var firstRunner = false;
+        var secondDropTick = 100;
+
+        for (let i = 0; i < 51; i++) {
+            simTick();
+
+            if (baTickCounter === 24) { // trap food
+                mAddItem(new fFood(baEAST_TRAP_X, baEAST_TRAP_Y + 1, true, "t"));
+                mAddItem(new fFood(baEAST_TRAP_X, baEAST_TRAP_Y + 1, true, "t"));
+                mAddItem(new fFood(baEAST_TRAP_X, baEAST_TRAP_Y + 1, true, "t"));
+                mAddItem(new fFood(baEAST_TRAP_X, baEAST_TRAP_Y + 1, true, "t"));
+            } else if (baTickCounter === 27) { // trail food
+                mAddItem(new fFood(baEAST_TRAP_X - 6, baEAST_TRAP_Y + 5, false, "w"));
+            } else if (baTickCounter === 29) { // main stack
+                mAddItem(new fFood(baEAST_TRAP_X - 9, baEAST_TRAP_Y + 8, true, "t"));
+                mAddItem(new fFood(baEAST_TRAP_X - 9, baEAST_TRAP_Y + 8, true, "t"));
+                mAddItem(new fFood(baEAST_TRAP_X - 9, baEAST_TRAP_Y + 8, true, "t"));
+                mAddItem(new fFood(baEAST_TRAP_X - 9, baEAST_TRAP_Y + 8, true, "t"));
+            }
+        }
+
+        if (baRunnersKilled < 2) {
+            console.log(inputList + ' failed with ' + baRunnersKilled + ' runners killed on pattern ' + movements);
+            return false;
+        }
+    }
+
+    console.log(inputList + ' succeeded');
+    return true
+}
+
 function solveForTiles(numTiles, multiTick) {
     return;
 }
@@ -3917,10 +3983,24 @@ function isValidTile(tile) {
 //console.log(threeTileSolution);
 const util = require('util')
 
-var fourTileSolution = solveForFourTiles();
-console.log(fourTileSolution.length);
-console.log(util.inspect(fourTileSolution, {'maxArrayLength': null}));
+//var fourTileSolution = solveForFourTiles();
+//console.log(fourTileSolution.length);
+//console.log(util.inspect(fourTileSolution, {'maxArrayLength': null}));
 
 //var fiveTileSolution = solveForFiveTiles();
 //console.log(fiveTileSolution.length);
 //console.log(fiveTileSolution, {'maxArrayLength': null});
+
+//console.log(checkWaveSix(['ww-ww']));
+
+var testInputList = ['ss', 'sw', 'se', 'ws', 'ww', 'we', 'es', 'ew', 'ee'];
+var testOptions = ['ss', 'sw', 'se', 'ws', 'ww', 'we', 'es', 'ew', 'ee'];
+
+testInputList = appendMovement(testInputList, testOptions);
+
+console.log(testInputList);
+
+for (let i = 0; i < testInputList.length; i++) {
+    var testInput = [testInputList[i]];
+    checkWaveSix(testInput);
+}

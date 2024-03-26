@@ -234,7 +234,7 @@ export class BarbarianAssault {
         barbarianAssault.westTrapCharges = this.westTrapCharges;
         barbarianAssault.northwestLogsArePresent = this.northwestLogsArePresent;
         barbarianAssault.southeastLogsArePresent = this.southeastLogsArePresent;
-        barbarianAssault.eastTrapPosition =this.eastTrapPosition === null ? null : this.eastTrapPosition.clone();
+        barbarianAssault.eastTrapPosition = this.eastTrapPosition === null ? null : this.eastTrapPosition.clone();
         barbarianAssault.westTrapPosition = this.westTrapPosition === null ? null : this.westTrapPosition.clone();
         barbarianAssault.runnersToRemove = [];
         for (let i: number = 0; i < this.runnersToRemove.length; i++) {

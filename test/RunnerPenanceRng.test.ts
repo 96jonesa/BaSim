@@ -27,7 +27,7 @@ describe("rollMovement", (): void => {
         expect.soft(runnerPenanceRng.rollMovement(0)).toBe(direction);
         expect.soft(mathRandomSpy).toHaveBeenCalledOnce();
 
-        vi.spyOn(Math, "random").mockRestore;
+        vi.spyOn(Math, "random").mockRestore();
     });
 
     test.each([
@@ -43,7 +43,7 @@ describe("rollMovement", (): void => {
         expect.soft(runnerPenanceRng.rollMovement(4)).toBe(direction);
         expect.soft(mathRandomSpy).toHaveBeenCalledOnce();
 
-        vi.spyOn(Math, "random").mockRestore;
+        vi.spyOn(Math, "random").mockRestore();
     });
 });
 

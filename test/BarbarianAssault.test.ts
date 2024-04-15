@@ -7,16 +7,16 @@ import {FoodType} from "../src/FoodType.js";
 
 describe("constructor", (): void => {
     test.each([
-        [1, 2, 2, 28, 39, 29, 38, 33, 8],
-        [2, 2, 3, 28, 39, 29, 38, 33, 8],
-        [3, 2, 4, 28, 39, 29, 38, 33, 8],
-        [4, 3, 4, 28, 39, 29, 38, 33, 8],
-        [5, 4, 5, 28, 39, 29, 38, 33, 8],
-        [6, 4, 6, 28, 39, 29, 38, 33, 8],
-        [7, 5, 6, 28, 39, 29, 38, 33, 8],
-        [8, 5, 7, 28, 39, 29, 38, 33, 8],
-        [9, 5, 9, 28, 39, 29, 38, 33, 8],
-        [10, 5, 6, 29, 39, 30, 38, 28, 8],
+        [1, 2, 2, 28, 39, 29, 38, 29, 8, 33, 8, 31, 10, 30, 9, 32, 9],
+        [2, 2, 3, 28, 39, 29, 38, 29, 8, 33, 8, 31, 10, 30, 9, 32, 9],
+        [3, 2, 4, 28, 39, 29, 38, 29, 8, 33, 8, 31, 10, 30, 9, 32, 9],
+        [4, 3, 4, 28, 39, 29, 38, 29, 8, 33, 8, 31, 10, 30, 9, 32, 9],
+        [5, 4, 5, 28, 39, 29, 38, 29, 8, 33, 8, 31, 10, 30, 9, 32, 9],
+        [6, 4, 6, 28, 39, 29, 38, 29, 8, 33, 8, 31, 10, 30, 9, 32, 9],
+        [7, 5, 6, 28, 39, 29, 38, 29, 8, 33, 8, 31, 10, 30, 9, 32, 9],
+        [8, 5, 7, 28, 39, 29, 38, 29, 8, 33, 8, 31, 10, 30, 9, 32, 9],
+        [9, 5, 9, 28, 39, 29, 38, 29, 8, 33, 8, 31, 10, 30, 9, 32, 9],
+        [10, 5, 6, 29, 39, 30, 38, 24, 8, 28, 8, 26, 10, 25, 9, 27, 9],
     ])("constructs correctly when wave=%i", (
         wave: number,
         maxRunnersAlive: number,
@@ -25,8 +25,16 @@ describe("constructor", (): void => {
         northwestLogsPositionY: number,
         southeastLogsPositionX: number,
         southeastLogsPositionY: number,
+        collectorPlayerPositionX: number,
+        collectorPlayerPositionY: number,
         defenderPlayerPositionX: number,
-        defenderPlayerPositionY: number
+        defenderPlayerPositionY: number,
+        mainAttackerPlayerPositionX: number,
+        mainAttackerPlayerPositionY: number,
+        secondAttackerPlayerPositionX: number,
+        secondAttackerPlayerPositionY: number,
+        healerPlayerPositionX: number,
+        healerPlayerPositionY: number,
     ): void => {
         const barbarianAssault: BarbarianAssault = new BarbarianAssault(wave, true, true, false, [], 5);
 
@@ -36,8 +44,16 @@ describe("constructor", (): void => {
         expect(barbarianAssault.northwestLogsPosition.y).toBe(northwestLogsPositionY);
         expect(barbarianAssault.southeastLogsPosition.x).toBe(southeastLogsPositionX);
         expect(barbarianAssault.southeastLogsPosition.y).toBe(southeastLogsPositionY);
+        expect(barbarianAssault.collectorPlayer.position.x).toBe(collectorPlayerPositionX);
+        expect(barbarianAssault.collectorPlayer.position.y).toBe(collectorPlayerPositionY);
         expect(barbarianAssault.defenderPlayer.position.x).toBe(defenderPlayerPositionX);
         expect(barbarianAssault.defenderPlayer.position.y).toBe(defenderPlayerPositionY);
+        expect(barbarianAssault.mainAttackerPlayer.position.x).toBe(mainAttackerPlayerPositionX);
+        expect(barbarianAssault.mainAttackerPlayer.position.y).toBe(mainAttackerPlayerPositionY);
+        expect(barbarianAssault.secondAttackerPlayer.position.x).toBe(secondAttackerPlayerPositionX);
+        expect(barbarianAssault.secondAttackerPlayer.position.y).toBe(secondAttackerPlayerPositionY);
+        expect(barbarianAssault.healerPlayer.position.x).toBe(healerPlayerPositionX);
+        expect(barbarianAssault.healerPlayer.position.y).toBe(healerPlayerPositionY);
     });
 });
 
@@ -336,6 +352,9 @@ describe("clone", (): void => {
         barbarianAssault.westTrapPosition = null;
         barbarianAssault.defenderPlayer = null;
         barbarianAssault.collectorPlayer = null;
+        barbarianAssault.mainAttackerPlayer = null;
+        barbarianAssault.secondAttackerPlayer = null;
+        barbarianAssault.healerPlayer = null;
 
         const barbarianAssaultClone: BarbarianAssault = barbarianAssault.clone();
 

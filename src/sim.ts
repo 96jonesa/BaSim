@@ -396,7 +396,7 @@ function drawDetails(): void {
         renderer.setDrawColor(255, 140, 0, 255);
     }
 
-    renderer.outline(45, 26);
+    renderer.fill(45, 26);
 
     renderer.setDrawColor(160, 82, 45, 255);
 
@@ -406,7 +406,7 @@ function drawDetails(): void {
         renderer.setDrawColor(255, 140, 0, 255);
     }
 
-    renderer.outline(15, 25);
+    renderer.fill(15, 25);
 
     renderer.setDrawColor(160, 82, 45, 255);
 
@@ -445,13 +445,36 @@ function drawEntities(): void {
         renderer.fill(barbarianAssault.runners[i].position.x, barbarianAssault.runners[i].position.y);
     }
 
-    if (barbarianAssault.collectorPlayer.position.x >= 0) {
-        renderer.setDrawColor(240, 240, 10, 200);
+    if (barbarianAssault.collectorPlayer.position.x >= 0 && barbarianAssault.collectorPlayer.position.y >= 0) {
+        renderer.setDrawColor(240, 240, 10, 220);
         renderer.fill(barbarianAssault.collectorPlayer.position.x, barbarianAssault.collectorPlayer.position.y);
+        renderer.setDrawColor(0, 0, 0, 220);
+        renderer.outline(barbarianAssault.collectorPlayer.position.x, barbarianAssault.collectorPlayer.position.y);
     }
 
-    if (barbarianAssault.defenderPlayer.position.x >= 0) {
-        renderer.setDrawColor(240, 240, 240, 200);
+    if (barbarianAssault.mainAttackerPlayer.position.x >= 0 && barbarianAssault.mainAttackerPlayer.position.y >= 0) {
+        renderer.setDrawColor(240, 10, 10, 220);
+        renderer.fill(barbarianAssault.mainAttackerPlayer.position.x, barbarianAssault.mainAttackerPlayer.position.y);
+        renderer.setDrawColor(0, 0, 0, 220);
+        renderer.outline(barbarianAssault.mainAttackerPlayer.position.x, barbarianAssault.mainAttackerPlayer.position.y);
+    }
+
+    if (barbarianAssault.secondAttackerPlayer.position.x >= 0 && barbarianAssault.secondAttackerPlayer.position.y >= 0) {
+        renderer.setDrawColor(200, 50, 50, 220);
+        renderer.fill(barbarianAssault.secondAttackerPlayer.position.x, barbarianAssault.secondAttackerPlayer.position.y);
+        renderer.setDrawColor(0, 0, 0, 220);
+        renderer.outline(barbarianAssault.secondAttackerPlayer.position.x, barbarianAssault.secondAttackerPlayer.position.y);
+    }
+
+    if (barbarianAssault.healerPlayer.position.x >= 0 && barbarianAssault.healerPlayer.position.y >= 0) {
+        renderer.setDrawColor(10, 240, 10, 220);
+        renderer.fill(barbarianAssault.healerPlayer.position.x, barbarianAssault.healerPlayer.position.y);
+        renderer.setDrawColor(0, 0, 0, 220);
+        renderer.outline(barbarianAssault.healerPlayer.position.x, barbarianAssault.healerPlayer.position.y);
+    }
+
+    if (barbarianAssault.defenderPlayer.position.x >= 0 && barbarianAssault.defenderPlayer.position.y >= 0) {
+        renderer.setDrawColor(240, 240, 240, 220);
         renderer.fill(barbarianAssault.defenderPlayer.position.x, barbarianAssault.defenderPlayer.position.y);
     }
 }

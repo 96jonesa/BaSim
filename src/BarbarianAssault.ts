@@ -5,6 +5,8 @@ import {RunnerPenance} from "./RunnerPenance.js";
 import {DefenderPlayer} from "./DefenderPlayer.js";
 import {RunnerPenanceRng} from "./RunnerPenanceRng.js";
 import {CollectorPlayer} from "./CollectorPlayer.js";
+import {AttackerPlayer} from "./AttackerPlayer.js";
+import {HealerPlayer} from "./HealerPlayer.js";
 
 /**
  * Represents a game of Barbarian Assault: holds state information and exposes functions for
@@ -28,8 +30,11 @@ export class BarbarianAssault {
     public runnersToRemove: Array<RunnerPenance> = [];
     public runnersAlive: number = 0;
     public runnersKilled: number = 0;
-    public collectorPlayer: CollectorPlayer = new CollectorPlayer(new Position(-1, -1));
+    public collectorPlayer: CollectorPlayer;
     public defenderPlayer: DefenderPlayer;
+    public mainAttackerPlayer: AttackerPlayer;
+    public secondAttackerPlayer: AttackerPlayer;
+    public healerPlayer: HealerPlayer;
     public requireRepairs: boolean;
     public requireLogs: boolean;
     public infiniteFood: boolean;
@@ -90,11 +95,19 @@ export class BarbarianAssault {
         if (wave === 10) {
             this.northwestLogsPosition = new Position(29, 39);
             this.southeastLogsPosition = new Position(30, 38);
+            this.collectorPlayer = new CollectorPlayer(new Position(24, 8));
             this.defenderPlayer = new DefenderPlayer(new Position(28, 8));
+            this.mainAttackerPlayer = new AttackerPlayer(new Position(26, 10));
+            this.secondAttackerPlayer = new AttackerPlayer(new Position(25, 9));
+            this.healerPlayer = new HealerPlayer(new Position(27, 9));
         } else {
             this.northwestLogsPosition = new Position(28, 39);
             this.southeastLogsPosition = new Position(29, 38);
+            this.collectorPlayer = new CollectorPlayer(new Position(29, 8));
             this.defenderPlayer = new DefenderPlayer(new Position(33, 8));
+            this.mainAttackerPlayer = new AttackerPlayer(new Position(31, 10));
+            this.secondAttackerPlayer = new AttackerPlayer(new Position(30, 9));
+            this.healerPlayer = new HealerPlayer(new Position(32, 9));
         }
 
         this.map = new BarbarianAssaultMap(wave);
@@ -244,6 +257,9 @@ export class BarbarianAssault {
         barbarianAssault.runnersKilled = this.runnersKilled;
         barbarianAssault.collectorPlayer = this.collectorPlayer === null ? null : this.collectorPlayer.clone();
         barbarianAssault.defenderPlayer = this.defenderPlayer === null ? null : this.defenderPlayer.clone();
+        barbarianAssault.mainAttackerPlayer = this.mainAttackerPlayer === null ? null : this.mainAttackerPlayer.clone();
+        barbarianAssault.secondAttackerPlayer = this.secondAttackerPlayer === null ? null : this.secondAttackerPlayer.clone();
+        barbarianAssault.healerPlayer = this.healerPlayer === null ? null : this.healerPlayer.clone();
         barbarianAssault.requireRepairs = this.requireRepairs;
         barbarianAssault.requireLogs = this.requireLogs;
         barbarianAssault.infiniteFood = this.infiniteFood;

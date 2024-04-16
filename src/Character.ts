@@ -18,4 +18,11 @@ export abstract class Character {
      * @param barbarianAssault  the game state to refer to when progressing this character's state
      */
     public abstract tick(barbarianAssault: BarbarianAssault): void;
+
+    /**
+     * Creates a deep clone of this object.
+     *
+     * @return  a deep clone of this object
+     */
+    public abstract clone(): Character;
 }

@@ -13,6 +13,8 @@ import {
 } from "./BarbarianAssaultMap.js";
 import {Food} from "./Food.js";
 import {FoodZone} from "./FoodZone.js";
+import {RunnerPenance} from "./RunnerPenance.js";
+import {HealerPenance} from "./HealerPenance.js";
 
 const HTML_CANVAS: string = "basimcanvas";
 const HTML_RUNNER_MOVEMENTS: string = "runnermovements";
@@ -441,9 +443,15 @@ function drawItems(): void {
 function drawEntities(): void {
     renderer.setDrawColor(10, 10, 240, 127);
 
-    for (let i: number = 0; i < barbarianAssault.runners.length; i++) {
-        renderer.fill(barbarianAssault.runners[i].position.x, barbarianAssault.runners[i].position.y);
-    }
+    barbarianAssault.runners.forEach((runner: RunnerPenance): void => {
+        renderer.fill(runner.position.x, runner.position.y);
+    });
+
+    renderer.setDrawColor(10, 240, 10, 127);
+
+    barbarianAssault.healers.forEach((healer: HealerPenance): void => {
+        renderer.fill(healer.position.x, healer.position.y);
+    });
 
     if (barbarianAssault.collectorPlayer.position.x >= 0 && barbarianAssault.collectorPlayer.position.y >= 0) {
         renderer.setDrawColor(240, 240, 10, 220);

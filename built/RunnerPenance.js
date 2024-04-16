@@ -1,6 +1,9 @@
 import { Position } from "./Position.js";
 import { Direction } from "./Direction.js";
 import { Penance } from "./Penance.js";
+/**
+ * Represents a Barbarian Assault runner penance.
+ */
 export class RunnerPenance extends Penance {
     constructor(position, rng, id, sniffDistance) {
         super(position);
@@ -86,6 +89,7 @@ export class RunnerPenance extends Penance {
     /**
      * This runner penance takes up to one step (if possible) in its path to its destination.
      *
+     * @param barbarianAssault  the BarbarianAssault game in which this runner penance moves
      * @private
      */
     move(barbarianAssault) {
@@ -401,9 +405,7 @@ export class RunnerPenance extends Penance {
         console.log(barbarianAssault.ticks + ": Runner " + this.id + ": " + message);
     }
     /**
-     * Creates a deep clone of this object.
-     *
-     * @return  a deep clone of this object
+     * @inheritDoc
      */
     clone() {
         let runnerPenance = new RunnerPenance(this.position, this.rng, this.id, this.sniffDistance);

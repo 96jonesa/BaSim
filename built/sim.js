@@ -385,9 +385,13 @@ function drawItems() {
  */
 function drawEntities() {
     renderer.setDrawColor(10, 10, 240, 127);
-    for (let i = 0; i < barbarianAssault.runners.length; i++) {
-        renderer.fill(barbarianAssault.runners[i].position.x, barbarianAssault.runners[i].position.y);
-    }
+    barbarianAssault.runners.forEach((runner) => {
+        renderer.fill(runner.position.x, runner.position.y);
+    });
+    renderer.setDrawColor(10, 240, 10, 127);
+    barbarianAssault.healers.forEach((healer) => {
+        renderer.fill(healer.position.x, healer.position.y);
+    });
     if (barbarianAssault.collectorPlayer.position.x >= 0 && barbarianAssault.collectorPlayer.position.y >= 0) {
         renderer.setDrawColor(240, 240, 10, 220);
         renderer.fill(barbarianAssault.collectorPlayer.position.x, barbarianAssault.collectorPlayer.position.y);

@@ -7,6 +7,7 @@ import {RunnerPenanceRng} from "./RunnerPenanceRng.js";
 import {CollectorPlayer} from "./CollectorPlayer.js";
 import {AttackerPlayer} from "./AttackerPlayer.js";
 import {HealerPlayer} from "./HealerPlayer.js";
+import {HealerPenance} from "./HealerPenance.js";
 
 /**
  * Represents a game of Barbarian Assault: holds state information and exposes functions for
@@ -30,6 +31,13 @@ export class BarbarianAssault {
     public runnersToRemove: Array<RunnerPenance> = [];
     public runnersAlive: number = 0;
     public runnersKilled: number = 0;
+    public healersToRemove: Array<HealerPenance> = [];
+    public healers: Array<HealerPenance> = [];
+    public healersAlive: number = 0;
+    public healersKilled: number = 0;
+    public maxHealersAlive: number;
+    public totalHealers: number;
+    public maxHealerHealth: number;
     public collectorPlayer: CollectorPlayer;
     public defenderPlayer: DefenderPlayer;
     public mainAttackerPlayer: AttackerPlayer;
@@ -42,6 +50,7 @@ export class BarbarianAssault {
     public runnerMovements: Array<string>;
     public runnerMovementsIndex: number = 0;
     public currentRunnerId: number = 1;
+    public currentHealerId: number = 1;
     public defenderLevel: number;
 
     public constructor(wave: number, requireRepairs: boolean, requireLogs: boolean, infiniteFood: boolean, runnerMovements: Array<string>, defenderLevel: number) {
@@ -56,39 +65,66 @@ export class BarbarianAssault {
             case 1:
                 this.maxRunnersAlive = 2;
                 this.totalRunners = 2;
+                this.maxHealersAlive = 2;
+                this.totalHealers = 2;
+                this.maxHealerHealth = 27;
                 break;
             case 2:
                 this.maxRunnersAlive = 2;
                 this.totalRunners = 3;
+                this.maxHealersAlive = 3;
+                this.totalHealers = 3;
+                this.maxHealerHealth = 32;
                 break;
             case 3:
                 this.maxRunnersAlive = 2;
                 this.totalRunners = 4;
+                this.maxHealersAlive = 2;
+                this.totalHealers = 3;
+                this.maxHealerHealth = 37;
                 break;
             case 4:
                 this.maxRunnersAlive = 3;
                 this.totalRunners = 4;
+                this.maxHealersAlive = 3;
+                this.totalHealers = 4;
+                this.maxHealerHealth = 43;
                 break;
             case 5:
                 this.maxRunnersAlive = 4;
                 this.totalRunners = 5;
+                this.maxHealersAlive = 4;
+                this.totalHealers = 5;
+                this.maxHealerHealth = 49;
                 break;
             case 6:
                 this.maxRunnersAlive = 4;
                 this.totalRunners = 6;
+                this.maxHealersAlive = 4;
+                this.totalHealers = 6;
+                this.maxHealerHealth = 55;
                 break;
             case 7:
             case 10:
                 this.maxRunnersAlive = 5;
                 this.totalRunners = 6;
+                this.maxHealersAlive = 4;
+                this.totalHealers = 7;
+                this.maxHealerHealth = 60;
                 break;
             case 8:
                 this.maxRunnersAlive = 5;
                 this.totalRunners = 7;
+                this.maxHealersAlive = 5;
+                this.totalHealers = 7;
+                this.maxHealerHealth = 67;
                 break;
             case 9:
                 this.maxRunnersAlive = 5;
                 this.totalRunners = 9;
+                this.maxHealersAlive = 6;
+                this.totalHealers = 8;
+                this.maxHealerHealth = 76;
                 break;
         }
 
@@ -121,13 +157,8 @@ export class BarbarianAssault {
         console.log(this.ticks);
         this.runnersToRemove.length = 0;
 
-        for (let i: number = 0; i < this.runners.length; i++) {
-            this.runners[i].tick(this);
-        }
-
-        for (let i: number = 0; i < this.runnersToRemove.length; i++) {
-            this.runners.splice(this.runners.indexOf(this.runnersToRemove[i]), 1);
-        }
+        this.tickPenance();
+        this.removePenance();
 
         if (this.ticks > 1 && this.ticks % 10 === 1) {
             this.northwestLogsArePresent = true;
@@ -139,26 +170,85 @@ export class BarbarianAssault {
         }
 
         if (this.ticks > 1 && this.ticks % 10 === 1 && this.runnersAlive < this.maxRunnersAlive && this.runnersKilled + this.runnersAlive < this.totalRunners) {
-            let movements: string;
+            this.spawnRunner();
+        }
 
-            if (this.runnerMovements.length > this.runnerMovementsIndex) {
-                movements = this.runnerMovements[this.runnerMovementsIndex];
-                this.runnerMovementsIndex++;
-            } else {
-                movements = "";
-            }
-
-            if (this.wave === 10) {
-                this.runners.push(new RunnerPenance(new Position(42, 38), new RunnerPenanceRng(movements), this.currentRunnerId, this.defenderLevel < 2 ? 4 : 5));
-            } else {
-                this.runners.push(new RunnerPenance(new Position(36, 39), new RunnerPenanceRng(movements), this.currentRunnerId, this.defenderLevel < 2 ? 4 : 5));
-            }
-
-            this.currentRunnerId++;
-            this.runnersAlive++;
+        if (this.ticks > 1 && this.ticks % 10 === 1 && this.healersAlive < this.maxHealersAlive && this.healersKilled + this.healersAlive < this.totalHealers) {
+            this.spawnHealer();
         }
 
         this.defenderPlayer.tick(this);
+    }
+
+    /**
+     * Spawns a RunnerPenance.
+     *
+     * @private
+     */
+    private spawnRunner(): void {
+        let movements: string;
+
+        if (this.runnerMovements.length > this.runnerMovementsIndex) {
+            movements = this.runnerMovements[this.runnerMovementsIndex];
+            this.runnerMovementsIndex++;
+        } else {
+            movements = "";
+        }
+
+        if (this.wave === 10) {
+            this.runners.push(new RunnerPenance(new Position(42, 38), new RunnerPenanceRng(movements), this.currentRunnerId, this.defenderLevel < 2 ? 4 : 5));
+        } else {
+            this.runners.push(new RunnerPenance(new Position(36, 39), new RunnerPenanceRng(movements), this.currentRunnerId, this.defenderLevel < 2 ? 4 : 5));
+        }
+
+        this.currentRunnerId++;
+        this.runnersAlive++;
+    }
+
+    /**
+     * Spawns a HealerPenance.
+     *
+     * @private
+     */
+    private spawnHealer(): void {
+        if (this.wave === 10) {
+            this.healers.push(new HealerPenance(new Position(36, 49), this.maxHealerHealth, this.ticks, this.currentHealerId));
+        } else {
+            this.healers.push(new HealerPenance(new Position(42, 37), this.maxHealerHealth, this.ticks, this.currentHealerId));
+        }
+
+        this.currentHealerId++;
+        this.healersAlive++;
+    }
+
+    /**
+     * Calls the tick() function of every Penance.
+     *
+     * @private
+     */
+    private tickPenance(): void {
+        this.healers.forEach((healer: HealerPenance): void => {
+            healer.tick(this);
+        });
+
+        this.runners.forEach((runner: RunnerPenance): void => {
+            runner.tick(this);
+        });
+    }
+
+    /**
+     * Removes all to-be-removed Penance.
+     *
+     * @private
+     */
+    private removePenance(): void {
+        this.runnersToRemove.forEach((runnerToRemove: RunnerPenance): void => {
+            this.runners.splice(this.runners.indexOf(runnerToRemove), 1);
+        });
+
+        this.healersToRemove.forEach((healerToRemove: HealerPenance): void => {
+            this.healers.splice(this.healers.indexOf(healerToRemove), 1);
+        });
     }
 
     /**

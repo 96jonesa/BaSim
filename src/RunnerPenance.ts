@@ -6,6 +6,9 @@ import {RunnerPenanceRng} from "./RunnerPenanceRng.js";
 import {Direction} from "./Direction.js";
 import {Penance} from "./Penance.js";
 
+/**
+ * Represents a Barbarian Assault runner penance.
+ */
 export class RunnerPenance extends Penance {
     public cycleTick: number = 1;
     public targetState: number = 0;
@@ -102,6 +105,7 @@ export class RunnerPenance extends Penance {
     /**
      * This runner penance takes up to one step (if possible) in its path to its destination.
      *
+     * @param barbarianAssault  the BarbarianAssault game in which this runner penance moves
      * @private
      */
     private move(barbarianAssault: BarbarianAssault): void {
@@ -458,9 +462,7 @@ export class RunnerPenance extends Penance {
     }
 
     /**
-     * Creates a deep clone of this object.
-     *
-     * @return  a deep clone of this object
+     * @inheritDoc
      */
     public clone(): RunnerPenance {
         let runnerPenance: RunnerPenance = new RunnerPenance(this.position, this.rng, this.id, this.sniffDistance);

@@ -49,6 +49,34 @@ Tick duration (milliseconds): <input id="tickduration" type="number" min="100" m
 
 <input type="color" id="marker" name="marker" value="#000000"> Marker color
 <br>
+<br>
+
+<table id="teamtable" style="border: 1px solid">
+    <caption><b>Team Commands</b></caption>
+    <tr>
+        <td name="mainattacker">
+            <b>Main Attacker</b>
+            <br>
+            <textarea id="mainattackercommands"></textarea>
+        </td>
+        <td name="secondattacker">
+            <b>Second Attacker</b>
+            <br>
+            <textarea id="secondattackercommands"></textarea>
+        </td>
+        <td name="healer">
+            <b>Healer</b>
+            <br>
+            <textarea id="healercommands"></textarea>
+        </td>
+        <td name="collector">
+            <b>Collector</b>
+            <br>
+            <textarea id="collectorcommands"></textarea>
+        </td>
+    </tr>
+</table>
+<br>
 
 <button id="wavestart"></button> <b>Tick count: <span id="tickcount"></span></b> --- <b>Current Food: <span id="currdeffood"></span></b>
 <br>
@@ -58,7 +86,6 @@ Tick duration (milliseconds): <input id="tickduration" type="number" min="100" m
 
 <b>space</b> starts or stops the wave.<br>
 <b>left-click</b> moves the player.<br>
-<b>right-click</b> places a collector.<br>
 <b>t</b> drops tofu.<br>
 <b>c</b> drops crackers.<br>
 <b>w</b> drops worms.<br>
@@ -71,18 +98,40 @@ Tick duration (milliseconds): <input id="tickduration" type="number" min="100" m
 <b>s</b> saves state (pauses).<br>
 <b>y</b> loads state (must be running) (pauses).<br>
 <br>
-<b>Repairs required:</b> If 'Yes' then traps must be repaired for runner to die at them, if 'No' then broken traps can kill runners.<br>
-<b>Infinite food:</b> If 'Yes' then you have infinite food, if 'No' then start with 9 of each.<br>
-<b>Require log and hammer to repair:</b> If 'Yes' then you must have a log and hammer to repair a trap, if 'No' then can repair without.<br>
-<b>Pause to save/load:</b> If 'Yes' then you must pause before saving/loading, if 'No' then can save/load while unpaused.<br>
+
 <b>Runner movements:</b> Forced runner movements. For example, 'ww-e-s' for first runner west west, second runner east, third runner south.<br>
-<b>Tick duration (milliseconds):</b> Set the length of a game tick.<br>
-<b>Toggle tile marker mode:</b> Click to to switch between movement and tile marker mode.<br>
+<br>
+
+<b>Tile marker mode:</b> Click to switch between movement and tile marker mode.<br>
 While in tile marker mode, left-clicking an unmarked tile will mark it and left-clicking a marked tile will unmark it.<br>
 Click the colored rectangle beside 'Marker' to change the color of marked tiles.<br>
 <br>
+
+<b>Team Commands:</b> For each player, you can enter a list of positions to click to move to at specified ticks.
+Each line of the input should be a single command, of the format "tick:x,y", specifying that the player should click
+to move to position (x,y) at the given tick.
+<br>
+<br>
+For example:
+<br>
+<br>
+5:20,21<br>
+10:30,30<br>
+4:29,25
+<br>
+<br>
+would be a valid input. The same tick can not be specified more than once for a single player. The order of the commands
+does not need to be in the order of the ticks association with the commands.
+<br>
+<br>
+
+<b>Save/Load tldr:</b><br>
+Save with  <b>s</b>, load with <b>y</b> while sim is running (started). After loading, unpause with <b>p</b>.
+<br>
+<br>
+
 <b>Save/Load:</b><br>
-If you save with <b>s</b>, then loading with <b>y</b> will bring to to the same state on the same wave you saved. Unpause with <b>p</b><br>
+If you save with <b>s</b>, then loading with <b>y</b> will bring you to the same state on the same wave you saved. Unpause with <b>p</b><br>
 Defender level will behave as it was when you saved. Runner movements are calculated dynamically, so they will vary each time you load.<br>
 Tick duration can be changed by stopping the wave, changing tick duration, then starting the wave, then loading.<br>
 Repair requirement is dynamic and will be whatever the value currently is set to via the selection menu.<br>
@@ -90,11 +139,12 @@ Although the wave and defender level will behave the same as when you saved, the
 So, if you change the selection, start, then load: you will load from the saved wave and level, but they will not change in selectors.<br>
 If you then stop and start the wave, it will play with the wave and level displayed in the selectors normally (not from loaded wave/level).<br>
 <br>
+
 It is always assumed the defender has a hammer equipped - there is no need to pick up the hammer.<br>
 First food is always tofu (for convenience), changes to random new food every 50 ticks (52, 102, 152, etc.).<br>
 <br>
-To multikill, move off stack when last digit of tick is 1. They will eat when last digit is 4.<br>
-<br>
+
 Please let me know if anything is not working correctly. -McLovin1981<br>
 <br>
+
 <b>Thanks to all contributors!</b>

@@ -18,6 +18,10 @@ const HTML_TOGGLE_INFINITE_FOOD = "toggleinfinitefood";
 const HTML_TOGGLE_LOG_TO_REPAIR = "togglelogtorepair";
 const HTML_MARKER_COLOR = "marker";
 const HTML_MARKING_TILES = "markingtiles";
+const HTML_MAIN_ATTACKER_COMMANDS = "mainattackercommands";
+const HTML_SECOND_ATTACKER_COMMANDS = "secondattackercommands";
+const HTML_HEALER_COMMANDS = "healercommands";
+const HTML_COLLECTOR_COMMANDS = "collectorcommands";
 window.onload = init;
 var markingTiles;
 var markedTiles;
@@ -109,7 +113,9 @@ function reset() {
     }
     isRunning = false;
     startStopButton.innerHTML = "Start Wave";
-    barbarianAssault = new BarbarianAssault(wave, requireRepairs, requireLogs, infiniteFood, [], defenderLevel);
+    console.log(document.getElementById(HTML_MAIN_ATTACKER_COMMANDS).value);
+    console.log(convertCommandsStringToMap(document.getElementById(HTML_MAIN_ATTACKER_COMMANDS).value));
+    barbarianAssault = new BarbarianAssault(wave, requireRepairs, requireLogs, infiniteFood, [], defenderLevel, convertCommandsStringToMap(document.getElementById(HTML_MAIN_ATTACKER_COMMANDS).value), convertCommandsStringToMap(document.getElementById(HTML_SECOND_ATTACKER_COMMANDS).value), convertCommandsStringToMap(document.getElementById(HTML_HEALER_COMMANDS).value), convertCommandsStringToMap(document.getElementById(HTML_COLLECTOR_COMMANDS).value));
     draw();
 }
 /**
@@ -237,14 +243,6 @@ function canvasOnMouseDown(mouseEvent) {
         }
         else {
             barbarianAssault.defenderPlayer.findPath(barbarianAssault, new Position(xTile, yTile));
-        }
-    }
-    else if (mouseEvent.button === 2) {
-        if (barbarianAssault.collectorPlayer.position.equals(new Position(xTile, yTile))) {
-            barbarianAssault.collectorPlayer.position.x = -1;
-        }
-        else {
-            barbarianAssault.collectorPlayer.position = new Position(xTile, yTile);
         }
     }
 }
@@ -496,7 +494,7 @@ function startStopButtonOnClick() {
         isRunning = true;
         isPaused = false;
         startStopButton.innerHTML = "Stop Wave";
-        barbarianAssault = new BarbarianAssault(wave, requireRepairs, requireLogs, infiniteFood, movements, defenderLevel);
+        barbarianAssault = new BarbarianAssault(wave, requireRepairs, requireLogs, infiniteFood, movements, defenderLevel, convertCommandsStringToMap(document.getElementById(HTML_MAIN_ATTACKER_COMMANDS).value), convertCommandsStringToMap(document.getElementById(HTML_SECOND_ATTACKER_COMMANDS).value), convertCommandsStringToMap(document.getElementById(HTML_HEALER_COMMANDS).value), convertCommandsStringToMap(document.getElementById(HTML_COLLECTOR_COMMANDS).value));
         console.log("Wave " + wave + " started!");
         tick();
         tickTimerId = setInterval(tick, Number(tickDurationInput.value));
@@ -556,4 +554,40 @@ function toggleInfiniteFoodOnChange() {
  */
 function toggleLogToRepairOnChange() {
     requireLogs = toggleLogToRepair.checked;
+}
+/**
+ * Converts the given commands string to a map from tick numbers to positions.
+ * If the given commands string is invalid, then an empty map is returned
+ *
+ * @param commandsString    the commands string to convert to a map from tick
+ *                          numbers to positions
+ * @return                  a map from tick numbers to positions as specified by
+ *                          the given commands string, or an empty map if the given
+ *                          commands string is invalid
+ */
+function convertCommandsStringToMap(commandsString) {
+    if (commandsString === null) {
+        return new Map();
+    }
+    const commandsMap = new Map();
+    const commands = commandsString.split("\n");
+    for (let i = 0; i < commands.length; i++) {
+        const command = commands[i];
+        const commandTokens = command.split(":");
+        if (commandTokens.length !== 2) {
+            return new Map();
+        }
+        const tick = Number(commandTokens[0]);
+        if (!Number.isInteger(tick) || tick < 1 || commandsMap.has(tick)) {
+            return new Map();
+        }
+        const positionTokens = commandTokens[1].split(",");
+        const positionX = Number(positionTokens[0]);
+        const positionY = Number(positionTokens[1]);
+        if (!Number.isInteger(positionX) || !Number.isInteger(positionY)) {
+            return new Map();
+        }
+        commandsMap.set(tick, new Position(positionX, positionY));
+    }
+    return commandsMap;
 }

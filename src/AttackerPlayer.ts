@@ -14,6 +14,7 @@ export class AttackerPlayer extends Player {
      * @inheritDoc
      */
     public tick(barbarianAssault: BarbarianAssault): void {
+        this.move();
     }
 
     /**

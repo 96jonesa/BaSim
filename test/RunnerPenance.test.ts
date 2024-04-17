@@ -10,7 +10,18 @@ describe("tick", (): void => {
 
         runnerPenance.cycleTick = 9;
 
-        const barbarianAssault: BarbarianAssault = new BarbarianAssault(1, true, true, false, [], 5);
+        const barbarianAssault: BarbarianAssault = new BarbarianAssault(
+            1,
+            true,
+            true,
+            false,
+            [],
+            5,
+            new Map<number, Position>(),
+            new Map<number, Position>(),
+            new Map<number, Position>(),
+            new Map<number, Position>()
+        );
 
         runnerPenance.tick(barbarianAssault);
 
@@ -22,7 +33,18 @@ describe("tick", (): void => {
 
         runnerPenance.cycleTick = 10;
 
-        const barbarianAssault: BarbarianAssault = new BarbarianAssault(1, true, true, false, [], 5);
+        const barbarianAssault: BarbarianAssault = new BarbarianAssault(
+            1,
+            true,
+            true,
+            false,
+            [],
+            5,
+            new Map<number, Position>(),
+            new Map<number, Position>(),
+            new Map<number, Position>(),
+            new Map<number, Position>()
+        );
 
         runnerPenance.tick(barbarianAssault);
 
@@ -38,7 +60,18 @@ describe("tick", (): void => {
 
         runnerPenance.despawnCountdown = 9;
 
-        const barbarianAssault: BarbarianAssault = new BarbarianAssault(1, true, true, false, [], 5);
+        const barbarianAssault: BarbarianAssault = new BarbarianAssault(
+            1,
+            true,
+            true,
+            false,
+            [],
+            5,
+            new Map<number, Position>(),
+            new Map<number, Position>(),
+            new Map<number, Position>(),
+            new Map<number, Position>()
+        );
 
         runnerPenance.tick(barbarianAssault);
 
@@ -50,7 +83,18 @@ describe("tick", (): void => {
 
         runnerPenance.despawnCountdown = 1;
 
-        const barbarianAssault: BarbarianAssault = new BarbarianAssault(1, true, true, false, [], 5);
+        const barbarianAssault: BarbarianAssault = new BarbarianAssault(
+            1,
+            true,
+            true,
+            false,
+            [],
+            5,
+            new Map<number, Position>(),
+            new Map<number, Position>(),
+            new Map<number, Position>(),
+            new Map<number, Position>()
+        );
 
         runnerPenance.tick(barbarianAssault);
 
@@ -65,7 +109,18 @@ describe("tick", (): void => {
         runnerPenance.despawnCountdown = 1;
         runnerPenance.isDying = false;
 
-        const barbarianAssault: BarbarianAssault = new BarbarianAssault(1, true, true, false, [], 5);
+        const barbarianAssault: BarbarianAssault = new BarbarianAssault(
+            1,
+            true,
+            true,
+            false,
+            [],
+            5,
+            new Map<number, Position>(),
+            new Map<number, Position>(),
+            new Map<number, Position>(),
+            new Map<number, Position>()
+        );
 
         barbarianAssault.runnersAlive = 1;
 
@@ -89,7 +144,18 @@ describe("tick", (): void => {
         relativeX: number,
         relativeY: number
     ): void => {
-        const barbarianAssault: BarbarianAssault = new BarbarianAssault(1, true, true, false, [], 5);
+        const barbarianAssault: BarbarianAssault = new BarbarianAssault(
+            1,
+            true,
+            true,
+            false,
+            [],
+            5,
+            new Map<number, Position>(),
+            new Map<number, Position>(),
+            new Map<number, Position>(),
+            new Map<number, Position>()
+        );
 
         barbarianAssault.eastTrapCharges = 2;
 
@@ -120,7 +186,18 @@ describe("tick", (): void => {
         relativeX: number,
         relativeY: number
     ): void => {
-        const barbarianAssault: BarbarianAssault = new BarbarianAssault(1, true, true, false, [], 5);
+        const barbarianAssault: BarbarianAssault = new BarbarianAssault(
+            1,
+            true,
+            true,
+            false,
+            [],
+            5,
+            new Map<number, Position>(),
+            new Map<number, Position>(),
+            new Map<number, Position>(),
+            new Map<number, Position>()
+        );
 
         barbarianAssault.eastTrapCharges = 0;
 
@@ -151,7 +228,18 @@ describe("tick", (): void => {
         relativeX: number,
         relativeY: number
     ): void => {
-        const barbarianAssault: BarbarianAssault = new BarbarianAssault(1, true, true, false, [], 5);
+        const barbarianAssault: BarbarianAssault = new BarbarianAssault(
+            1,
+            true,
+            true,
+            false,
+            [],
+            5,
+            new Map<number, Position>(),
+            new Map<number, Position>(),
+            new Map<number, Position>(),
+            new Map<number, Position>()
+        );
 
         barbarianAssault.westTrapCharges = 2;
 
@@ -182,7 +270,18 @@ describe("tick", (): void => {
         relativeX: number,
         relativeY: number
     ): void => {
-        const barbarianAssault: BarbarianAssault = new BarbarianAssault(1, true, true, false, [], 5);
+        const barbarianAssault: BarbarianAssault = new BarbarianAssault(
+            1,
+            true,
+            true,
+            false,
+            [],
+            5,
+            new Map<number, Position>(),
+            new Map<number, Position>(),
+            new Map<number, Position>(),
+            new Map<number, Position>()
+        );
 
         barbarianAssault.westTrapCharges = 0;
 

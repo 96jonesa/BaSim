@@ -22,7 +22,11 @@ describe("tick", (): void => {
             requireLogs,
             infiniteFood,
             runnerMovements,
-            defenderLevel
+            defenderLevel,
+            new Map<number, Position>(),
+            new Map<number, Position>(),
+            new Map<number, Position>(),
+            new Map<number, Position>()
         );
 
         attackerPlayer.tick(barbarianAssault);

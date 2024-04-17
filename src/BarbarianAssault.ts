@@ -52,14 +52,34 @@ export class BarbarianAssault {
     public currentRunnerId: number = 1;
     public currentHealerId: number = 1;
     public defenderLevel: number;
+    public mainAttackerCommands: Map<number, Position>;
+    public secondAttackerCommands: Map<number, Position>;
+    public healerCommands: Map<number, Position>;
+    public collectorCommands: Map<number, Position>;
 
-    public constructor(wave: number, requireRepairs: boolean, requireLogs: boolean, infiniteFood: boolean, runnerMovements: Array<string>, defenderLevel: number) {
+
+    public constructor(
+        wave: number,
+        requireRepairs: boolean,
+        requireLogs: boolean,
+        infiniteFood: boolean,
+        runnerMovements: Array<string>,
+        defenderLevel: number,
+        mainAttackerCommands: Map<number, Position>,
+        secondAttackerCommands: Map<number, Position>,
+        healerCommands: Map<number, Position>,
+        collectorCommands: Map<number, Position>
+    ) {
         this.wave = wave;
         this.requireRepairs = requireRepairs;
         this.requireLogs = requireLogs;
         this.infiniteFood = infiniteFood;
         this.runnerMovements = runnerMovements;
         this.defenderLevel = defenderLevel;
+        this.mainAttackerCommands = mainAttackerCommands;
+        this.secondAttackerCommands = secondAttackerCommands;
+        this.healerCommands = healerCommands;
+        this.collectorCommands = collectorCommands;
 
         switch (wave) {
             case 1:
@@ -177,7 +197,45 @@ export class BarbarianAssault {
             this.spawnHealer();
         }
 
+        this.tickPlayers();
+        this.findPlayerPaths();
+    }
+
+    /**
+     * Progresses each player's state by one tick.
+     *
+     * @private
+     */
+    private tickPlayers(): void {
         this.defenderPlayer.tick(this);
+        this.collectorPlayer.tick(this);
+        this.mainAttackerPlayer.tick(this);
+        this.secondAttackerPlayer.tick(this);
+        this.healerPlayer.tick(this);
+    }
+
+    /**
+     * Finds and updates the paths of each non-defender player according to its pre-specified
+     * commands.
+     *
+     * @private
+     */
+    private findPlayerPaths(): void {
+        if (this.mainAttackerCommands.has(this.ticks)) {
+            this.mainAttackerPlayer.findPath(this, this.mainAttackerCommands.get(this.ticks).clone());
+        }
+
+        if (this.secondAttackerCommands.has(this.ticks)) {
+            this.secondAttackerPlayer.findPath(this, this.secondAttackerCommands.get(this.ticks).clone());
+        }
+
+        if (this.healerCommands.has(this.ticks)) {
+            this.healerPlayer.findPath(this, this.healerCommands.get(this.ticks).clone());
+        }
+
+        if (this.collectorCommands.has(this.ticks)) {
+            this.collectorPlayer.findPath(this, this.collectorCommands.get(this.ticks).clone());
+        }
     }
 
     /**
@@ -222,7 +280,7 @@ export class BarbarianAssault {
     }
 
     /**
-     * Calls the tick() function of every Penance.
+     * Progresses each penance's state by one tick.
      *
      * @private
      */
@@ -326,7 +384,18 @@ export class BarbarianAssault {
      * @return  a deep clone of this object
      */
     public clone(): BarbarianAssault {
-        let barbarianAssault: BarbarianAssault = new BarbarianAssault(this.wave, this.requireRepairs, this.requireLogs, this.infiniteFood, this.runnerMovements, this.defenderLevel);
+        let barbarianAssault: BarbarianAssault = new BarbarianAssault(
+            this.wave,
+            this.requireRepairs,
+            this.requireLogs,
+            this.infiniteFood,
+            this.runnerMovements,
+            this.defenderLevel,
+            this.mainAttackerCommands,
+            this.secondAttackerCommands,
+            this.healerCommands,
+            this.collectorCommands
+        );
         barbarianAssault.map = this.map === null ? null : this.map.clone();
         barbarianAssault.ticks = this.ticks;
         barbarianAssault.wave = this.wave;
@@ -361,6 +430,22 @@ export class BarbarianAssault {
         barbarianAssault.runnerMovementsIndex = this.runnerMovementsIndex;
         barbarianAssault.currentRunnerId = this.currentRunnerId;
         barbarianAssault.defenderLevel = this.defenderLevel;
+        barbarianAssault.mainAttackerCommands = new Map<number, Position>();
+        this.mainAttackerCommands.forEach((position: Position, tick: number): void => {
+            barbarianAssault.mainAttackerCommands.set(tick, position === null ? null : position.clone());
+        });
+        barbarianAssault.secondAttackerCommands = new Map<number, Position>();
+        this.secondAttackerCommands.forEach((position: Position, tick: number): void => {
+            barbarianAssault.secondAttackerCommands.set(tick, position === null ? null : position.clone());
+        });
+        barbarianAssault.healerCommands = new Map<number, Position>();
+        this.healerCommands.forEach((position: Position, tick: number): void => {
+            barbarianAssault.healerCommands.set(tick, position === null ? null : position.clone());
+        });
+        barbarianAssault.collectorCommands = new Map<number, Position>();
+        this.collectorCommands.forEach((position: Position, tick: number): void => {
+            barbarianAssault.collectorCommands.set(tick, position === null ? null : position.clone());
+        });
 
         return barbarianAssault;
     }

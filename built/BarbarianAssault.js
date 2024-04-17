@@ -13,7 +13,7 @@ import { HealerPenance } from "./HealerPenance.js";
  * progressing the game state.
  */
 export class BarbarianAssault {
-    constructor(wave, requireRepairs, requireLogs, infiniteFood, runnerMovements, defenderLevel) {
+    constructor(wave, requireRepairs, requireLogs, infiniteFood, runnerMovements, defenderLevel, mainAttackerCommands, secondAttackerCommands, healerCommands, collectorCommands) {
         this.ticks = 0;
         this.defenderFoodCall = FoodType.TOFU;
         this.eastTrapCharges = 2;
@@ -39,6 +39,10 @@ export class BarbarianAssault {
         this.infiniteFood = infiniteFood;
         this.runnerMovements = runnerMovements;
         this.defenderLevel = defenderLevel;
+        this.mainAttackerCommands = mainAttackerCommands;
+        this.secondAttackerCommands = secondAttackerCommands;
+        this.healerCommands = healerCommands;
+        this.collectorCommands = collectorCommands;
         switch (wave) {
             case 1:
                 this.maxRunnersAlive = 2;
@@ -147,7 +151,40 @@ export class BarbarianAssault {
         if (this.ticks > 1 && this.ticks % 10 === 1 && this.healersAlive < this.maxHealersAlive && this.healersKilled + this.healersAlive < this.totalHealers) {
             this.spawnHealer();
         }
+        this.tickPlayers();
+        this.findPlayerPaths();
+    }
+    /**
+     * Progresses each player's state by one tick.
+     *
+     * @private
+     */
+    tickPlayers() {
         this.defenderPlayer.tick(this);
+        this.collectorPlayer.tick(this);
+        this.mainAttackerPlayer.tick(this);
+        this.secondAttackerPlayer.tick(this);
+        this.healerPlayer.tick(this);
+    }
+    /**
+     * Finds and updates the paths of each non-defender player according to its pre-specified
+     * commands.
+     *
+     * @private
+     */
+    findPlayerPaths() {
+        if (this.mainAttackerCommands.has(this.ticks)) {
+            this.mainAttackerPlayer.findPath(this, this.mainAttackerCommands.get(this.ticks).clone());
+        }
+        if (this.secondAttackerCommands.has(this.ticks)) {
+            this.secondAttackerPlayer.findPath(this, this.secondAttackerCommands.get(this.ticks).clone());
+        }
+        if (this.healerCommands.has(this.ticks)) {
+            this.healerPlayer.findPath(this, this.healerCommands.get(this.ticks).clone());
+        }
+        if (this.collectorCommands.has(this.ticks)) {
+            this.collectorPlayer.findPath(this, this.collectorCommands.get(this.ticks).clone());
+        }
     }
     /**
      * Spawns a RunnerPenance.
@@ -188,7 +225,7 @@ export class BarbarianAssault {
         this.healersAlive++;
     }
     /**
-     * Calls the tick() function of every Penance.
+     * Progresses each penance's state by one tick.
      *
      * @private
      */
@@ -284,7 +321,7 @@ export class BarbarianAssault {
      * @return  a deep clone of this object
      */
     clone() {
-        let barbarianAssault = new BarbarianAssault(this.wave, this.requireRepairs, this.requireLogs, this.infiniteFood, this.runnerMovements, this.defenderLevel);
+        let barbarianAssault = new BarbarianAssault(this.wave, this.requireRepairs, this.requireLogs, this.infiniteFood, this.runnerMovements, this.defenderLevel, this.mainAttackerCommands, this.secondAttackerCommands, this.healerCommands, this.collectorCommands);
         barbarianAssault.map = this.map === null ? null : this.map.clone();
         barbarianAssault.ticks = this.ticks;
         barbarianAssault.wave = this.wave;
@@ -319,6 +356,22 @@ export class BarbarianAssault {
         barbarianAssault.runnerMovementsIndex = this.runnerMovementsIndex;
         barbarianAssault.currentRunnerId = this.currentRunnerId;
         barbarianAssault.defenderLevel = this.defenderLevel;
+        barbarianAssault.mainAttackerCommands = new Map();
+        this.mainAttackerCommands.forEach((position, tick) => {
+            barbarianAssault.mainAttackerCommands.set(tick, position === null ? null : position.clone());
+        });
+        barbarianAssault.secondAttackerCommands = new Map();
+        this.secondAttackerCommands.forEach((position, tick) => {
+            barbarianAssault.secondAttackerCommands.set(tick, position === null ? null : position.clone());
+        });
+        barbarianAssault.healerCommands = new Map();
+        this.healerCommands.forEach((position, tick) => {
+            barbarianAssault.healerCommands.set(tick, position === null ? null : position.clone());
+        });
+        barbarianAssault.collectorCommands = new Map();
+        this.collectorCommands.forEach((position, tick) => {
+            barbarianAssault.collectorCommands.set(tick, position === null ? null : position.clone());
+        });
         return barbarianAssault;
     }
 }

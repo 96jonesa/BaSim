@@ -30,6 +30,10 @@ const HTML_TOGGLE_INFINITE_FOOD: string = "toggleinfinitefood";
 const HTML_TOGGLE_LOG_TO_REPAIR: string = "togglelogtorepair";
 const HTML_MARKER_COLOR: string = "marker";
 const HTML_MARKING_TILES: string = "markingtiles";
+const HTML_MAIN_ATTACKER_COMMANDS: string = "mainattackercommands";
+const HTML_SECOND_ATTACKER_COMMANDS: string = "secondattackercommands";
+const HTML_HEALER_COMMANDS: string = "healercommands";
+const HTML_COLLECTOR_COMMANDS: string = "collectorcommands";
 
 window.onload = init;
 
@@ -111,10 +115,10 @@ function init(): void {
     canvas.oncontextmenu = function (mouseEvent: MouseEvent): void {
         mouseEvent.preventDefault();
     }
-
     wave = Number(waveSelect.value);
     defenderLevel = Number(defenderLevelSelection.value);
     markerColor = Number("0x" + markerColorInput.value.substring(1));
+
 }
 
 /**
@@ -129,7 +133,22 @@ function reset(): void {
     isRunning = false;
     startStopButton.innerHTML = "Start Wave";
 
-    barbarianAssault = new BarbarianAssault(wave, requireRepairs, requireLogs, infiniteFood, [], defenderLevel);
+    console.log((document.getElementById(HTML_MAIN_ATTACKER_COMMANDS) as HTMLInputElement).value);
+    console.log(convertCommandsStringToMap((document.getElementById(HTML_MAIN_ATTACKER_COMMANDS) as HTMLInputElement).value));
+
+    barbarianAssault = new BarbarianAssault(
+        wave,
+        requireRepairs,
+        requireLogs,
+        infiniteFood,
+        [],
+        defenderLevel,
+        convertCommandsStringToMap((document.getElementById(HTML_MAIN_ATTACKER_COMMANDS) as HTMLInputElement).value),
+        convertCommandsStringToMap((document.getElementById(HTML_SECOND_ATTACKER_COMMANDS) as HTMLInputElement).value),
+        convertCommandsStringToMap((document.getElementById(HTML_HEALER_COMMANDS) as HTMLInputElement).value),
+        convertCommandsStringToMap((document.getElementById(HTML_COLLECTOR_COMMANDS) as HTMLInputElement).value)
+    );
+
     draw();
 }
 
@@ -277,12 +296,6 @@ function canvasOnMouseDown(mouseEvent: MouseEvent): void {
             }
         } else {
             barbarianAssault.defenderPlayer.findPath(barbarianAssault, new Position(xTile, yTile));
-        }
-    } else if (mouseEvent.button === 2) {
-        if (barbarianAssault.collectorPlayer.position.equals(new Position(xTile, yTile))) {
-            barbarianAssault.collectorPlayer.position.x = -1;
-        } else {
-            barbarianAssault.collectorPlayer.position = new Position(xTile, yTile);
         }
     }
 }
@@ -572,7 +585,19 @@ function startStopButtonOnClick(): void {
         isPaused = false;
         startStopButton.innerHTML = "Stop Wave";
 
-        barbarianAssault = new BarbarianAssault(wave, requireRepairs, requireLogs, infiniteFood, movements, defenderLevel);
+        barbarianAssault = new BarbarianAssault(
+            wave,
+            requireRepairs,
+            requireLogs,
+            infiniteFood,
+            movements,
+            defenderLevel,
+            convertCommandsStringToMap((document.getElementById(HTML_MAIN_ATTACKER_COMMANDS) as HTMLInputElement).value),
+            convertCommandsStringToMap((document.getElementById(HTML_SECOND_ATTACKER_COMMANDS) as HTMLInputElement).value),
+            convertCommandsStringToMap((document.getElementById(HTML_HEALER_COMMANDS) as HTMLInputElement).value),
+            convertCommandsStringToMap((document.getElementById(HTML_COLLECTOR_COMMANDS) as HTMLInputElement).value)
+        );
+
         console.log("Wave " + wave + " started!");
         tick();
         tickTimerId = setInterval(tick, Number(tickDurationInput.value));
@@ -640,4 +665,52 @@ function toggleInfiniteFoodOnChange(): void {
  */
 function toggleLogToRepairOnChange(): void {
     requireLogs = toggleLogToRepair.checked;
+}
+
+/**
+ * Converts the given commands string to a map from tick numbers to positions.
+ * If the given commands string is invalid, then an empty map is returned
+ *
+ * @param commandsString    the commands string to convert to a map from tick
+ *                          numbers to positions
+ * @return                  a map from tick numbers to positions as specified by
+ *                          the given commands string, or an empty map if the given
+ *                          commands string is invalid
+ */
+function convertCommandsStringToMap(commandsString: string): Map<number, Position> {
+    if (commandsString === null) {
+        return new Map<number, Position>();
+    }
+
+    const commandsMap: Map<number, Position> = new Map<number, Position>();
+
+    const commands: Array<string> = commandsString.split("\n");
+
+    for (let i: number = 0; i < commands.length; i++) {
+        const command: string = commands[i];
+
+        const commandTokens: Array<string> = command.split(":");
+
+        if (commandTokens.length !== 2) {
+            return new Map<number, Position>();
+        }
+
+        const tick: number = Number(commandTokens[0]);
+
+        if (!Number.isInteger(tick) || tick < 1 || commandsMap.has(tick)) {
+            return new Map<number, Position>();
+        }
+
+        const positionTokens: Array<string> = commandTokens[1].split(",");
+        const positionX: number = Number(positionTokens[0]);
+        const positionY: number = Number(positionTokens[1]);
+
+        if (!Number.isInteger(positionX) || !Number.isInteger(positionY)) {
+            return new Map<number, Position>();
+        }
+
+        commandsMap.set(tick, new Position(positionX, positionY));
+    }
+
+    return commandsMap;
 }

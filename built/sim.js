@@ -15,7 +15,7 @@ const HTML_TOGGLE_PAUSE_SL = 'togglepausesl';
 const HTML_CURRENT_DEF_FOOD = "currdeffood";
 const HTML_TICK_DURATION = "tickduration";
 const HTML_TOGGLE_INFINITE_FOOD = "toggleinfinitefood";
-const HTML_TOGGLE_LOG_TO_REPAIR = "toggleloghammertorepair";
+const HTML_TOGGLE_LOG_TO_REPAIR = "togglelogtorepair";
 const HTML_MARKER_COLOR = "marker";
 const HTML_MARKING_TILES = "markingtiles";
 window.onload = init;
@@ -47,7 +47,7 @@ var tickTimerId;
 var wave;
 var defenderLevel;
 var markerColor;
-var toggleMarkingTilesButton;
+var toggleMarkingTiles;
 var savedBarbarianAssault;
 var savedTickCountSpanInnerHTML;
 var savedCurrentDefenderFoodSpanInnerHTML;
@@ -81,19 +81,20 @@ function init() {
     currentDefenderFoodSpan = document.getElementById(HTML_CURRENT_DEF_FOOD);
     markerColorInput = document.getElementById(HTML_MARKER_COLOR);
     renderer = new Renderer(canvas, 64 * 12, 48 * 12, 12);
-    toggleMarkingTilesButton = document.getElementById(HTML_MARKING_TILES);
-    toggleMarkingTilesButton.onclick = toggleMarkingTilesButtonOnClick;
-    markingTiles = false;
+    toggleMarkingTiles = document.getElementById(HTML_MARKING_TILES);
+    toggleMarkingTiles.onchange = toggleMarkingTilesOnChange;
+    markingTiles = toggleMarkingTiles.checked;
     markedTiles = [];
+    infiniteFood = toggleInfiniteFood.checked;
+    requireRepairs = toggleRepair.checked;
+    requireLogs = toggleLogToRepair.checked;
+    pauseSaveLoad = togglePauseSaveLoad.checked;
     reset();
     window.onkeydown = windowOnKeyDown;
     canvas.onmousedown = canvasOnMouseDown;
     canvas.oncontextmenu = function (mouseEvent) {
         mouseEvent.preventDefault();
     };
-    infiniteFood = toggleInfiniteFood.value === "yes";
-    requireLogs = toggleLogToRepair.value === "yes";
-    requireRepairs = toggleRepair.value === "yes";
     wave = Number(waveSelect.value);
     defenderLevel = Number(defenderLevelSelection.value);
     markerColor = Number("0x" + markerColorInput.value.substring(1));
@@ -515,8 +516,8 @@ function tick() {
 /**
  * Toggles whether tile-marking mode is enabled.
  */
-function toggleMarkingTilesButtonOnClick() {
-    markingTiles = !markingTiles;
+function toggleMarkingTilesOnChange() {
+    markingTiles = toggleMarkingTiles.checked;
 }
 /**
  * Sets the wave to the selected wave value, and stops and resets the simulator.
@@ -536,23 +537,23 @@ function defenderLevelSelectionOnChange() {
  * Toggles whether traps need to be repaired.
  */
 function toggleRepairOnChange() {
-    requireRepairs = toggleRepair.value === "yes";
+    requireRepairs = toggleRepair.checked;
 }
 /**
  * Toggles whether the simulator must be paused before saving / loading.
  */
 function togglePauseSaveLoadOnChange() {
-    pauseSaveLoad = togglePauseSaveLoad.value === "yes";
+    pauseSaveLoad = togglePauseSaveLoad.checked;
 }
 /**
  * Toggles whether the defender has infinite food.
  */
 function toggleInfiniteFoodOnChange() {
-    infiniteFood = toggleInfiniteFood.value === "yes";
+    infiniteFood = toggleInfiniteFood.checked;
 }
 /**
  * Toggles whether a log is required to repair a trap.
  */
 function toggleLogToRepairOnChange() {
-    requireLogs = toggleLogToRepair.value === "yes";
+    requireLogs = toggleLogToRepair.checked;
 }

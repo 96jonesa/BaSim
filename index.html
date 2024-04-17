@@ -1,43 +1,61 @@
 <!DOCTYPE html>
 <title>Ba simulator</title>
 <script type="module" src="built/sim.js"></script>
+
 Defender level: <select id="deflevelselect">
-<option value="4">Level 1</option>
-<option value="5" selected>Level 2-5</option>
-</select><br>
+    <option value="4">Level 1</option>
+    <option value="5" selected>Level 2-5</option>
+</select>
+<br>
+
 Wave: <select id="waveselect">
-<option value="1">Wave 1</option>
-<option value="2">Wave 2</option>
-<option value="3">Wave 3</option>
-<option value="4">Wave 4</option>
-<option value="5">Wave 5</option>
-<option value="6">Wave 6</option>
-<option value="7">Wave 7</option>
-<option value="8">Wave 8</option>
-<option value="9">Wave 9</option>
-<option value="10">Wave 10</option>
-</select><br>
-Repairs required: <select id="togglerepair">
-    <option value="yes">Yes</option>
-    <option value="no">No</option>
-</select><br>
-Infinite food: <select id="toggleinfinitefood">
-    <option value="no">No</option>
-    <option value="yes">Yes</option>
-</select><br>
-Require log to repair: <select id="toggleloghammertorepair">
-    <option value="yes">Yes</option>
-    <option value="no">No</option>
-</select><br>
-Pause to save/load: <select id="togglepausesl">
-    <option value="no">No</option>
-    <option value="yes">Yes</option>
-</select><br>
-Runner movements: <input id="runnermovements" type="text"/><br>
-Tick duration (milliseconds): <input id="tickduration" type="number" min="100" max="1200" value="600"/><br>
-<button id="markingtiles">Toggle tile marker mode</button><input type="color" id="marker" name="marker" value="#000000"> Marker<br>
-<button id="wavestart"></button> <b>Tick count: <span id="tickcount"></span></b> --- <b>Current Food: <span id="currdeffood"></span></b><br>
-<canvas id="basimcanvas"></canvas><br>
+    <option value="1">Wave 1</option>
+    <option value="2">Wave 2</option>
+    <option value="3">Wave 3</option>
+    <option value="4">Wave 4</option>
+    <option value="5">Wave 5</option>
+    <option value="6">Wave 6</option>
+    <option value="7">Wave 7</option>
+    <option value="8">Wave 8</option>
+    <option value="9">Wave 9</option>
+    <option value="10">Wave 10</option>
+</select>
+<br>
+
+Runner movements: <input id="runnermovements" type="text"/>
+<br>
+
+Tick duration (milliseconds): <input id="tickduration" type="number" min="100" max="1200" value="600"/>
+<br>
+
+<input type="checkbox" id="togglerepair" checked>
+<label for="togglerepair">Require repairs</label>
+<br>
+
+<input type="checkbox" id="toggleinfinitefood">
+<label for="toggleinfinitefood">Infinite food</label>
+<br>
+
+<input type="checkbox" id="togglelogtorepair" checked>
+<label for="togglelogtorepair">Require log to repair</label>
+<br>
+
+<input type="checkbox" id="togglepausesl">
+<label for="togglepausesl">Require paused to save/load</label>
+<br>
+
+<input type="checkbox" id="markingtiles">
+<label for="markingtiles">Tile marker mode</label>
+
+<input type="color" id="marker" name="marker" value="#000000"> Marker color
+<br>
+
+<button id="wavestart"></button> <b>Tick count: <span id="tickcount"></span></b> --- <b>Current Food: <span id="currdeffood"></span></b>
+<br>
+
+<canvas id="basimcanvas"></canvas>
+<br>
+
 <b>space</b> starts or stops the wave.<br>
 <b>left-click</b> moves the player.<br>
 <b>right-click</b> places a collector.<br>
@@ -79,4 +97,4 @@ To multikill, move off stack when last digit of tick is 1. They will eat when la
 <br>
 Please let me know if anything is not working correctly. -McLovin1981<br>
 <br>
-<b>Thanks to Henke for creating the runner simulator, which I have expanded here</b>
+<b>Thanks to all contributors!</b>

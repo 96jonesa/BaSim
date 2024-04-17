@@ -10,6 +10,7 @@ export class CollectorPlayer extends Player {
      * @inheritDoc
      */
     tick(barbarianAssault) {
+        this.move();
     }
     /**
      * Creates a deep clone of this object.

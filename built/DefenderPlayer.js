@@ -36,7 +36,11 @@ export class DefenderPlayer extends Player {
         if (this.isPickingUpLogs) {
             this.pickUpLogs(barbarianAssault);
         }
+        const position = this.position.clone();
         this.move();
+        if (!this.position.equals(position)) {
+            this.ticksStandingStill = 0;
+        }
     }
     /**
      * Drops a {@link Food} of the given FoodType at this defender player's current
@@ -157,37 +161,6 @@ export class DefenderPlayer extends Player {
         this.pathQueueIndex = 0;
         this.foodBeingPickedUp = null;
         this.isPickingUpLogs = false;
-    }
-    /**
-     * This defender player takes up to two steps (as many as possible) in its path to
-     * its destination.
-     *
-     * @private
-     */
-    move() {
-        if (this.takeSteps(2) === 0) {
-            this.ticksStandingStill++; // TODO: having this here might lead to bug
-        }
-        else {
-            this.ticksStandingStill = 0;
-        }
-    }
-    /**
-     * This defender takes up to the given number of steps (as many as possible) in
-     * its path to its destination.
-     *
-     * @param steps the maximum number of steps for this defender player to take in
-     *              its path to its destination
-     * @private
-     */
-    takeSteps(steps) {
-        let stepsTaken = 0;
-        while (stepsTaken < steps && this.pathQueueIndex > 0) {
-            this.pathQueueIndex--;
-            this.position = this.pathQueuePositions[this.pathQueueIndex];
-            stepsTaken++;
-        }
-        return stepsTaken;
     }
     /**
      * Determines if this defender player is in range to repair a trap at the given position.

@@ -182,4 +182,35 @@ export abstract class Player extends Character {
             }
         }
     }
+
+    /**
+     * This player takes up to two steps (as many as possible) in its path to
+     * its destination.
+     *
+     * @private
+     */
+    protected move(): void {
+        this.takeSteps(2);
+    }
+
+    /**
+     * This player takes up to the given number of steps (as many as possible) in
+     * its path to its destination.
+     *
+     * @param steps the maximum number of steps for this player to take in
+     *              its path to its destination
+     * @return      the number of steps taken
+     * @private
+     */
+    private takeSteps(steps: number): number {
+        let stepsTaken: number = 0;
+
+        while (stepsTaken < steps && this.pathQueueIndex > 0) {
+            this.pathQueueIndex--;
+            this.position = this.pathQueuePositions[this.pathQueueIndex];
+            stepsTaken++;
+        }
+
+        return stepsTaken;
+    }
 }

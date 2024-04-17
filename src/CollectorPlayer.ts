@@ -14,6 +14,7 @@ export class CollectorPlayer extends Player {
      * @inheritDoc
      */
     public tick(barbarianAssault: BarbarianAssault): void {
+        this.move();
     }
 
     /**

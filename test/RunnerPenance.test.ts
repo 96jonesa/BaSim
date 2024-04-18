@@ -21,7 +21,8 @@ describe("tick", (): void => {
             new Map<number, Position>(),
             new Map<number, Position>(),
             new Map<number, Position>(),
-            new Map<number, Position>()
+            new Map<number, Position>(),
+            []
         );
 
         runnerPenance.tick(barbarianAssault);
@@ -45,7 +46,8 @@ describe("tick", (): void => {
             new Map<number, Position>(),
             new Map<number, Position>(),
             new Map<number, Position>(),
-            new Map<number, Position>()
+            new Map<number, Position>(),
+            []
         );
 
         runnerPenance.tick(barbarianAssault);
@@ -73,7 +75,8 @@ describe("tick", (): void => {
             new Map<number, Position>(),
             new Map<number, Position>(),
             new Map<number, Position>(),
-            new Map<number, Position>()
+            new Map<number, Position>(),
+            []
         );
 
         runnerPenance.tick(barbarianAssault);
@@ -97,7 +100,8 @@ describe("tick", (): void => {
             new Map<number, Position>(),
             new Map<number, Position>(),
             new Map<number, Position>(),
-            new Map<number, Position>()
+            new Map<number, Position>(),
+            []
         );
 
         runnerPenance.tick(barbarianAssault);
@@ -124,7 +128,8 @@ describe("tick", (): void => {
             new Map<number, Position>(),
             new Map<number, Position>(),
             new Map<number, Position>(),
-            new Map<number, Position>()
+            new Map<number, Position>(),
+            []
         );
 
         barbarianAssault.runnersAlive = 1;
@@ -160,7 +165,8 @@ describe("tick", (): void => {
             new Map<number, Position>(),
             new Map<number, Position>(),
             new Map<number, Position>(),
-            new Map<number, Position>()
+            new Map<number, Position>(),
+            []
         );
 
         barbarianAssault.eastTrapCharges = 2;
@@ -203,7 +209,8 @@ describe("tick", (): void => {
             new Map<number, Position>(),
             new Map<number, Position>(),
             new Map<number, Position>(),
-            new Map<number, Position>()
+            new Map<number, Position>(),
+            []
         );
 
         barbarianAssault.eastTrapCharges = 0;
@@ -246,7 +253,8 @@ describe("tick", (): void => {
             new Map<number, Position>(),
             new Map<number, Position>(),
             new Map<number, Position>(),
-            new Map<number, Position>()
+            new Map<number, Position>(),
+            []
         );
 
         barbarianAssault.westTrapCharges = 2;
@@ -289,7 +297,8 @@ describe("tick", (): void => {
             new Map<number, Position>(),
             new Map<number, Position>(),
             new Map<number, Position>(),
-            new Map<number, Position>()
+            new Map<number, Position>(),
+            []
         );
 
         barbarianAssault.westTrapCharges = 0;

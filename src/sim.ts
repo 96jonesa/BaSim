@@ -5,10 +5,14 @@ import {Renderer} from "./Renderer.js";
 import {Position} from "./Position.js";
 import {
     LOS_EAST_MASK,
-    LOS_FULL_MASK, LOS_NORTH_MASK, LOS_SOUTH_MASK,
+    LOS_FULL_MASK,
+    LOS_NORTH_MASK,
+    LOS_SOUTH_MASK,
     LOS_WEST_MASK,
     MOVE_EAST_MASK,
-    MOVE_FULL_MASK, MOVE_NORTH_MASK, MOVE_SOUTH_MASK,
+    MOVE_FULL_MASK,
+    MOVE_NORTH_MASK,
+    MOVE_SOUTH_MASK,
     MOVE_WEST_MASK
 } from "./BarbarianAssaultMap.js";
 import {Food} from "./Food.js";
@@ -37,6 +41,7 @@ const HTML_COLLECTOR_COMMANDS: string = "collectorcommands";
 const HTML_DEFENDER_COMMANDS: string = "defendercommands";
 const HTML_PLAYER_SELECT: string = "playerselect";
 const HTML_CONTROLLED_COMMANDS: string = "controlledcommands";
+const HTML_FOOD_CALLS: string = "foodcalls";
 
 window.onload = init;
 
@@ -72,6 +77,7 @@ var toggleMarkingTiles: HTMLInputElement;
 var playerSelect: HTMLInputElement;
 var player: string;
 var controlledCommands: HTMLElement;
+var foodCallsInput: HTMLInputElement;
 
 
 var savedBarbarianAssault: BarbarianAssault;
@@ -90,6 +96,7 @@ var savedDefenderCommands: string;
 var savedRequireRepairs: boolean;
 var savedInfiniteFood: boolean;
 var savedRequireLogs: boolean;
+var savedFoodCallsString: string;
 
 /**
  * Initializes the simulator.
@@ -103,6 +110,13 @@ function init(): void {
         }
     };
     movementsInput.onchange = movementsInputOnChange;
+    foodCallsInput = document.getElementById(HTML_FOOD_CALLS) as HTMLInputElement;
+    foodCallsInput.onkeydown = function (keyboardEvent: KeyboardEvent): void {
+        if (keyboardEvent.key === " ") {
+            keyboardEvent.preventDefault();
+        }
+    };
+    foodCallsInput.onchange = foodCallsInputOnChange;
     tickDurationInput = document.getElementById(HTML_TICK_DURATION) as HTMLInputElement;
     startStopButton = document.getElementById(HTML_START_BUTTON);
     startStopButton.onclick = startStopButtonOnClick;
@@ -171,7 +185,8 @@ function reset(): void {
         player === "secondattacker" ? new Map<number, Position> : convertCommandsStringToMap((document.getElementById(HTML_SECOND_ATTACKER_COMMANDS) as HTMLInputElement).value),
         player === "healer" ? new Map<number, Position> : convertCommandsStringToMap((document.getElementById(HTML_HEALER_COMMANDS) as HTMLInputElement).value),
         player === "collector" ? new Map<number, Position> : convertCommandsStringToMap((document.getElementById(HTML_COLLECTOR_COMMANDS) as HTMLInputElement).value),
-        player === "defender" ? new Map<number, Position> : convertCommandsStringToMap((document.getElementById(HTML_DEFENDER_COMMANDS) as HTMLInputElement).value)
+        player === "defender" ? new Map<number, Position> : convertCommandsStringToMap((document.getElementById(HTML_DEFENDER_COMMANDS) as HTMLInputElement).value),
+        []
     );
 
     draw();
@@ -200,6 +215,30 @@ function parseMovementsInput(): Array<string> {
     }
 
     return movements;
+}
+
+function parseFoodCallsInput(): Array<FoodType> {
+    const foodCalls: Array<FoodType> = [];
+
+    const foodCallsString: string = foodCallsInput.value;
+
+    for (let i: number = 0; i < foodCallsString.length; i++) {
+        switch (foodCallsString.charAt(i).toLowerCase()) {
+            case "t":
+                foodCalls.push(FoodType.TOFU);
+                break;
+            case "w":
+                foodCalls.push(FoodType.WORMS);
+                break;
+            case "c":
+                foodCalls.push(FoodType.CRACKERS);
+                break;
+            default:
+                return null;
+        }
+    }
+
+    return foodCalls;
 }
 
 /**
@@ -301,6 +340,7 @@ function save(): void {
     savedRequireRepairs = requireRepairs;
     savedInfiniteFood = infiniteFood;
     savedRequireLogs = requireLogs;
+    savedFoodCallsString = foodCallsInput.value;
 }
 
 /**
@@ -327,6 +367,7 @@ function load(): void {
     toggleLogToRepair.checked = savedRequireLogs;
     toggleRepair.checked = savedRequireRepairs;
     toggleInfiniteFood.checked = savedInfiniteFood;
+    foodCallsInput.value = savedFoodCallsString;
 
     barbarianAssault = savedBarbarianAssault;
 
@@ -673,6 +714,24 @@ function startStopButtonOnClick(): void {
             return;
         }
 
+        const foodCalls: Array<FoodType> = parseFoodCallsInput();
+
+        if (foodCalls === null) {
+            alert("Invalid food calls. Example: twcw");
+            return;
+        }
+
+        const mainAttackerCommands: Map<number, Position> = convertCommandsStringToMap((document.getElementById(HTML_MAIN_ATTACKER_COMMANDS) as HTMLInputElement).value);
+        const secondAttackerCommands: Map<number, Position> = convertCommandsStringToMap((document.getElementById(HTML_SECOND_ATTACKER_COMMANDS) as HTMLInputElement).value);
+        const healerCommands: Map<number, Position> = convertCommandsStringToMap((document.getElementById(HTML_HEALER_COMMANDS) as HTMLInputElement).value);
+        const collectorCommands: Map<number, Position> = convertCommandsStringToMap((document.getElementById(HTML_COLLECTOR_COMMANDS) as HTMLInputElement).value);
+        const defenderCommands: Map<number, Position> = convertCommandsStringToMap((document.getElementById(HTML_DEFENDER_COMMANDS) as HTMLInputElement).value);
+
+        if (mainAttackerCommands === null || secondAttackerCommands === null || healerCommands === null || collectorCommands === null || defenderCommands === null) {
+            alert("Invalid team commands. Example: 7:20,24");
+            return;
+        }
+
         isRunning = true;
         isPaused = false;
         startStopButton.innerHTML = "Stop Wave";
@@ -686,11 +745,12 @@ function startStopButtonOnClick(): void {
             infiniteFood,
             movements,
             defenderLevel,
-            player === "mainattacker" ? new Map<number, Position> : convertCommandsStringToMap((document.getElementById(HTML_MAIN_ATTACKER_COMMANDS) as HTMLInputElement).value),
-            player === "secondattacker" ? new Map<number, Position> : convertCommandsStringToMap((document.getElementById(HTML_SECOND_ATTACKER_COMMANDS) as HTMLInputElement).value),
-            player === "healer" ? new Map<number, Position> : convertCommandsStringToMap((document.getElementById(HTML_HEALER_COMMANDS) as HTMLInputElement).value),
-            player === "collector" ? new Map<number, Position> : convertCommandsStringToMap((document.getElementById(HTML_COLLECTOR_COMMANDS) as HTMLInputElement).value),
-            player === "defender" ? new Map<number, Position> : convertCommandsStringToMap((document.getElementById(HTML_DEFENDER_COMMANDS) as HTMLInputElement).value)
+            player === "mainattacker" ? new Map<number, Position> : mainAttackerCommands,
+            player === "secondattacker" ? new Map<number, Position> : secondAttackerCommands,
+            player === "healer" ? new Map<number, Position> : healerCommands,
+            player === "collector" ? new Map<number, Position> : collectorCommands,
+            player === "defender" ? new Map<number, Position> : defenderCommands,
+            foodCalls
         );
 
         console.log("Wave " + wave + " started!");
@@ -750,6 +810,10 @@ function movementsInputOnChange(): void {
     reset();
 }
 
+function foodCallsInputOnChange(): void {
+    reset();
+}
+
 /**
  * Toggles whether the simulator must be paused before saving / loading.
  */
@@ -775,17 +839,17 @@ function toggleLogToRepairOnChange(): void {
 
 /**
  * Converts the given commands string to a map from tick numbers to positions.
- * If the given commands string is invalid, then an empty map is returned
+ * If the given commands string is invalid, then null is returned
  *
  * @param commandsString    the commands string to convert to a map from tick
  *                          numbers to positions
  * @return                  a map from tick numbers to positions as specified by
- *                          the given commands string, or an empty map if the given
+ *                          the given commands string, or null if the given
  *                          commands string is invalid
  */
 function convertCommandsStringToMap(commandsString: string): Map<number, Position> {
     if (commandsString === null) {
-        return new Map<number, Position>();
+        return null;
     }
 
     const commandsMap: Map<number, Position> = new Map<number, Position>();
@@ -802,13 +866,13 @@ function convertCommandsStringToMap(commandsString: string): Map<number, Positio
         const commandTokens: Array<string> = command.split(":");
 
         if (commandTokens.length !== 2) {
-            return new Map<number, Position>();
+            return null;
         }
 
         const tick: number = Number(commandTokens[0]);
 
         if (!Number.isInteger(tick) || tick < 1) {
-            return new Map<number, Position>();
+            return null;
         }
 
         const positionTokens: Array<string> = commandTokens[1].split(",");
@@ -816,7 +880,7 @@ function convertCommandsStringToMap(commandsString: string): Map<number, Positio
         const positionY: number = Number(positionTokens[1]);
 
         if (!Number.isInteger(positionX) || !Number.isInteger(positionY)) {
-            return new Map<number, Position>();
+            return null;
         }
 
         commandsMap.set(tick, new Position(positionX, positionY));

@@ -25,15 +25,18 @@ Wave: <select id="waveselect">
 Runner movements: <input id="runnermovements" type="text"/>
 <br>
 
+Food calls: <input id="foodcalls" type="text"/>
+<br>
+
 Tick duration (milliseconds): <input id="tickduration" type="number" min="100" max="1200" value="600"/>
+<br>
+
+<input type="checkbox" id="toggleinfinitefood" checked>
+<label for="toggleinfinitefood">Infinite food</label>
 <br>
 
 <input type="checkbox" id="togglerepair" checked>
 <label for="togglerepair">Require repairs</label>
-<br>
-
-<input type="checkbox" id="toggleinfinitefood">
-<label for="toggleinfinitefood">Infinite food</label>
 <br>
 
 <input type="checkbox" id="togglelogtorepair" checked>
@@ -122,9 +125,12 @@ Tick duration (milliseconds): <input id="tickduration" type="number" min="100" m
 <b>Runner movements:</b> Forced runner movements. For example, 'ww-e-s' for first runner west west, second runner east, third runner south.<br>
 <br>
 
+<b>Food calls:</b> If specified, then this is the order of defender food calls. For example, 'twcw' for tofu worms cracker worms. You may specify the same food repeatedly, e.g. 'tttt' will result in four consecutive tofu calls.<br>
+<br>
+
 <b>Tile marker mode:</b> Click to switch between movement and tile marker mode.<br>
 While in tile marker mode, left-clicking an unmarked tile will mark it and left-clicking a marked tile will unmark it.<br>
-Click the colored rectangle beside 'Marker' to change the color of marked tiles.<br>
+Click the colored rectangle to change the color of marked tiles.<br>
 <br>
 
 <b>Team Commands:</b> For each player, you can enter a list of positions to click to move to at specified ticks.

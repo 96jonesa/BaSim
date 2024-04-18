@@ -19,7 +19,7 @@ export class BarbarianAssault {
     public wave: number;
     public maxRunnersAlive: number;
     public totalRunners: number;
-    public defenderFoodCall: FoodType = FoodType.TOFU;
+    public defenderFoodCall: FoodType;
     public eastTrapCharges: number = 2;
     public westTrapCharges: number = 2;
     public northwestLogsArePresent: boolean = true;
@@ -57,6 +57,8 @@ export class BarbarianAssault {
     public healerCommands: Map<number, Position>;
     public collectorCommands: Map<number, Position>;
     public defenderCommands: Map<number, Position>;
+    public foodCalls: Array<FoodType>;
+    public foodCallsIndex: number = 0;
 
 
     public constructor(
@@ -70,7 +72,8 @@ export class BarbarianAssault {
         secondAttackerCommands: Map<number, Position>,
         healerCommands: Map<number, Position>,
         collectorCommands: Map<number, Position>,
-        defenderCommands: Map<number, Position>
+        defenderCommands: Map<number, Position>,
+        foodCalls: Array<FoodType>
     ) {
         this.wave = wave;
         this.requireRepairs = requireRepairs;
@@ -83,6 +86,7 @@ export class BarbarianAssault {
         this.healerCommands = healerCommands;
         this.collectorCommands = collectorCommands;
         this.defenderCommands = defenderCommands;
+        this.foodCalls = foodCalls;
 
         switch (wave) {
             case 1:
@@ -170,6 +174,8 @@ export class BarbarianAssault {
         }
 
         this.map = new BarbarianAssaultMap(wave);
+
+        this.changeDefenderFoodCall();
     }
 
     /**
@@ -323,6 +329,13 @@ export class BarbarianAssault {
      * @private
      */
     private changeDefenderFoodCall(): void {
+        if (this.foodCallsIndex < this.foodCalls.length) {
+            this.defenderFoodCall = this.foodCalls[this.foodCallsIndex];
+            this.foodCallsIndex++;
+
+            return;
+        }
+
         switch (this.defenderFoodCall) {
             case FoodType.TOFU:
                 if (Math.random() < 0.5) {
@@ -346,6 +359,10 @@ export class BarbarianAssault {
                 } else {
                     this.defenderFoodCall = FoodType.CRACKERS;
                 }
+
+                break;
+            default:
+                this.defenderFoodCall = FoodType.TOFU;
 
                 break;
         }
@@ -402,7 +419,8 @@ export class BarbarianAssault {
             this.secondAttackerCommands,
             this.healerCommands,
             this.collectorCommands,
-            this.defenderCommands
+            this.defenderCommands,
+            this.foodCalls
         );
         barbarianAssault.map = this.map === null ? null : this.map.clone();
         barbarianAssault.ticks = this.ticks;
@@ -458,6 +476,10 @@ export class BarbarianAssault {
         this.defenderCommands.forEach((position: Position, tick: number): void => {
             barbarianAssault.defenderCommands.set(tick, position === null ? null : position.clone());
         });
+        barbarianAssault.foodCalls = new Array<FoodType>;
+        for (let i: number = 0; i < this.foodCalls.length; i++) {
+            barbarianAssault.foodCalls.push(this.foodCalls[i]);
+        }
 
         return barbarianAssault;
     }

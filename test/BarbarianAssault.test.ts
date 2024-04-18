@@ -47,7 +47,8 @@ describe("constructor", (): void => {
             new Map<number, Position>(),
             new Map<number, Position>(),
             new Map<number, Position>(),
-            new Map<number, Position>()
+            new Map<number, Position>(),
+            []
         );
 
         expect(barbarianAssault.maxRunnersAlive).toBe(maxRunnersAlive);
@@ -82,7 +83,8 @@ describe("tick", (): void => {
             new Map<number, Position>(),
             new Map<number, Position>(),
             new Map<number, Position>(),
-            new Map<number, Position>()
+            new Map<number, Position>(),
+            []
         );
 
         barbarianAssault.northwestLogsArePresent = false;
@@ -110,7 +112,8 @@ describe("tick", (): void => {
             new Map<number, Position>(),
             new Map<number, Position>(),
             new Map<number, Position>(),
-            new Map<number, Position>()
+            new Map<number, Position>(),
+            []
         );
 
         barbarianAssault.ticks = 1;
@@ -139,7 +142,8 @@ describe("tick", (): void => {
             new Map<number, Position>(),
             new Map<number, Position>(),
             new Map<number, Position>(),
-            new Map<number, Position>()
+            new Map<number, Position>(),
+            []
         );
 
         barbarianAssault.ticks = 10;
@@ -168,7 +172,8 @@ describe("tick", (): void => {
             new Map<number, Position>(),
             new Map<number, Position>(),
             new Map<number, Position>(),
-            new Map<number, Position>()
+            new Map<number, Position>(),
+            []
         );
 
         barbarianAssault.ticks = 51;
@@ -208,7 +213,8 @@ describe("tick", (): void => {
             new Map<number, Position>(),
             new Map<number, Position>(),
             new Map<number, Position>(),
-            new Map<number, Position>()
+            new Map<number, Position>(),
+            []
         );
 
         barbarianAssault.ticks = 10;
@@ -236,7 +242,8 @@ describe("tick", (): void => {
             new Map<number, Position>(),
             new Map<number, Position>(),
             new Map<number, Position>(),
-            new Map<number, Position>()
+            new Map<number, Position>(),
+            []
         );
 
         barbarianAssault.ticks = 10;
@@ -263,7 +270,8 @@ describe("tick", (): void => {
             new Map<number, Position>(),
             new Map<number, Position>(),
             new Map<number, Position>(),
-            new Map<number, Position>()
+            new Map<number, Position>(),
+            []
         );
 
         barbarianAssault.ticks = 10;
@@ -288,7 +296,8 @@ describe("tick", (): void => {
             new Map<number, Position>(),
             new Map<number, Position>(),
             new Map<number, Position>(),
-            new Map<number, Position>()
+            new Map<number, Position>(),
+            []
         );
 
         const runner1: RunnerPenance = new RunnerPenance(new Position(42, 38), new RunnerPenanceRng(""), 1, 5);
@@ -323,7 +332,8 @@ describe("tick", (): void => {
             new Map<number, Position>(),
             new Map<number, Position>(),
             new Map<number, Position>(),
-            new Map<number, Position>()
+            new Map<number, Position>(),
+            []
         );
 
         barbarianAssault.ticks = 10;
@@ -350,7 +360,8 @@ describe("tick", (): void => {
             new Map<number, Position>(),
             new Map<number, Position>(),
             new Map<number, Position>(),
-            new Map<number, Position>()
+            new Map<number, Position>(),
+            []
         );
 
         barbarianAssault.ticks = 10;
@@ -387,7 +398,8 @@ describe("tick", (): void => {
             new Map<number, Position>(),
             new Map<number, Position>(),
             new Map<number, Position>(),
-            new Map<number, Position>()
+            new Map<number, Position>(),
+            []
         );
 
         barbarianAssault.ticks = 51;
@@ -414,7 +426,8 @@ describe("tileBlocksPenance", (): void => {
             new Map<number, Position>(),
             new Map<number, Position>(),
             new Map<number, Position>(),
-            new Map<number, Position>()
+            new Map<number, Position>(),
+            []
         );
 
         const position: Position = barbarianAssault.defenderPlayer.position.clone();
@@ -434,7 +447,8 @@ describe("tileBlocksPenance", (): void => {
             new Map<number, Position>(),
             new Map<number, Position>(),
             new Map<number, Position>(),
-            new Map<number, Position>()
+            new Map<number, Position>(),
+            []
         );
 
         const position: Position = barbarianAssault.collectorPlayer.position.clone();
@@ -477,7 +491,8 @@ describe("tileBlocksPenance", (): void => {
             new Map<number, Position>(),
             new Map<number, Position>(),
             new Map<number, Position>(),
-            new Map<number, Position>()
+            new Map<number, Position>(),
+            []
         );
 
         const position: Position = new Position(positionX, positionY);
@@ -508,7 +523,8 @@ describe("tileBlocksPenance", (): void => {
             new Map<number, Position>(),
             new Map<number, Position>(),
             new Map<number, Position>(),
-            new Map<number, Position>()
+            new Map<number, Position>(),
+            []
         );
 
         const position: Position = new Position(positionX, positionY);
@@ -530,7 +546,8 @@ describe("clone", (): void => {
             new Map<number, Position>(),
             new Map<number, Position>(),
             new Map<number, Position>(),
-            new Map<number, Position>()
+            new Map<number, Position>(),
+            []
         );
 
         const runnerPenance: RunnerPenance = new RunnerPenance(new Position(42, 38), new RunnerPenanceRng(""), 1, 5);
@@ -556,7 +573,8 @@ describe("clone", (): void => {
             new Map<number, Position>(),
             new Map<number, Position>(),
             new Map<number, Position>(),
-            new Map<number, Position>()
+            new Map<number, Position>(),
+            []
         );
 
         const runnerPenance: RunnerPenance = null;

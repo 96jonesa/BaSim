@@ -25,6 +25,7 @@ const HTML_COLLECTOR_COMMANDS = "collectorcommands";
 const HTML_DEFENDER_COMMANDS = "defendercommands";
 const HTML_PLAYER_SELECT = "playerselect";
 const HTML_CONTROLLED_COMMANDS = "controlledcommands";
+const HTML_FOOD_CALLS = "foodcalls";
 window.onload = init;
 var markingTiles;
 var markedTiles;
@@ -58,6 +59,7 @@ var toggleMarkingTiles;
 var playerSelect;
 var player;
 var controlledCommands;
+var foodCallsInput;
 var savedBarbarianAssault;
 var savedTickCountSpanInnerHTML;
 var savedCurrentDefenderFoodSpanInnerHTML;
@@ -74,6 +76,7 @@ var savedDefenderCommands;
 var savedRequireRepairs;
 var savedInfiniteFood;
 var savedRequireLogs;
+var savedFoodCallsString;
 /**
  * Initializes the simulator.
  */
@@ -86,6 +89,13 @@ function init() {
         }
     };
     movementsInput.onchange = movementsInputOnChange;
+    foodCallsInput = document.getElementById(HTML_FOOD_CALLS);
+    foodCallsInput.onkeydown = function (keyboardEvent) {
+        if (keyboardEvent.key === " ") {
+            keyboardEvent.preventDefault();
+        }
+    };
+    foodCallsInput.onchange = foodCallsInputOnChange;
     tickDurationInput = document.getElementById(HTML_TICK_DURATION);
     startStopButton = document.getElementById(HTML_START_BUTTON);
     startStopButton.onclick = startStopButtonOnClick;
@@ -139,7 +149,7 @@ function reset() {
     startStopButton.innerHTML = "Start Wave";
     console.log(document.getElementById(HTML_MAIN_ATTACKER_COMMANDS).value);
     console.log(convertCommandsStringToMap(document.getElementById(HTML_MAIN_ATTACKER_COMMANDS).value));
-    barbarianAssault = new BarbarianAssault(wave, requireRepairs, requireLogs, infiniteFood, [], defenderLevel, player === "mainattacker" ? new Map : convertCommandsStringToMap(document.getElementById(HTML_MAIN_ATTACKER_COMMANDS).value), player === "secondattacker" ? new Map : convertCommandsStringToMap(document.getElementById(HTML_SECOND_ATTACKER_COMMANDS).value), player === "healer" ? new Map : convertCommandsStringToMap(document.getElementById(HTML_HEALER_COMMANDS).value), player === "collector" ? new Map : convertCommandsStringToMap(document.getElementById(HTML_COLLECTOR_COMMANDS).value), player === "defender" ? new Map : convertCommandsStringToMap(document.getElementById(HTML_DEFENDER_COMMANDS).value));
+    barbarianAssault = new BarbarianAssault(wave, requireRepairs, requireLogs, infiniteFood, [], defenderLevel, player === "mainattacker" ? new Map : convertCommandsStringToMap(document.getElementById(HTML_MAIN_ATTACKER_COMMANDS).value), player === "secondattacker" ? new Map : convertCommandsStringToMap(document.getElementById(HTML_SECOND_ATTACKER_COMMANDS).value), player === "healer" ? new Map : convertCommandsStringToMap(document.getElementById(HTML_HEALER_COMMANDS).value), player === "collector" ? new Map : convertCommandsStringToMap(document.getElementById(HTML_COLLECTOR_COMMANDS).value), player === "defender" ? new Map : convertCommandsStringToMap(document.getElementById(HTML_DEFENDER_COMMANDS).value), []);
     draw();
 }
 /**
@@ -161,6 +171,26 @@ function parseMovementsInput() {
         }
     }
     return movements;
+}
+function parseFoodCallsInput() {
+    const foodCalls = [];
+    const foodCallsString = foodCallsInput.value;
+    for (let i = 0; i < foodCallsString.length; i++) {
+        switch (foodCallsString.charAt(i).toLowerCase()) {
+            case "t":
+                foodCalls.push(FoodType.TOFU);
+                break;
+            case "w":
+                foodCalls.push(FoodType.WORMS);
+                break;
+            case "c":
+                foodCalls.push(FoodType.CRACKERS);
+                break;
+            default:
+                return null;
+        }
+    }
+    return foodCalls;
 }
 /**
  * Handles the given keyboard event.
@@ -255,6 +285,7 @@ function save() {
     savedRequireRepairs = requireRepairs;
     savedInfiniteFood = infiniteFood;
     savedRequireLogs = requireLogs;
+    savedFoodCallsString = foodCallsInput.value;
 }
 /**
  * Pauses and loads the previously saved state of the simulator.
@@ -279,6 +310,7 @@ function load() {
     toggleLogToRepair.checked = savedRequireLogs;
     toggleRepair.checked = savedRequireRepairs;
     toggleInfiniteFood.checked = savedInfiniteFood;
+    foodCallsInput.value = savedFoodCallsString;
     barbarianAssault = savedBarbarianAssault;
     // the existing save state will mutate as the simulator proceeds,
     // so re-clone the save state in case of subsequent loads
@@ -580,11 +612,25 @@ function startStopButtonOnClick() {
             alert("Invalid runner movements. Example: ws-s");
             return;
         }
+        const foodCalls = parseFoodCallsInput();
+        if (foodCalls === null) {
+            alert("Invalid food calls. Example: twcw");
+            return;
+        }
+        const mainAttackerCommands = convertCommandsStringToMap(document.getElementById(HTML_MAIN_ATTACKER_COMMANDS).value);
+        const secondAttackerCommands = convertCommandsStringToMap(document.getElementById(HTML_SECOND_ATTACKER_COMMANDS).value);
+        const healerCommands = convertCommandsStringToMap(document.getElementById(HTML_HEALER_COMMANDS).value);
+        const collectorCommands = convertCommandsStringToMap(document.getElementById(HTML_COLLECTOR_COMMANDS).value);
+        const defenderCommands = convertCommandsStringToMap(document.getElementById(HTML_DEFENDER_COMMANDS).value);
+        if (mainAttackerCommands === null || secondAttackerCommands === null || healerCommands === null || collectorCommands === null || defenderCommands === null) {
+            alert("Invalid team commands. Example: 7:20,24");
+            return;
+        }
         isRunning = true;
         isPaused = false;
         startStopButton.innerHTML = "Stop Wave";
         controlledCommands.innerHTML = "";
-        barbarianAssault = new BarbarianAssault(wave, requireRepairs, requireLogs, infiniteFood, movements, defenderLevel, player === "mainattacker" ? new Map : convertCommandsStringToMap(document.getElementById(HTML_MAIN_ATTACKER_COMMANDS).value), player === "secondattacker" ? new Map : convertCommandsStringToMap(document.getElementById(HTML_SECOND_ATTACKER_COMMANDS).value), player === "healer" ? new Map : convertCommandsStringToMap(document.getElementById(HTML_HEALER_COMMANDS).value), player === "collector" ? new Map : convertCommandsStringToMap(document.getElementById(HTML_COLLECTOR_COMMANDS).value), player === "defender" ? new Map : convertCommandsStringToMap(document.getElementById(HTML_DEFENDER_COMMANDS).value));
+        barbarianAssault = new BarbarianAssault(wave, requireRepairs, requireLogs, infiniteFood, movements, defenderLevel, player === "mainattacker" ? new Map : mainAttackerCommands, player === "secondattacker" ? new Map : secondAttackerCommands, player === "healer" ? new Map : healerCommands, player === "collector" ? new Map : collectorCommands, player === "defender" ? new Map : defenderCommands, foodCalls);
         console.log("Wave " + wave + " started!");
         tick();
         tickTimerId = setInterval(tick, Number(tickDurationInput.value));
@@ -635,6 +681,9 @@ function toggleRepairOnChange() {
 function movementsInputOnChange() {
     reset();
 }
+function foodCallsInputOnChange() {
+    reset();
+}
 /**
  * Toggles whether the simulator must be paused before saving / loading.
  */
@@ -657,17 +706,17 @@ function toggleLogToRepairOnChange() {
 }
 /**
  * Converts the given commands string to a map from tick numbers to positions.
- * If the given commands string is invalid, then an empty map is returned
+ * If the given commands string is invalid, then null is returned
  *
  * @param commandsString    the commands string to convert to a map from tick
  *                          numbers to positions
  * @return                  a map from tick numbers to positions as specified by
- *                          the given commands string, or an empty map if the given
+ *                          the given commands string, or null if the given
  *                          commands string is invalid
  */
 function convertCommandsStringToMap(commandsString) {
     if (commandsString === null) {
-        return new Map();
+        return null;
     }
     const commandsMap = new Map();
     const commands = commandsString.split("\n");
@@ -678,17 +727,17 @@ function convertCommandsStringToMap(commandsString) {
         }
         const commandTokens = command.split(":");
         if (commandTokens.length !== 2) {
-            return new Map();
+            return null;
         }
         const tick = Number(commandTokens[0]);
         if (!Number.isInteger(tick) || tick < 1) {
-            return new Map();
+            return null;
         }
         const positionTokens = commandTokens[1].split(",");
         const positionX = Number(positionTokens[0]);
         const positionY = Number(positionTokens[1]);
         if (!Number.isInteger(positionX) || !Number.isInteger(positionY)) {
-            return new Map();
+            return null;
         }
         commandsMap.set(tick, new Position(positionX, positionY));
     }

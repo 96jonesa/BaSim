@@ -27,7 +27,8 @@ describe("tick", (): void => {
             new Map<number, Position>(),
             new Map<number, Position>(),
             new Map<number, Position>(),
-            new Map<number, Position>()
+            new Map<number, Position>(),
+            []
         );
 
         healerPlayer.tick(barbarianAssault);

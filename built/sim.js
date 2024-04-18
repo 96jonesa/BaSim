@@ -4,6 +4,9 @@ import { BarbarianAssault } from "./BarbarianAssault.js";
 import { Renderer } from "./Renderer.js";
 import { Position } from "./Position.js";
 import { LOS_EAST_MASK, LOS_FULL_MASK, LOS_NORTH_MASK, LOS_SOUTH_MASK, LOS_WEST_MASK, MOVE_EAST_MASK, MOVE_FULL_MASK, MOVE_NORTH_MASK, MOVE_SOUTH_MASK, MOVE_WEST_MASK } from "./BarbarianAssaultMap.js";
+import { MoveCommand } from "./MoveCommand.js";
+import { DefenderActionCommand } from "./DefenderActionCommand.js";
+import { DefenderActionType } from "./DefenderActionType.js";
 const HTML_CANVAS = "basimcanvas";
 const HTML_RUNNER_MOVEMENTS = "runnermovements";
 const HTML_START_BUTTON = "wavestart";
@@ -147,9 +150,7 @@ function reset() {
     }
     isRunning = false;
     startStopButton.innerHTML = "Start Wave";
-    console.log(document.getElementById(HTML_MAIN_ATTACKER_COMMANDS).value);
-    console.log(convertCommandsStringToMap(document.getElementById(HTML_MAIN_ATTACKER_COMMANDS).value));
-    barbarianAssault = new BarbarianAssault(wave, requireRepairs, requireLogs, infiniteFood, [], defenderLevel, player === "mainattacker" ? new Map : convertCommandsStringToMap(document.getElementById(HTML_MAIN_ATTACKER_COMMANDS).value), player === "secondattacker" ? new Map : convertCommandsStringToMap(document.getElementById(HTML_SECOND_ATTACKER_COMMANDS).value), player === "healer" ? new Map : convertCommandsStringToMap(document.getElementById(HTML_HEALER_COMMANDS).value), player === "collector" ? new Map : convertCommandsStringToMap(document.getElementById(HTML_COLLECTOR_COMMANDS).value), player === "defender" ? new Map : convertCommandsStringToMap(document.getElementById(HTML_DEFENDER_COMMANDS).value), []);
+    barbarianAssault = new BarbarianAssault(wave, requireRepairs, requireLogs, infiniteFood, [], defenderLevel, player === "mainattacker" ? new Map : convertCommandsStringToMap(document.getElementById(HTML_MAIN_ATTACKER_COMMANDS).value, "mainattacker"), player === "secondattacker" ? new Map : convertCommandsStringToMap(document.getElementById(HTML_SECOND_ATTACKER_COMMANDS).value, "secondattacker"), player === "healer" ? new Map : convertCommandsStringToMap(document.getElementById(HTML_HEALER_COMMANDS).value, "healer"), player === "collector" ? new Map : convertCommandsStringToMap(document.getElementById(HTML_COLLECTOR_COMMANDS).value, "collector"), player === "defender" ? new Map : convertCommandsStringToMap(document.getElementById(HTML_DEFENDER_COMMANDS).value, "defender"), []);
     draw();
 }
 /**
@@ -204,41 +205,57 @@ function windowOnKeyDown(keyboardEvent) {
             case "t":
                 if (player === "defender") {
                     barbarianAssault.defenderPlayer.dropFood(barbarianAssault, FoodType.TOFU);
+                    controlledCommands.innerHTML += barbarianAssault.ticks + ":t<br>";
+                    controlledCommands.scrollTop = controlledCommands.scrollHeight;
                 }
                 break;
             case "c":
                 if (player === "defender") {
                     barbarianAssault.defenderPlayer.dropFood(barbarianAssault, FoodType.CRACKERS);
+                    controlledCommands.innerHTML += barbarianAssault.ticks + ":c<br>";
+                    controlledCommands.scrollTop = controlledCommands.scrollHeight;
                 }
                 break;
             case "w":
                 if (player === "defender") {
                     barbarianAssault.defenderPlayer.dropFood(barbarianAssault, FoodType.WORMS);
+                    controlledCommands.innerHTML += barbarianAssault.ticks + ":w<br>";
+                    controlledCommands.scrollTop = controlledCommands.scrollHeight;
                 }
                 break;
             case "1":
                 if (player === "defender") {
                     barbarianAssault.defenderPlayer.foodBeingPickedUp = FoodType.TOFU;
+                    controlledCommands.innerHTML += barbarianAssault.ticks + ":1<br>";
+                    controlledCommands.scrollTop = controlledCommands.scrollHeight;
                 }
                 break;
             case "2":
                 if (player === "defender") {
                     barbarianAssault.defenderPlayer.foodBeingPickedUp = FoodType.CRACKERS;
+                    controlledCommands.innerHTML += barbarianAssault.ticks + ":2<br>";
+                    controlledCommands.scrollTop = controlledCommands.scrollHeight;
                 }
                 break;
             case "3":
                 if (player === "defender") {
                     barbarianAssault.defenderPlayer.foodBeingPickedUp = FoodType.WORMS;
+                    controlledCommands.innerHTML += barbarianAssault.ticks + ":3<br>";
+                    controlledCommands.scrollTop = controlledCommands.scrollHeight;
                 }
                 break;
             case "l":
                 if (player === "defender") {
                     barbarianAssault.defenderPlayer.isPickingUpLogs = true;
+                    controlledCommands.innerHTML += barbarianAssault.ticks + ":l<br>";
+                    controlledCommands.scrollTop = controlledCommands.scrollHeight;
                 }
                 break;
             case "r":
                 if (player === "defender") {
                     barbarianAssault.defenderPlayer.startRepairing(barbarianAssault);
+                    controlledCommands.innerHTML += barbarianAssault.ticks + ":r<br>";
+                    controlledCommands.scrollTop = controlledCommands.scrollHeight;
                 }
                 break;
             case "p":
@@ -617,11 +634,11 @@ function startStopButtonOnClick() {
             alert("Invalid food calls. Example: twcw");
             return;
         }
-        const mainAttackerCommands = convertCommandsStringToMap(document.getElementById(HTML_MAIN_ATTACKER_COMMANDS).value);
-        const secondAttackerCommands = convertCommandsStringToMap(document.getElementById(HTML_SECOND_ATTACKER_COMMANDS).value);
-        const healerCommands = convertCommandsStringToMap(document.getElementById(HTML_HEALER_COMMANDS).value);
-        const collectorCommands = convertCommandsStringToMap(document.getElementById(HTML_COLLECTOR_COMMANDS).value);
-        const defenderCommands = convertCommandsStringToMap(document.getElementById(HTML_DEFENDER_COMMANDS).value);
+        const mainAttackerCommands = convertCommandsStringToMap(document.getElementById(HTML_MAIN_ATTACKER_COMMANDS).value, "mainattacker");
+        const secondAttackerCommands = convertCommandsStringToMap(document.getElementById(HTML_SECOND_ATTACKER_COMMANDS).value, "secondattacker");
+        const healerCommands = convertCommandsStringToMap(document.getElementById(HTML_HEALER_COMMANDS).value, "healer");
+        const collectorCommands = convertCommandsStringToMap(document.getElementById(HTML_COLLECTOR_COMMANDS).value, "collector");
+        const defenderCommands = convertCommandsStringToMap(document.getElementById(HTML_DEFENDER_COMMANDS).value, "defender");
         if (mainAttackerCommands === null || secondAttackerCommands === null || healerCommands === null || collectorCommands === null || defenderCommands === null) {
             alert("Invalid team commands. Example: 7:20,24");
             return;
@@ -714,7 +731,7 @@ function toggleLogToRepairOnChange() {
  *                          the given commands string, or null if the given
  *                          commands string is invalid
  */
-function convertCommandsStringToMap(commandsString) {
+function convertCommandsStringToMap(commandsString, player) {
     if (commandsString === null) {
         return null;
     }
@@ -726,24 +743,70 @@ function convertCommandsStringToMap(commandsString) {
         if (command.length === 0) {
             continue;
         }
-        const commandTokens = command.split(":");
-        if (commandTokens.length !== 2) {
+        const tickAndCommand = command.split(":");
+        if (tickAndCommand.length !== 2) {
             return null;
         }
-        const tick = Number(commandTokens[0]);
+        const tick = Number(tickAndCommand[0]);
         if (!Number.isInteger(tick) || tick < 1 || tick < previousCommandTick) {
             return null;
         }
-        const positionTokens = commandTokens[1].split(",");
-        const positionX = Number(positionTokens[0]);
-        const positionY = Number(positionTokens[1]);
-        if (!Number.isInteger(positionX) || !Number.isInteger(positionY)) {
+        const commandTokens = tickAndCommand[1].split(",");
+        if (commandTokens.length === 1) {
+            if (player !== "defender") {
+                return null;
+            }
+            switch (commandTokens[0]) {
+                case "t":
+                    addToCommandsMap(commandsMap, tick, new DefenderActionCommand(DefenderActionType.DROP_TOFU));
+                    break;
+                case "c":
+                    addToCommandsMap(commandsMap, tick, new DefenderActionCommand(DefenderActionType.DROP_CRACKERS));
+                    break;
+                case "w":
+                    addToCommandsMap(commandsMap, tick, new DefenderActionCommand(DefenderActionType.DROP_WORMS));
+                    break;
+                case "1":
+                    addToCommandsMap(commandsMap, tick, new DefenderActionCommand(DefenderActionType.PICKUP_TOFU));
+                    break;
+                case "2":
+                    addToCommandsMap(commandsMap, tick, new DefenderActionCommand(DefenderActionType.PICKUP_CRACKERS));
+                    break;
+                case "3":
+                    addToCommandsMap(commandsMap, tick, new DefenderActionCommand(DefenderActionType.PICKUP_WORMS));
+                    break;
+                case "l":
+                    addToCommandsMap(commandsMap, tick, new DefenderActionCommand(DefenderActionType.PICKUP_LOGS));
+                    break;
+                case "r":
+                    addToCommandsMap(commandsMap, tick, new DefenderActionCommand(DefenderActionType.REPAIR_TRAP));
+                    break;
+                default:
+                    return null;
+            }
+        }
+        else if (commandTokens.length === 2) {
+            const positionX = Number(commandTokens[0]);
+            const positionY = Number(commandTokens[1]);
+            if (!Number.isInteger(positionX) || !Number.isInteger(positionY)) {
+                return null;
+            }
+            addToCommandsMap(commandsMap, tick, new MoveCommand(new Position(positionX, positionY)));
+        }
+        else {
             return null;
         }
-        commandsMap.set(tick, new Position(positionX, positionY));
         previousCommandTick = tick;
     }
     return commandsMap;
+}
+function addToCommandsMap(commandsMap, tick, command) {
+    if (commandsMap.has(tick)) {
+        commandsMap.get(tick).push(command);
+    }
+    else {
+        commandsMap.set(tick, [command]);
+    }
 }
 /**
  * Converts time measured in ticks to seconds.

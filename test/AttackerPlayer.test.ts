@@ -2,6 +2,7 @@ import {describe, expect, test} from "vitest";
 import {AttackerPlayer} from "../src/AttackerPlayer.js";
 import {Position} from "../src/Position.js";
 import {BarbarianAssault} from "../src/BarbarianAssault.js";
+import {Command} from "../src/Command.js";
 
 describe("tick", (): void => {
     test("does nothing", (): void => {
@@ -23,11 +24,11 @@ describe("tick", (): void => {
             infiniteFood,
             runnerMovements,
             defenderLevel,
-            new Map<number, Position>(),
-            new Map<number, Position>(),
-            new Map<number, Position>(),
-            new Map<number, Position>(),
-            new Map<number, Position>(),
+            new Map<number, Array<Command>>(),
+            new Map<number, Array<Command>>(),
+            new Map<number, Array<Command>>(),
+            new Map<number, Array<Command>>(),
+            new Map<number, Array<Command>>(),
             []
         );
 

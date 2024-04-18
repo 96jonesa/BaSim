@@ -8,6 +8,10 @@ import {CollectorPlayer} from "./CollectorPlayer.js";
 import {AttackerPlayer} from "./AttackerPlayer.js";
 import {HealerPlayer} from "./HealerPlayer.js";
 import {HealerPenance} from "./HealerPenance.js";
+import {Command} from "./Command.js";
+import {MoveCommand} from "./MoveCommand.js";
+import {DefenderActionCommand} from "./DefenderActionCommand.js";
+import {DefenderActionType} from "./DefenderActionType.js";
 
 /**
  * Represents a game of Barbarian Assault: holds state information and exposes functions for
@@ -52,11 +56,11 @@ export class BarbarianAssault {
     public currentRunnerId: number = 1;
     public currentHealerId: number = 1;
     public defenderLevel: number;
-    public mainAttackerCommands: Map<number, Position>;
-    public secondAttackerCommands: Map<number, Position>;
-    public healerCommands: Map<number, Position>;
-    public collectorCommands: Map<number, Position>;
-    public defenderCommands: Map<number, Position>;
+    public mainAttackerCommands: Map<number, Array<Command>>;
+    public secondAttackerCommands: Map<number, Array<Command>>;
+    public healerCommands: Map<number, Array<Command>>;
+    public collectorCommands: Map<number, Array<Command>>;
+    public defenderCommands: Map<number, Array<Command>>;
     public foodCalls: Array<FoodType>;
     public foodCallsIndex: number = 0;
 
@@ -68,11 +72,11 @@ export class BarbarianAssault {
         infiniteFood: boolean,
         runnerMovements: Array<string>,
         defenderLevel: number,
-        mainAttackerCommands: Map<number, Position>,
-        secondAttackerCommands: Map<number, Position>,
-        healerCommands: Map<number, Position>,
-        collectorCommands: Map<number, Position>,
-        defenderCommands: Map<number, Position>,
+        mainAttackerCommands: Map<number, Array<Command>>,
+        secondAttackerCommands: Map<number, Array<Command>>,
+        healerCommands: Map<number, Array<Command>>,
+        collectorCommands: Map<number, Array<Command>>,
+        defenderCommands: Map<number, Array<Command>>,
         foodCalls: Array<FoodType>
     ) {
         this.wave = wave;
@@ -207,7 +211,7 @@ export class BarbarianAssault {
         }
 
         this.tickPlayers();
-        this.findPlayerPaths();
+        this.executePlayerCommands();
     }
 
     /**
@@ -224,30 +228,78 @@ export class BarbarianAssault {
     }
 
     /**
-     * Finds and updates the paths of each non-defender player according to its pre-specified
-     * commands.
+     * Executes player commands for all players for the current tick.
      *
      * @private
      */
-    private findPlayerPaths(): void {
+    private executePlayerCommands(): void {
         if (this.mainAttackerCommands.has(this.ticks)) {
-            this.mainAttackerPlayer.findPath(this, this.mainAttackerCommands.get(this.ticks).clone());
+            this.mainAttackerCommands.get(this.ticks).forEach((command: Command): void => {
+                if (command instanceof MoveCommand) {
+                    this.mainAttackerPlayer.findPath(this, command.destination.clone());
+                }
+            });
         }
 
         if (this.secondAttackerCommands.has(this.ticks)) {
-            this.secondAttackerPlayer.findPath(this, this.secondAttackerCommands.get(this.ticks).clone());
+            this.secondAttackerCommands.get(this.ticks).forEach((command: Command): void => {
+                if (command instanceof MoveCommand) {
+                    this.secondAttackerPlayer.findPath(this, command.destination.clone());
+                }
+            });
         }
 
         if (this.healerCommands.has(this.ticks)) {
-            this.healerPlayer.findPath(this, this.healerCommands.get(this.ticks).clone());
+            this.healerCommands.get(this.ticks).forEach((command: Command): void => {
+                if (command instanceof MoveCommand) {
+                    this.healerPlayer.findPath(this, command.destination.clone());
+                }
+            });
         }
 
         if (this.collectorCommands.has(this.ticks)) {
-            this.collectorPlayer.findPath(this, this.collectorCommands.get(this.ticks).clone());
+            this.collectorCommands.get(this.ticks).forEach((command: Command): void => {
+                if (command instanceof MoveCommand) {
+                    this.collectorPlayer.findPath(this, command.destination.clone());
+                }
+            });
         }
 
         if (this.defenderCommands.has(this.ticks)) {
-            this.defenderPlayer.findPath(this, this.defenderCommands.get(this.ticks).clone());
+            this.defenderCommands.get(this.ticks).forEach((command: Command): void => {
+                if (command instanceof MoveCommand) {
+                    this.defenderPlayer.findPath(this, command.destination.clone());
+                } else if (command instanceof DefenderActionCommand) {
+                    switch (command.type) {
+                        case DefenderActionType.DROP_TOFU:
+                            this.defenderPlayer.dropFood(this, FoodType.TOFU);
+                            break;
+                        case DefenderActionType.DROP_CRACKERS:
+                            this.defenderPlayer.dropFood(this, FoodType.CRACKERS);
+                            break;
+                        case DefenderActionType.DROP_WORMS:
+                            this.defenderPlayer.dropFood(this, FoodType.WORMS);
+                            break;
+                        case DefenderActionType.PICKUP_TOFU:
+                            this.defenderPlayer.foodBeingPickedUp = FoodType.TOFU;
+                            break;
+                        case DefenderActionType.PICKUP_CRACKERS:
+                            this.defenderPlayer.foodBeingPickedUp = FoodType.CRACKERS;
+                            break;
+                        case DefenderActionType.PICKUP_WORMS:
+                            this.defenderPlayer.foodBeingPickedUp = FoodType.WORMS;
+                            break;
+                        case DefenderActionType.PICKUP_LOGS:
+                            this.defenderPlayer.isPickingUpLogs = true;
+                            break;
+                        case DefenderActionType.REPAIR_TRAP:
+                            this.defenderPlayer.startRepairing(this);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            });
         }
     }
 
@@ -456,25 +508,51 @@ export class BarbarianAssault {
         barbarianAssault.runnerMovementsIndex = this.runnerMovementsIndex;
         barbarianAssault.currentRunnerId = this.currentRunnerId;
         barbarianAssault.defenderLevel = this.defenderLevel;
-        barbarianAssault.mainAttackerCommands = new Map<number, Position>();
-        this.mainAttackerCommands.forEach((position: Position, tick: number): void => {
-            barbarianAssault.mainAttackerCommands.set(tick, position === null ? null : position.clone());
+        barbarianAssault.mainAttackerCommands = new Map<number, Array<Command>>();
+        this.mainAttackerCommands.forEach((commands: Array<Command>, tick: number): void => {
+            const commandsArray: Array<Command> = [];
+
+            commands.forEach((command: Command): void => {
+                commandsArray.push(command.clone());
+            });
+
+            barbarianAssault.mainAttackerCommands.set(tick, commandsArray);
         });
-        barbarianAssault.secondAttackerCommands = new Map<number, Position>();
-        this.secondAttackerCommands.forEach((position: Position, tick: number): void => {
-            barbarianAssault.secondAttackerCommands.set(tick, position === null ? null : position.clone());
+        this.secondAttackerCommands.forEach((commands: Array<Command>, tick: number): void => {
+            const commandsArray: Array<Command> = [];
+
+            commands.forEach((command: Command): void => {
+                commandsArray.push(command.clone());
+            });
+
+            barbarianAssault.secondAttackerCommands.set(tick, commandsArray);
         });
-        barbarianAssault.healerCommands = new Map<number, Position>();
-        this.healerCommands.forEach((position: Position, tick: number): void => {
-            barbarianAssault.healerCommands.set(tick, position === null ? null : position.clone());
+        this.healerCommands.forEach((commands: Array<Command>, tick: number): void => {
+            const commandsArray: Array<Command> = [];
+
+            commands.forEach((command: Command): void => {
+                commandsArray.push(command.clone());
+            });
+
+            barbarianAssault.healerCommands.set(tick, commandsArray);
         });
-        barbarianAssault.collectorCommands = new Map<number, Position>();
-        this.collectorCommands.forEach((position: Position, tick: number): void => {
-            barbarianAssault.collectorCommands.set(tick, position === null ? null : position.clone());
+        this.collectorCommands.forEach((commands: Array<Command>, tick: number): void => {
+            const commandsArray: Array<Command> = [];
+
+            commands.forEach((command: Command): void => {
+                commandsArray.push(command.clone());
+            });
+
+            barbarianAssault.collectorCommands.set(tick, commandsArray);
         });
-        barbarianAssault.defenderCommands = new Map<number, Position>();
-        this.defenderCommands.forEach((position: Position, tick: number): void => {
-            barbarianAssault.defenderCommands.set(tick, position === null ? null : position.clone());
+        this.defenderCommands.forEach((commands: Array<Command>, tick: number): void => {
+            const commandsArray: Array<Command> = [];
+
+            commands.forEach((command: Command): void => {
+                commandsArray.push(command.clone());
+            });
+
+            barbarianAssault.defenderCommands.set(tick, commandsArray);
         });
         barbarianAssault.foodCalls = new Array<FoodType>;
         for (let i: number = 0; i < this.foodCalls.length; i++) {

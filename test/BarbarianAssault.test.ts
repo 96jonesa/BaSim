@@ -4,6 +4,7 @@ import {RunnerPenance} from "../src/RunnerPenance.js";
 import {Position} from "../src/Position.js";
 import {RunnerPenanceRng} from "../src/RunnerPenanceRng.js";
 import {FoodType} from "../src/FoodType.js";
+import {Command} from "../src/Command.js";
 
 describe("constructor", (): void => {
     test.each([
@@ -43,11 +44,11 @@ describe("constructor", (): void => {
             false,
             [],
             5,
-            new Map<number, Position>(),
-            new Map<number, Position>(),
-            new Map<number, Position>(),
-            new Map<number, Position>(),
-            new Map<number, Position>(),
+            new Map<number, Array<Command>>(),
+            new Map<number, Array<Command>>(),
+            new Map<number, Array<Command>>(),
+            new Map<number, Array<Command>>(),
+            new Map<number, Array<Command>>(),
             []
         );
 
@@ -79,11 +80,11 @@ describe("tick", (): void => {
             false,
             [],
             5,
-            new Map<number, Position>(),
-            new Map<number, Position>(),
-            new Map<number, Position>(),
-            new Map<number, Position>(),
-            new Map<number, Position>(),
+            new Map<number, Array<Command>>(),
+            new Map<number, Array<Command>>(),
+            new Map<number, Array<Command>>(),
+            new Map<number, Array<Command>>(),
+            new Map<number, Array<Command>>(),
             []
         );
 
@@ -108,11 +109,11 @@ describe("tick", (): void => {
             false,
             [],
             5,
-            new Map<number, Position>(),
-            new Map<number, Position>(),
-            new Map<number, Position>(),
-            new Map<number, Position>(),
-            new Map<number, Position>(),
+            new Map<number, Array<Command>>(),
+            new Map<number, Array<Command>>(),
+            new Map<number, Array<Command>>(),
+            new Map<number, Array<Command>>(),
+            new Map<number, Array<Command>>(),
             []
         );
 
@@ -138,11 +139,11 @@ describe("tick", (): void => {
             false,
             [],
             5,
-            new Map<number, Position>(),
-            new Map<number, Position>(),
-            new Map<number, Position>(),
-            new Map<number, Position>(),
-            new Map<number, Position>(),
+            new Map<number, Array<Command>>(),
+            new Map<number, Array<Command>>(),
+            new Map<number, Array<Command>>(),
+            new Map<number, Array<Command>>(),
+            new Map<number, Array<Command>>(),
             []
         );
 
@@ -168,11 +169,11 @@ describe("tick", (): void => {
             false,
             [],
             5,
-            new Map<number, Position>(),
-            new Map<number, Position>(),
-            new Map<number, Position>(),
-            new Map<number, Position>(),
-            new Map<number, Position>(),
+            new Map<number, Array<Command>>(),
+            new Map<number, Array<Command>>(),
+            new Map<number, Array<Command>>(),
+            new Map<number, Array<Command>>(),
+            new Map<number, Array<Command>>(),
             []
         );
 
@@ -209,11 +210,11 @@ describe("tick", (): void => {
             false,
             [],
             defenderLevel,
-            new Map<number, Position>(),
-            new Map<number, Position>(),
-            new Map<number, Position>(),
-            new Map<number, Position>(),
-            new Map<number, Position>(),
+            new Map<number, Array<Command>>(),
+            new Map<number, Array<Command>>(),
+            new Map<number, Array<Command>>(),
+            new Map<number, Array<Command>>(),
+            new Map<number, Array<Command>>(),
             []
         );
 
@@ -238,11 +239,11 @@ describe("tick", (): void => {
             false,
             [],
             5,
-            new Map<number, Position>(),
-            new Map<number, Position>(),
-            new Map<number, Position>(),
-            new Map<number, Position>(),
-            new Map<number, Position>(),
+            new Map<number, Array<Command>>(),
+            new Map<number, Array<Command>>(),
+            new Map<number, Array<Command>>(),
+            new Map<number, Array<Command>>(),
+            new Map<number, Array<Command>>(),
             []
         );
 
@@ -266,11 +267,11 @@ describe("tick", (): void => {
             false,
             [],
             5,
-            new Map<number, Position>(),
-            new Map<number, Position>(),
-            new Map<number, Position>(),
-            new Map<number, Position>(),
-            new Map<number, Position>(),
+            new Map<number, Array<Command>>(),
+            new Map<number, Array<Command>>(),
+            new Map<number, Array<Command>>(),
+            new Map<number, Array<Command>>(),
+            new Map<number, Array<Command>>(),
             []
         );
 
@@ -292,11 +293,11 @@ describe("tick", (): void => {
             false,
             [],
             5,
-            new Map<number, Position>(),
-            new Map<number, Position>(),
-            new Map<number, Position>(),
-            new Map<number, Position>(),
-            new Map<number, Position>(),
+            new Map<number, Array<Command>>(),
+            new Map<number, Array<Command>>(),
+            new Map<number, Array<Command>>(),
+            new Map<number, Array<Command>>(),
+            new Map<number, Array<Command>>(),
             []
         );
 
@@ -328,11 +329,11 @@ describe("tick", (): void => {
             false,
             forcedMovements,
             5,
-            new Map<number, Position>(),
-            new Map<number, Position>(),
-            new Map<number, Position>(),
-            new Map<number, Position>(),
-            new Map<number, Position>(),
+            new Map<number, Array<Command>>(),
+            new Map<number, Array<Command>>(),
+            new Map<number, Array<Command>>(),
+            new Map<number, Array<Command>>(),
+            new Map<number, Array<Command>>(),
             []
         );
 
@@ -356,11 +357,11 @@ describe("tick", (): void => {
             false,
             forcedMovements,
             5,
-            new Map<number, Position>(),
-            new Map<number, Position>(),
-            new Map<number, Position>(),
-            new Map<number, Position>(),
-            new Map<number, Position>(),
+            new Map<number, Array<Command>>(),
+            new Map<number, Array<Command>>(),
+            new Map<number, Array<Command>>(),
+            new Map<number, Array<Command>>(),
+            new Map<number, Array<Command>>(),
             []
         );
 
@@ -394,11 +395,11 @@ describe("tick", (): void => {
             false,
             [],
             5,
-            new Map<number, Position>(),
-            new Map<number, Position>(),
-            new Map<number, Position>(),
-            new Map<number, Position>(),
-            new Map<number, Position>(),
+            new Map<number, Array<Command>>(),
+            new Map<number, Array<Command>>(),
+            new Map<number, Array<Command>>(),
+            new Map<number, Array<Command>>(),
+            new Map<number, Array<Command>>(),
             []
         );
 
@@ -422,11 +423,11 @@ describe("tileBlocksPenance", (): void => {
             false,
             [],
             5,
-            new Map<number, Position>(),
-            new Map<number, Position>(),
-            new Map<number, Position>(),
-            new Map<number, Position>(),
-            new Map<number, Position>(),
+            new Map<number, Array<Command>>(),
+            new Map<number, Array<Command>>(),
+            new Map<number, Array<Command>>(),
+            new Map<number, Array<Command>>(),
+            new Map<number, Array<Command>>(),
             []
         );
 
@@ -443,11 +444,11 @@ describe("tileBlocksPenance", (): void => {
             false,
             [],
             5,
-            new Map<number, Position>(),
-            new Map<number, Position>(),
-            new Map<number, Position>(),
-            new Map<number, Position>(),
-            new Map<number, Position>(),
+            new Map<number, Array<Command>>(),
+            new Map<number, Array<Command>>(),
+            new Map<number, Array<Command>>(),
+            new Map<number, Array<Command>>(),
+            new Map<number, Array<Command>>(),
             []
         );
 
@@ -487,11 +488,11 @@ describe("tileBlocksPenance", (): void => {
             false,
             [],
             5,
-            new Map<number, Position>(),
-            new Map<number, Position>(),
-            new Map<number, Position>(),
-            new Map<number, Position>(),
-            new Map<number, Position>(),
+            new Map<number, Array<Command>>(),
+            new Map<number, Array<Command>>(),
+            new Map<number, Array<Command>>(),
+            new Map<number, Array<Command>>(),
+            new Map<number, Array<Command>>(),
             []
         );
 
@@ -519,11 +520,11 @@ describe("tileBlocksPenance", (): void => {
             false,
             [],
             5,
-            new Map<number, Position>(),
-            new Map<number, Position>(),
-            new Map<number, Position>(),
-            new Map<number, Position>(),
-            new Map<number, Position>(),
+            new Map<number, Array<Command>>(),
+            new Map<number, Array<Command>>(),
+            new Map<number, Array<Command>>(),
+            new Map<number, Array<Command>>(),
+            new Map<number, Array<Command>>(),
             []
         );
 
@@ -542,11 +543,11 @@ describe("clone", (): void => {
             false,
             [],
             5,
-            new Map<number, Position>(),
-            new Map<number, Position>(),
-            new Map<number, Position>(),
-            new Map<number, Position>(),
-            new Map<number, Position>(),
+            new Map<number, Array<Command>>(),
+            new Map<number, Array<Command>>(),
+            new Map<number, Array<Command>>(),
+            new Map<number, Array<Command>>(),
+            new Map<number, Array<Command>>(),
             []
         );
 
@@ -569,11 +570,11 @@ describe("clone", (): void => {
             false,
             [],
             5,
-            new Map<number, Position>(),
-            new Map<number, Position>(),
-            new Map<number, Position>(),
-            new Map<number, Position>(),
-            new Map<number, Position>(),
+            new Map<number, Array<Command>>(),
+            new Map<number, Array<Command>>(),
+            new Map<number, Array<Command>>(),
+            new Map<number, Array<Command>>(),
+            new Map<number, Array<Command>>(),
             []
         );
 

@@ -856,6 +856,8 @@ function convertCommandsStringToMap(commandsString: string): Map<number, Positio
 
     const commands: Array<string> = commandsString.split("\n");
 
+    let previousCommandTick: number = -1;
+
     for (let i: number = 0; i < commands.length; i++) {
         const command: string = commands[i];
 
@@ -871,7 +873,7 @@ function convertCommandsStringToMap(commandsString: string): Map<number, Positio
 
         const tick: number = Number(commandTokens[0]);
 
-        if (!Number.isInteger(tick) || tick < 1) {
+        if (!Number.isInteger(tick) || tick < 1 || tick < previousCommandTick) {
             return null;
         }
 
@@ -884,6 +886,8 @@ function convertCommandsStringToMap(commandsString: string): Map<number, Positio
         }
 
         commandsMap.set(tick, new Position(positionX, positionY));
+
+        previousCommandTick = tick;
     }
 
     return commandsMap;

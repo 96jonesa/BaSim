@@ -720,6 +720,7 @@ function convertCommandsStringToMap(commandsString) {
     }
     const commandsMap = new Map();
     const commands = commandsString.split("\n");
+    let previousCommandTick = -1;
     for (let i = 0; i < commands.length; i++) {
         const command = commands[i];
         if (command.length === 0) {
@@ -730,7 +731,7 @@ function convertCommandsStringToMap(commandsString) {
             return null;
         }
         const tick = Number(commandTokens[0]);
-        if (!Number.isInteger(tick) || tick < 1) {
+        if (!Number.isInteger(tick) || tick < 1 || tick < previousCommandTick) {
             return null;
         }
         const positionTokens = commandTokens[1].split(",");
@@ -740,6 +741,7 @@ function convertCommandsStringToMap(commandsString) {
             return null;
         }
         commandsMap.set(tick, new Position(positionX, positionY));
+        previousCommandTick = tick;
     }
     return commandsMap;
 }

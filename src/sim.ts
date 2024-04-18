@@ -706,7 +706,7 @@ function tick(): void {
     if (!isPaused) {
         barbarianAssault.tick();
         currentDefenderFoodSpan.innerHTML = barbarianAssault.defenderFoodCall.toString();
-        tickCountSpan.innerHTML = barbarianAssault.ticks.toString();
+        tickCountSpan.innerHTML = barbarianAssault.ticks.toString() + " (" + ticksToSeconds(barbarianAssault.ticks) + "s)";
         draw();
     }
 }
@@ -746,7 +746,6 @@ function toggleRepairOnChange(): void {
     requireRepairs = toggleRepair.checked;
     reset();
 }
-
 function movementsInputOnChange(): void {
     reset();
 }
@@ -824,4 +823,13 @@ function convertCommandsStringToMap(commandsString: string): Map<number, Positio
     }
 
     return commandsMap;
+}
+
+/**
+ * Converts time measured in ticks to seconds.
+ *
+ * @param ticks the number of ticks to convert to seconds
+ */
+function ticksToSeconds(ticks: number): string {
+    return (0.6 * Math.max(ticks - 1, 0)).toFixed(1);
 }

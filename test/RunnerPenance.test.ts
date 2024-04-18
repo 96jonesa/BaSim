@@ -20,6 +20,7 @@ describe("tick", (): void => {
             new Map<number, Position>(),
             new Map<number, Position>(),
             new Map<number, Position>(),
+            new Map<number, Position>(),
             new Map<number, Position>()
         );
 
@@ -40,6 +41,7 @@ describe("tick", (): void => {
             false,
             [],
             5,
+            new Map<number, Position>(),
             new Map<number, Position>(),
             new Map<number, Position>(),
             new Map<number, Position>(),
@@ -70,6 +72,7 @@ describe("tick", (): void => {
             new Map<number, Position>(),
             new Map<number, Position>(),
             new Map<number, Position>(),
+            new Map<number, Position>(),
             new Map<number, Position>()
         );
 
@@ -90,6 +93,7 @@ describe("tick", (): void => {
             false,
             [],
             5,
+            new Map<number, Position>(),
             new Map<number, Position>(),
             new Map<number, Position>(),
             new Map<number, Position>(),
@@ -116,6 +120,7 @@ describe("tick", (): void => {
             false,
             [],
             5,
+            new Map<number, Position>(),
             new Map<number, Position>(),
             new Map<number, Position>(),
             new Map<number, Position>(),
@@ -151,6 +156,7 @@ describe("tick", (): void => {
             false,
             [],
             5,
+            new Map<number, Position>(),
             new Map<number, Position>(),
             new Map<number, Position>(),
             new Map<number, Position>(),
@@ -196,6 +202,7 @@ describe("tick", (): void => {
             new Map<number, Position>(),
             new Map<number, Position>(),
             new Map<number, Position>(),
+            new Map<number, Position>(),
             new Map<number, Position>()
         );
 
@@ -238,6 +245,7 @@ describe("tick", (): void => {
             new Map<number, Position>(),
             new Map<number, Position>(),
             new Map<number, Position>(),
+            new Map<number, Position>(),
             new Map<number, Position>()
         );
 
@@ -277,6 +285,7 @@ describe("tick", (): void => {
             false,
             [],
             5,
+            new Map<number, Position>(),
             new Map<number, Position>(),
             new Map<number, Position>(),
             new Map<number, Position>(),

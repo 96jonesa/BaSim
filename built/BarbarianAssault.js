@@ -13,7 +13,7 @@ import { HealerPenance } from "./HealerPenance.js";
  * progressing the game state.
  */
 export class BarbarianAssault {
-    constructor(wave, requireRepairs, requireLogs, infiniteFood, runnerMovements, defenderLevel, mainAttackerCommands, secondAttackerCommands, healerCommands, collectorCommands) {
+    constructor(wave, requireRepairs, requireLogs, infiniteFood, runnerMovements, defenderLevel, mainAttackerCommands, secondAttackerCommands, healerCommands, collectorCommands, defenderCommands) {
         this.ticks = 0;
         this.defenderFoodCall = FoodType.TOFU;
         this.eastTrapCharges = 2;
@@ -43,6 +43,7 @@ export class BarbarianAssault {
         this.secondAttackerCommands = secondAttackerCommands;
         this.healerCommands = healerCommands;
         this.collectorCommands = collectorCommands;
+        this.defenderCommands = defenderCommands;
         switch (wave) {
             case 1:
                 this.maxRunnersAlive = 2;
@@ -185,6 +186,9 @@ export class BarbarianAssault {
         if (this.collectorCommands.has(this.ticks)) {
             this.collectorPlayer.findPath(this, this.collectorCommands.get(this.ticks).clone());
         }
+        if (this.defenderCommands.has(this.ticks)) {
+            this.defenderPlayer.findPath(this, this.defenderCommands.get(this.ticks).clone());
+        }
     }
     /**
      * Spawns a RunnerPenance.
@@ -321,7 +325,7 @@ export class BarbarianAssault {
      * @return  a deep clone of this object
      */
     clone() {
-        let barbarianAssault = new BarbarianAssault(this.wave, this.requireRepairs, this.requireLogs, this.infiniteFood, this.runnerMovements, this.defenderLevel, this.mainAttackerCommands, this.secondAttackerCommands, this.healerCommands, this.collectorCommands);
+        let barbarianAssault = new BarbarianAssault(this.wave, this.requireRepairs, this.requireLogs, this.infiniteFood, this.runnerMovements, this.defenderLevel, this.mainAttackerCommands, this.secondAttackerCommands, this.healerCommands, this.collectorCommands, this.defenderCommands);
         barbarianAssault.map = this.map === null ? null : this.map.clone();
         barbarianAssault.ticks = this.ticks;
         barbarianAssault.wave = this.wave;
@@ -371,6 +375,10 @@ export class BarbarianAssault {
         barbarianAssault.collectorCommands = new Map();
         this.collectorCommands.forEach((position, tick) => {
             barbarianAssault.collectorCommands.set(tick, position === null ? null : position.clone());
+        });
+        barbarianAssault.defenderCommands = new Map();
+        this.defenderCommands.forEach((position, tick) => {
+            barbarianAssault.defenderCommands.set(tick, position === null ? null : position.clone());
         });
         return barbarianAssault;
     }

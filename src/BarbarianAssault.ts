@@ -56,6 +56,7 @@ export class BarbarianAssault {
     public secondAttackerCommands: Map<number, Position>;
     public healerCommands: Map<number, Position>;
     public collectorCommands: Map<number, Position>;
+    public defenderCommands: Map<number, Position>;
 
 
     public constructor(
@@ -68,7 +69,8 @@ export class BarbarianAssault {
         mainAttackerCommands: Map<number, Position>,
         secondAttackerCommands: Map<number, Position>,
         healerCommands: Map<number, Position>,
-        collectorCommands: Map<number, Position>
+        collectorCommands: Map<number, Position>,
+        defenderCommands: Map<number, Position>
     ) {
         this.wave = wave;
         this.requireRepairs = requireRepairs;
@@ -80,6 +82,7 @@ export class BarbarianAssault {
         this.secondAttackerCommands = secondAttackerCommands;
         this.healerCommands = healerCommands;
         this.collectorCommands = collectorCommands;
+        this.defenderCommands = defenderCommands;
 
         switch (wave) {
             case 1:
@@ -235,6 +238,10 @@ export class BarbarianAssault {
 
         if (this.collectorCommands.has(this.ticks)) {
             this.collectorPlayer.findPath(this, this.collectorCommands.get(this.ticks).clone());
+        }
+
+        if (this.defenderCommands.has(this.ticks)) {
+            this.defenderPlayer.findPath(this, this.defenderCommands.get(this.ticks).clone());
         }
     }
 
@@ -394,7 +401,8 @@ export class BarbarianAssault {
             this.mainAttackerCommands,
             this.secondAttackerCommands,
             this.healerCommands,
-            this.collectorCommands
+            this.collectorCommands,
+            this.defenderCommands
         );
         barbarianAssault.map = this.map === null ? null : this.map.clone();
         barbarianAssault.ticks = this.ticks;
@@ -445,6 +453,10 @@ export class BarbarianAssault {
         barbarianAssault.collectorCommands = new Map<number, Position>();
         this.collectorCommands.forEach((position: Position, tick: number): void => {
             barbarianAssault.collectorCommands.set(tick, position === null ? null : position.clone());
+        });
+        barbarianAssault.defenderCommands = new Map<number, Position>();
+        this.defenderCommands.forEach((position: Position, tick: number): void => {
+            barbarianAssault.defenderCommands.set(tick, position === null ? null : position.clone());
         });
 
         return barbarianAssault;

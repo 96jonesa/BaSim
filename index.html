@@ -57,25 +57,45 @@ Tick duration (milliseconds): <input id="tickduration" type="number" min="100" m
         <td name="mainattacker">
             <b>Main Attacker</b>
             <br>
-            <textarea id="mainattackercommands"></textarea>
+            <textarea id="mainattackercommands" rows=4 cols=15></textarea>
         </td>
         <td name="secondattacker">
             <b>Second Attacker</b>
             <br>
-            <textarea id="secondattackercommands"></textarea>
+            <textarea id="secondattackercommands" rows=4 cols=15></textarea>
         </td>
         <td name="healer">
             <b>Healer</b>
             <br>
-            <textarea id="healercommands"></textarea>
+            <textarea id="healercommands" rows=4 cols=15></textarea>
         </td>
         <td name="collector">
             <b>Collector</b>
             <br>
-            <textarea id="collectorcommands"></textarea>
+            <textarea id="collectorcommands" rows=4 cols=15></textarea>
+        </td>
+        <td name="defender">
+            <b>Defender</b>
+            <br>
+            <textarea id="defendercommands" rows=4 cols=15></textarea>
         </td>
     </tr>
 </table>
+<br>
+
+<b>Player to control:</b> <select id="playerselect">
+    <option value="defender">Defender</option>
+    <option value="mainattacker">Main Attacker</option>
+    <option value="secondattacker">Second Attacker</option>
+    <option value="healer">Healer</option>
+    <option value="collector">Collector</option>
+    <option value="none">None</option>
+</select>
+<br>
+<br>
+
+<b>Controlled commands:</b><br>
+<div id="controlledcommands" style="border: 1px solid; height: 4lh; width: 9lh; overflow: auto"></div>
 <br>
 
 <button id="wavestart"></button> <b>Tick count: <span id="tickcount"></span></b> --- <b>Current Food: <span id="currdeffood"></span></b>
@@ -120,24 +140,23 @@ For example:
 4:29,25
 <br>
 <br>
-would be a valid input. The same tick can not be specified more than once for a single player. The order of the commands
+would be a valid input. If the same tick is specified more than once for a single player, then the last command for that tick will be the one applied. The order of the commands
 does not need to be in the order of the ticks association with the commands.
 <br>
 <br>
 
-<b>Save/Load tldr:</b><br>
-Save with  <b>s</b>, load with <b>y</b> while sim is running (started). After loading, unpause with <b>p</b>.
+<b>Player to control:</b> Specify which player to control manually. All other players will behave according to their commands input.
+<br>
+<br>
+
+<b>Controlled commands:</b> As you control a player, the commands associated with the movements you perform manually will be output here. This allows you to simply control a player
+then copy this output into that player's commands input instead of having to type out each command by hand.
 <br>
 <br>
 
 <b>Save/Load:</b><br>
-If you save with <b>s</b>, then loading with <b>y</b> will bring you to the same state on the same wave you saved. Unpause with <b>p</b><br>
-Defender level will behave as it was when you saved. Runner movements are calculated dynamically, so they will vary each time you load.<br>
-Tick duration can be changed by stopping the wave, changing tick duration, then starting the wave, then loading.<br>
-Repair requirement is dynamic and will be whatever the value currently is set to via the selection menu.<br>
-Although the wave and defender level will behave the same as when you saved, the selection in the menu will not change when you load.<br>
-So, if you change the selection, start, then load: you will load from the saved wave and level, but they will not change in selectors.<br>
-If you then stop and start the wave, it will play with the wave and level displayed in the selectors normally (not from loaded wave/level).<br>
+Save with  <b>s</b>, load with <b>y</b> while sim is running (started). After loading, unpause with <b>p</b>.
+<br>
 <br>
 
 It is always assumed the defender has a hammer equipped - there is no need to pick up the hammer.<br>

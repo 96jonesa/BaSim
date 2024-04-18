@@ -71,6 +71,9 @@ var savedSecondAttackerCommands;
 var savedHealerCommands;
 var savedCollectorCommands;
 var savedDefenderCommands;
+var savedRequireRepairs;
+var savedInfiniteFood;
+var savedRequireLogs;
 /**
  * Initializes the simulator.
  */
@@ -249,6 +252,9 @@ function save() {
     savedHealerCommands = document.getElementById(HTML_HEALER_COMMANDS).value;
     savedCollectorCommands = document.getElementById(HTML_COLLECTOR_COMMANDS).value;
     savedDefenderCommands = document.getElementById(HTML_DEFENDER_COMMANDS).value;
+    savedRequireRepairs = requireRepairs;
+    savedInfiniteFood = infiniteFood;
+    savedRequireLogs = requireLogs;
 }
 /**
  * Pauses and loads the previously saved state of the simulator.
@@ -270,6 +276,9 @@ function load() {
     document.getElementById(HTML_HEALER_COMMANDS).value = savedHealerCommands;
     document.getElementById(HTML_COLLECTOR_COMMANDS).value = savedCollectorCommands;
     document.getElementById(HTML_DEFENDER_COMMANDS).value = savedDefenderCommands;
+    toggleLogToRepair.checked = savedRequireLogs;
+    toggleRepair.checked = savedRequireRepairs;
+    toggleInfiniteFood.checked = savedInfiniteFood;
     barbarianAssault = savedBarbarianAssault;
     // the existing save state will mutate as the simulator proceeds,
     // so re-clone the save state in case of subsequent loads

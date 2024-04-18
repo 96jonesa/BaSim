@@ -87,6 +87,9 @@ var savedSecondAttackerCommands: string;
 var savedHealerCommands: string;
 var savedCollectorCommands: string;
 var savedDefenderCommands: string;
+var savedRequireRepairs: boolean;
+var savedInfiniteFood: boolean;
+var savedRequireLogs: boolean;
 
 /**
  * Initializes the simulator.
@@ -295,6 +298,9 @@ function save(): void {
     savedHealerCommands = (document.getElementById(HTML_HEALER_COMMANDS) as HTMLInputElement).value;
     savedCollectorCommands = (document.getElementById(HTML_COLLECTOR_COMMANDS) as HTMLInputElement).value;
     savedDefenderCommands = (document.getElementById(HTML_DEFENDER_COMMANDS) as HTMLInputElement).value;
+    savedRequireRepairs = requireRepairs;
+    savedInfiniteFood = infiniteFood;
+    savedRequireLogs = requireLogs;
 }
 
 /**
@@ -318,6 +324,9 @@ function load(): void {
     (document.getElementById(HTML_HEALER_COMMANDS) as HTMLInputElement).value = savedHealerCommands;
     (document.getElementById(HTML_COLLECTOR_COMMANDS) as HTMLInputElement).value = savedCollectorCommands;
     (document.getElementById(HTML_DEFENDER_COMMANDS) as HTMLInputElement).value = savedDefenderCommands;
+    toggleLogToRepair.checked = savedRequireLogs;
+    toggleRepair.checked = savedRequireRepairs;
+    toggleInfiniteFood.checked = savedInfiniteFood;
 
     barbarianAssault = savedBarbarianAssault;
 

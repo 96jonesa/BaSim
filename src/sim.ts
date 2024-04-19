@@ -1103,11 +1103,11 @@ function runnersDieOnTimeForMovements(
         infiniteFood,
         runnerMovements,
         defenderLevel,
-        player === "mainattacker" ? new Map<number, Array<Command>> : mainAttackerCommands,
-        player === "secondattacker" ? new Map<number, Array<Command>> : secondAttackerCommands,
-        player === "healer" ? new Map<number, Array<Command>> : healerCommands,
-        player === "collector" ? new Map<number, Array<Command>> : collectorCommands,
-        player === "defender" ? new Map<number, Array<Command>> : defenderCommands,
+        mainAttackerCommands,
+        secondAttackerCommands,
+        healerCommands,
+        collectorCommands,
+        defenderCommands,
         foodCalls
     );
 

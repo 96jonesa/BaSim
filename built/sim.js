@@ -908,7 +908,7 @@ function ticksToSeconds(ticks) {
     return (0.6 * Math.max(ticks - 1, 0)).toFixed(1);
 }
 function runnersDieOnTimeForMovements(runnerMovements, foodCalls, runnersDeadByTick, mainAttackerCommands, secondAttackerCommands, healerCommands, collectorCommands, defenderCommands) {
-    const barbarianAssaultSim = new BarbarianAssault(wave, requireRepairs, requireLogs, infiniteFood, runnerMovements, defenderLevel, player === "mainattacker" ? new Map : mainAttackerCommands, player === "secondattacker" ? new Map : secondAttackerCommands, player === "healer" ? new Map : healerCommands, player === "collector" ? new Map : collectorCommands, player === "defender" ? new Map : defenderCommands, foodCalls);
+    const barbarianAssaultSim = new BarbarianAssault(wave, requireRepairs, requireLogs, infiniteFood, runnerMovements, defenderLevel, mainAttackerCommands, secondAttackerCommands, healerCommands, collectorCommands, defenderCommands, foodCalls);
     for (let i = 0; i < runnersDeadByTick; i++) {
         barbarianAssaultSim.tick();
     }

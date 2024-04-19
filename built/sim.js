@@ -29,6 +29,10 @@ const HTML_DEFENDER_COMMANDS = "defendercommands";
 const HTML_PLAYER_SELECT = "playerselect";
 const HTML_CONTROLLED_COMMANDS = "controlledcommands";
 const HTML_FOOD_CALLS = "foodcalls";
+const HTML_RUNNER_MOVEMENTS_TO_CHECK = "runnermovementstocheck";
+const HTML_RUNNERS_DEAD_BY_TICK = "runnersdeadbytick";
+const HTML_SIMULATE = "simulate";
+const HTML_RUNNERS_DO_NOT_DIE_WITH_MOVEMENTS = "runnersdonotdiemovements";
 window.onload = init;
 var markingTiles;
 var markedTiles;
@@ -63,6 +67,10 @@ var playerSelect;
 var player;
 var controlledCommands;
 var foodCallsInput;
+var runnerMovementsToCheckInput;
+var runnersDeadByTickInput;
+var simulateButton;
+var runnersDoNotDieWithMovements;
 var savedBarbarianAssault;
 var savedTickCountSpanInnerHTML;
 var savedCurrentDefenderFoodSpanInnerHTML;
@@ -139,6 +147,23 @@ function init() {
     playerSelect.onchange = playerSelectOnChange;
     player = playerSelect.value;
     controlledCommands = document.getElementById(HTML_CONTROLLED_COMMANDS);
+    runnerMovementsToCheckInput = document.getElementById(HTML_RUNNER_MOVEMENTS_TO_CHECK);
+    runnerMovementsToCheckInput.onkeydown = function (keyboardEvent) {
+        if (keyboardEvent.key === " ") {
+            keyboardEvent.preventDefault();
+        }
+    };
+    runnerMovementsToCheckInput.onchange = runnerMovementsToCheckInputOnChange;
+    runnersDeadByTickInput = document.getElementById(HTML_RUNNERS_DEAD_BY_TICK);
+    runnersDeadByTickInput.onkeydown = function (keyboardEvent) {
+        if (keyboardEvent.key === " ") {
+            keyboardEvent.preventDefault();
+        }
+    };
+    runnersDeadByTickInput.onchange = runnersDeadByTickInputOnChange;
+    simulateButton = document.getElementById(HTML_SIMULATE);
+    simulateButton.onclick = simulateButtonOnClick;
+    runnersDoNotDieWithMovements = document.getElementById(HTML_RUNNERS_DO_NOT_DIE_WITH_MOVEMENTS);
 }
 /**
  * Resets the simulator: the simulator is stopped and the underlying {@link BarbarianAssault} game
@@ -172,6 +197,19 @@ function parseMovementsInput() {
         }
     }
     return movements;
+}
+function parseRunnerMovementsToCheck() {
+    const runnerMovements = runnerMovementsToCheckInput.value.split("-");
+    for (let i = 0; i < runnerMovements.length; i++) {
+        const moves = runnerMovements[i];
+        for (let j = 0; j < moves.length; j++) {
+            const move = moves[j];
+            if (move !== "" && move !== "s" && move !== "w" && move !== "e" && move !== "x") {
+                return null;
+            }
+        }
+    }
+    return runnerMovements;
 }
 function parseFoodCallsInput() {
     const foodCalls = [];
@@ -653,6 +691,53 @@ function startStopButtonOnClick() {
         tickTimerId = setInterval(tick, Number(tickDurationInput.value));
     }
 }
+function simulateButtonOnClick() {
+    if (isRunning) {
+        barbarianAssault.map.reset();
+        reset();
+    }
+    const runnerMovementsToCheck = parseRunnerMovementsToCheck();
+    if (runnerMovementsToCheck === null) {
+        alert("Invalid runner movements to check. Example: ws-x-ex");
+        return;
+    }
+    const foodCalls = parseFoodCallsInput();
+    if (foodCalls === null) {
+        alert("Invalid food calls. Example: twcw");
+        return;
+    }
+    const runnersDeadByTick = Number(runnersDeadByTickInput.value);
+    if (!Number.isInteger(runnersDeadByTick) || runnersDeadByTick < 1) {
+        alert("Invalid runners dead by tick. Example: 12");
+        return;
+    }
+    runnersDoNotDieWithMovements.innerHTML = "";
+    startStopButton.disabled = true;
+    movementsInput.disabled = true;
+    foodCallsInput.disabled = true;
+    toggleInfiniteFood.disabled = true;
+    toggleRepair.disabled = true;
+    toggleLogToRepair.disabled = true;
+    runnerMovementsToCheckInput.disabled = true;
+    runnersDeadByTickInput.disabled = true;
+    simulateButton.disabled = true;
+    const movementsRunnersDoNotDieOnTime = getMovementsRunnersDoNotDieOnTime(foodCalls, runnerMovementsToCheck, runnersDeadByTick);
+    let runnersDoNotDieWithMovementsInnerHTML = "";
+    for (let i = 0; i < 10000 && i < movementsRunnersDoNotDieOnTime.length; i++) {
+        const movement = movementsRunnersDoNotDieOnTime[i];
+        runnersDoNotDieWithMovementsInnerHTML += getMovementsStringFromArray(movement) + "<br>";
+    }
+    runnersDoNotDieWithMovements.innerHTML = runnersDoNotDieWithMovementsInnerHTML;
+    startStopButton.disabled = false;
+    movementsInput.disabled = false;
+    foodCallsInput.disabled = false;
+    toggleInfiniteFood.disabled = false;
+    toggleRepair.disabled = false;
+    toggleLogToRepair.disabled = false;
+    runnerMovementsToCheckInput.disabled = false;
+    runnersDeadByTickInput.disabled = false;
+    simulateButton.disabled = false;
+}
 /**
  * Progresses the state of the simulator by a single tick.
  */
@@ -696,6 +781,12 @@ function toggleRepairOnChange() {
     reset();
 }
 function movementsInputOnChange() {
+    reset();
+}
+function runnerMovementsToCheckInputOnChange() {
+    reset();
+}
+function runnersDeadByTickInputOnChange() {
     reset();
 }
 function foodCallsInputOnChange() {
@@ -815,4 +906,90 @@ function addToCommandsMap(commandsMap, tick, command) {
  */
 function ticksToSeconds(ticks) {
     return (0.6 * Math.max(ticks - 1, 0)).toFixed(1);
+}
+function runnersDieOnTimeForMovements(runnerMovements, foodCalls, runnersDeadByTick, mainAttackerCommands, secondAttackerCommands, healerCommands, collectorCommands, defenderCommands) {
+    const barbarianAssaultSim = new BarbarianAssault(wave, requireRepairs, requireLogs, infiniteFood, runnerMovements, defenderLevel, player === "mainattacker" ? new Map : mainAttackerCommands, player === "secondattacker" ? new Map : secondAttackerCommands, player === "healer" ? new Map : healerCommands, player === "collector" ? new Map : collectorCommands, player === "defender" ? new Map : defenderCommands, foodCalls);
+    for (let i = 0; i < runnersDeadByTick; i++) {
+        barbarianAssaultSim.tick();
+    }
+    return barbarianAssaultSim.runnersKilled === barbarianAssaultSim.totalRunners;
+}
+function getMovementsRunnersDoNotDieOnTime(foodCalls, runnerMovementsToCheck, runnersDeadByTick) {
+    const movementsRunnersDoNotDieOnTime = [];
+    const candidateMovements = [];
+    runnerMovementsToCheck.forEach((movementPattern) => {
+        candidateMovements.push(getAllForcedMovementsForOneRunner(movementPattern));
+    });
+    const allCombinations = getAllCombinations(candidateMovements, 0, [[]]);
+    const mainAttackerCommands = convertCommandsStringToMap(document.getElementById(HTML_MAIN_ATTACKER_COMMANDS).value, "mainattacker");
+    const secondAttackerCommands = convertCommandsStringToMap(document.getElementById(HTML_SECOND_ATTACKER_COMMANDS).value, "secondattacker");
+    const healerCommands = convertCommandsStringToMap(document.getElementById(HTML_HEALER_COMMANDS).value, "healer");
+    const collectorCommands = convertCommandsStringToMap(document.getElementById(HTML_COLLECTOR_COMMANDS).value, "collector");
+    const defenderCommands = convertCommandsStringToMap(document.getElementById(HTML_DEFENDER_COMMANDS).value, "defender");
+    for (let i = 0; i < allCombinations.length; i++) {
+        const runnerMovements = allCombinations[i];
+        if (!runnersDieOnTimeForMovements(runnerMovements, foodCalls, runnersDeadByTick, mainAttackerCommands, secondAttackerCommands, healerCommands, collectorCommands, defenderCommands)) {
+            movementsRunnersDoNotDieOnTime.push(runnerMovements);
+            if (movementsRunnersDoNotDieOnTime.length >= 10000) {
+                return movementsRunnersDoNotDieOnTime;
+            }
+        }
+    }
+    return movementsRunnersDoNotDieOnTime;
+}
+function getAllCombinations(candidateMovements, index, partialCombinations) {
+    if (index >= candidateMovements.length) {
+        return partialCombinations;
+    }
+    const newPartialCombinations = [];
+    partialCombinations.forEach((partialCombination) => {
+        candidateMovements[index].forEach((candidateMovement) => {
+            newPartialCombinations.push([...partialCombination, candidateMovement]);
+        });
+    });
+    return getAllCombinations(candidateMovements, index + 1, newPartialCombinations);
+}
+function getAllForcedMovementsForOneRunner(movementPattern) {
+    const validDirections = [];
+    for (let i = 0; i < movementPattern.length; i++) {
+        switch (movementPattern.charAt(i)) {
+            case "w":
+                validDirections.push(["w"]);
+                break;
+            case "e":
+                validDirections.push(["e"]);
+                break;
+            case "s":
+                validDirections.push(["s"]);
+                break;
+            case "x":
+                validDirections.push(["s", "e", "w"]);
+                break;
+            default:
+                return [];
+        }
+    }
+    return getAllValidPermutationsForOneRunner(validDirections, 0, [""]);
+}
+function getAllValidPermutationsForOneRunner(validDirections, index, partialMovements) {
+    if (index >= validDirections.length) {
+        return partialMovements;
+    }
+    const newPartialMovements = [];
+    partialMovements.forEach((partialMovement) => {
+        validDirections[index].forEach((validDirection) => {
+            newPartialMovements.push(partialMovement + validDirection);
+        });
+    });
+    return getAllValidPermutationsForOneRunner(validDirections, index + 1, newPartialMovements);
+}
+function getMovementsStringFromArray(movementsArray) {
+    let movementsString = "";
+    for (let i = 0; i < movementsArray.length; i++) {
+        if (i > 0) {
+            movementsString += "-";
+        }
+        movementsString += movementsArray[i];
+    }
+    return movementsString;
 }

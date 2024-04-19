@@ -46,6 +46,10 @@ const HTML_DEFENDER_COMMANDS: string = "defendercommands";
 const HTML_PLAYER_SELECT: string = "playerselect";
 const HTML_CONTROLLED_COMMANDS: string = "controlledcommands";
 const HTML_FOOD_CALLS: string = "foodcalls";
+const HTML_RUNNER_MOVEMENTS_TO_CHECK: string = "runnermovementstocheck";
+const HTML_RUNNERS_DEAD_BY_TICK: string = "runnersdeadbytick";
+const HTML_SIMULATE: string = "simulate";
+const HTML_RUNNERS_DO_NOT_DIE_WITH_MOVEMENTS: string = "runnersdonotdiemovements";
 
 window.onload = init;
 
@@ -54,7 +58,7 @@ var markedTiles: Array<Array<number>>;
 var canvas: HTMLCanvasElement;
 var movementsInput: HTMLInputElement;
 var tickDurationInput: HTMLInputElement;
-var startStopButton: HTMLElement;
+var startStopButton: HTMLButtonElement;
 var waveSelect: HTMLInputElement;
 var defenderLevelSelection: HTMLInputElement;
 var toggleRepair: HTMLInputElement;
@@ -82,6 +86,10 @@ var playerSelect: HTMLInputElement;
 var player: string;
 var controlledCommands: HTMLElement;
 var foodCallsInput: HTMLInputElement;
+var runnerMovementsToCheckInput: HTMLInputElement;
+var runnersDeadByTickInput: HTMLInputElement;
+var simulateButton: HTMLButtonElement;
+var runnersDoNotDieWithMovements: HTMLElement;
 
 
 var savedBarbarianAssault: BarbarianAssault;
@@ -122,7 +130,7 @@ function init(): void {
     };
     foodCallsInput.onchange = foodCallsInputOnChange;
     tickDurationInput = document.getElementById(HTML_TICK_DURATION) as HTMLInputElement;
-    startStopButton = document.getElementById(HTML_START_BUTTON);
+    startStopButton = document.getElementById(HTML_START_BUTTON) as HTMLButtonElement;
     startStopButton.onclick = startStopButtonOnClick;
     waveSelect = document.getElementById(HTML_WAVE_SELECT) as HTMLInputElement;
     waveSelect.onchange = waveSelectOnChange;
@@ -161,6 +169,23 @@ function init(): void {
     playerSelect.onchange = playerSelectOnChange;
     player = playerSelect.value;
     controlledCommands = document.getElementById(HTML_CONTROLLED_COMMANDS);
+    runnerMovementsToCheckInput = document.getElementById(HTML_RUNNER_MOVEMENTS_TO_CHECK) as HTMLInputElement;
+    runnerMovementsToCheckInput.onkeydown = function (keyboardEvent: KeyboardEvent): void {
+        if (keyboardEvent.key === " ") {
+            keyboardEvent.preventDefault();
+        }
+    };
+    runnerMovementsToCheckInput.onchange = runnerMovementsToCheckInputOnChange;
+    runnersDeadByTickInput = document.getElementById(HTML_RUNNERS_DEAD_BY_TICK) as HTMLInputElement;
+    runnersDeadByTickInput.onkeydown = function (keyboardEvent: KeyboardEvent): void {
+        if (keyboardEvent.key === " ") {
+            keyboardEvent.preventDefault();
+        }
+    };
+    runnersDeadByTickInput.onchange = runnersDeadByTickInputOnChange;
+    simulateButton = document.getElementById(HTML_SIMULATE) as HTMLButtonElement;
+    simulateButton.onclick = simulateButtonOnClick;
+    runnersDoNotDieWithMovements = document.getElementById(HTML_RUNNERS_DO_NOT_DIE_WITH_MOVEMENTS);
 }
 
 /**
@@ -216,6 +241,24 @@ function parseMovementsInput(): Array<string> {
     }
 
     return movements;
+}
+
+function parseRunnerMovementsToCheck(): Array<string> {
+    const runnerMovements: Array<string> = runnerMovementsToCheckInput.value.split("-");
+
+    for (let i: number = 0; i < runnerMovements.length; i++) {
+        const moves: string = runnerMovements[i];
+
+        for (let j: number = 0; j < moves.length; j++) {
+            const move: string = moves[j];
+
+            if (move !== "" && move !== "s" && move !== "w" && move !== "e" && move !== "x") {
+                return null;
+            }
+        }
+    }
+
+    return runnerMovements;
 }
 
 function parseFoodCallsInput(): Array<FoodType> {
@@ -784,6 +827,68 @@ function startStopButtonOnClick(): void {
     }
 }
 
+function simulateButtonOnClick(): void {
+    if (isRunning) {
+        barbarianAssault.map.reset();
+        reset();
+    }
+
+    const runnerMovementsToCheck: Array<string> = parseRunnerMovementsToCheck();
+
+    if (runnerMovementsToCheck === null) {
+        alert("Invalid runner movements to check. Example: ws-x-ex");
+        return;
+    }
+
+    const foodCalls: Array<FoodType> = parseFoodCallsInput();
+
+    if (foodCalls === null) {
+        alert("Invalid food calls. Example: twcw");
+        return;
+    }
+
+    const runnersDeadByTick: number = Number(runnersDeadByTickInput.value);
+
+    if (!Number.isInteger(runnersDeadByTick) || runnersDeadByTick < 1) {
+        alert("Invalid runners dead by tick. Example: 12");
+        return;
+    }
+
+    runnersDoNotDieWithMovements.innerHTML = "";
+
+    startStopButton.disabled = true;
+    movementsInput.disabled = true;
+    foodCallsInput.disabled = true;
+    toggleInfiniteFood.disabled = true;
+    toggleRepair.disabled = true;
+    toggleLogToRepair.disabled = true;
+    runnerMovementsToCheckInput.disabled = true;
+    runnersDeadByTickInput.disabled = true;
+    simulateButton.disabled = true;
+
+    const movementsRunnersDoNotDieOnTime: Array<Array<string>> = getMovementsRunnersDoNotDieOnTime(foodCalls, runnerMovementsToCheck, runnersDeadByTick);
+
+    let runnersDoNotDieWithMovementsInnerHTML: string = "";
+
+    for (let i: number = 0; i < 10000 && i < movementsRunnersDoNotDieOnTime.length; i++) {
+        const movement: Array<string> = movementsRunnersDoNotDieOnTime[i];
+
+        runnersDoNotDieWithMovementsInnerHTML += getMovementsStringFromArray(movement) + "<br>";
+    }
+
+   runnersDoNotDieWithMovements.innerHTML = runnersDoNotDieWithMovementsInnerHTML;
+
+    startStopButton.disabled = false;
+    movementsInput.disabled = false;
+    foodCallsInput.disabled = false;
+    toggleInfiniteFood.disabled = false;
+    toggleRepair.disabled = false;
+    toggleLogToRepair.disabled = false;
+    runnerMovementsToCheckInput.disabled = false;
+    runnersDeadByTickInput.disabled = false;
+    simulateButton.disabled = false;
+}
+
 /**
  * Progresses the state of the simulator by a single tick.
  */
@@ -832,6 +937,14 @@ function toggleRepairOnChange(): void {
     reset();
 }
 function movementsInputOnChange(): void {
+    reset();
+}
+
+function runnerMovementsToCheckInputOnChange(): void {
+    reset();
+}
+
+function runnersDeadByTickInputOnChange(): void {
     reset();
 }
 
@@ -971,4 +1084,139 @@ function addToCommandsMap(commandsMap: Map<number, Array<Command>>, tick: number
  */
 function ticksToSeconds(ticks: number): string {
     return (0.6 * Math.max(ticks - 1, 0)).toFixed(1);
+}
+
+function runnersDieOnTimeForMovements(
+    runnerMovements: Array<string>,
+    foodCalls: Array<FoodType>,
+    runnersDeadByTick: number,
+    mainAttackerCommands: Map<number, Array<Command>>,
+    secondAttackerCommands: Map<number, Array<Command>>,
+    healerCommands: Map<number, Array<Command>>,
+    collectorCommands: Map<number, Array<Command>>,
+    defenderCommands: Map<number, Array<Command>>
+): boolean {
+    const barbarianAssaultSim: BarbarianAssault = new BarbarianAssault(
+        wave,
+        requireRepairs,
+        requireLogs,
+        infiniteFood,
+        runnerMovements,
+        defenderLevel,
+        player === "mainattacker" ? new Map<number, Array<Command>> : mainAttackerCommands,
+        player === "secondattacker" ? new Map<number, Array<Command>> : secondAttackerCommands,
+        player === "healer" ? new Map<number, Array<Command>> : healerCommands,
+        player === "collector" ? new Map<number, Array<Command>> : collectorCommands,
+        player === "defender" ? new Map<number, Array<Command>> : defenderCommands,
+        foodCalls
+    );
+
+    for (let i: number = 0; i < runnersDeadByTick; i++) {
+        barbarianAssaultSim.tick();
+    }
+
+    return barbarianAssaultSim.runnersKilled === barbarianAssaultSim.totalRunners;
+}
+
+function getMovementsRunnersDoNotDieOnTime(foodCalls: Array<FoodType>, runnerMovementsToCheck: Array<string>, runnersDeadByTick: number): Array<Array<string>> {
+    const movementsRunnersDoNotDieOnTime: Array<Array<string>> = [];
+
+    const candidateMovements: Array<Array<string>> = [];
+
+    runnerMovementsToCheck.forEach((movementPattern: string): void => {
+        candidateMovements.push(getAllForcedMovementsForOneRunner(movementPattern));
+    });
+
+    const allCombinations: Array<Array<string>> = getAllCombinations(candidateMovements, 0, [[]]);
+
+    const mainAttackerCommands: Map<number, Array<Command>> = convertCommandsStringToMap((document.getElementById(HTML_MAIN_ATTACKER_COMMANDS) as HTMLInputElement).value, "mainattacker");
+    const secondAttackerCommands: Map<number, Array<Command>> = convertCommandsStringToMap((document.getElementById(HTML_SECOND_ATTACKER_COMMANDS) as HTMLInputElement).value, "secondattacker");
+    const healerCommands: Map<number, Array<Command>> = convertCommandsStringToMap((document.getElementById(HTML_HEALER_COMMANDS) as HTMLInputElement).value, "healer");
+    const collectorCommands: Map<number, Array<Command>> = convertCommandsStringToMap((document.getElementById(HTML_COLLECTOR_COMMANDS) as HTMLInputElement).value, "collector");
+    const defenderCommands: Map<number, Array<Command>> = convertCommandsStringToMap((document.getElementById(HTML_DEFENDER_COMMANDS) as HTMLInputElement).value, "defender");
+
+    for (let i: number = 0; i < allCombinations.length; i++) {
+        const runnerMovements: Array<string> = allCombinations[i];
+
+        if (!runnersDieOnTimeForMovements(runnerMovements, foodCalls, runnersDeadByTick, mainAttackerCommands, secondAttackerCommands, healerCommands, collectorCommands, defenderCommands)) {
+            movementsRunnersDoNotDieOnTime.push(runnerMovements);
+
+            if (movementsRunnersDoNotDieOnTime.length >= 10000) {
+                return movementsRunnersDoNotDieOnTime;
+            }
+        }
+    }
+
+    return movementsRunnersDoNotDieOnTime;
+}
+
+function getAllCombinations(candidateMovements: Array<Array<string>>, index: number, partialCombinations: Array<Array<string>>): Array<Array<string>> {
+   if (index >= candidateMovements.length) {
+       return partialCombinations;
+   }
+
+   const newPartialCombinations: Array<Array<string>> = [];
+
+   partialCombinations.forEach((partialCombination: Array<string>): void => {
+       candidateMovements[index].forEach((candidateMovement: string): void => {
+           newPartialCombinations.push([...partialCombination, candidateMovement]);
+       });
+   });
+
+   return getAllCombinations(candidateMovements, index + 1, newPartialCombinations);
+}
+
+function getAllForcedMovementsForOneRunner(movementPattern: string): Array<string> {
+    const validDirections: Array<Array<string>> = [];
+
+    for (let i: number = 0; i < movementPattern.length; i++) {
+        switch (movementPattern.charAt(i)) {
+            case "w":
+                validDirections.push(["w"]);
+                break;
+            case "e":
+                validDirections.push(["e"]);
+                break;
+            case "s":
+                validDirections.push(["s"]);
+                break;
+            case "x":
+                validDirections.push(["s", "e", "w"]);
+                break;
+            default:
+                return [];
+        }
+    }
+
+    return getAllValidPermutationsForOneRunner(validDirections, 0, [""]);
+}
+
+function getAllValidPermutationsForOneRunner(validDirections: Array<Array<string>>, index: number, partialMovements: Array<string>): Array<string> {
+    if (index >= validDirections.length) {
+        return partialMovements;
+    }
+
+    const newPartialMovements: Array<string> = [];
+
+    partialMovements.forEach((partialMovement: string): void => {
+        validDirections[index].forEach((validDirection: string): void => {
+            newPartialMovements.push(partialMovement + validDirection);
+        });
+    });
+
+    return getAllValidPermutationsForOneRunner(validDirections, index + 1, newPartialMovements);
+}
+
+function getMovementsStringFromArray(movementsArray: Array<string>): string {
+    let movementsString: string = "";
+
+    for (let i: number = 0; i < movementsArray.length; i++) {
+        if (i > 0) {
+            movementsString += "-";
+        }
+
+        movementsString += movementsArray[i];
+    }
+
+    return movementsString;
 }

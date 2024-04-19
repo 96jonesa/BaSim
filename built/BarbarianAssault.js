@@ -140,7 +140,7 @@ export class BarbarianAssault {
      */
     tick() {
         this.ticks++;
-        console.log(this.ticks);
+        // console.log(this.ticks);
         this.runnersToRemove.length = 0;
         this.tickPenance();
         this.removePenance();

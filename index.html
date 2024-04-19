@@ -101,6 +101,22 @@ Tick duration (milliseconds): <input id="tickduration" type="number" min="100" m
 <div id="controlledcommands" style="border: 1px solid; height: 4lh; width: 9lh; overflow: auto"></div>
 <br>
 
+<button id="simulate">Simulate against runner movements to check</button>
+<br>
+<br>
+
+Runner movements to check: <input id="runnermovementstocheck" type="text"/>
+<br>
+<br>
+
+Runners dead by tick: <input id="runnersdeadbytick" type="text"/>
+<br>
+<br>
+
+<b>Runners do not die with movements:</b><br>
+<div id="runnersdonotdiemovements" style="border: 1px solid; height: 4lh; width: 14lh; overflow: auto; resize: both"></div>
+<br>
+
 <button id="wavestart"></button> <b>Tick count: <span id="tickcount"></span></b> --- <b>Current Food: <span id="currdeffood"></span></b>
 <br>
 
@@ -122,7 +138,10 @@ Tick duration (milliseconds): <input id="tickduration" type="number" min="100" m
 <b>y</b> loads state (must be running) (pauses).<br>
 <br>
 
-<b>Runner movements:</b> Forced runner movements. For example, 'ww-e-s' for first runner west west, second runner east, third runner south.<br>
+<b>Runner movements:</b> Forced runner movements. For example, 'ww-e-s' for first runner west west, second runner east, third runner south.
+These specify only the non-food-targeting movements of runners: for example, if the input is "we-e-s" and the first runner only make one movement
+before targeting a food, then that movement will be west. If the runner later has no food target, then it will move east for the first such movement.
+<br>
 <br>
 
 <b>Food calls:</b> If specified, then this is the order of defender food calls. For example, 'twcw' for tofu worms cracker worms. You may specify the same food repeatedly, e.g. 'tttt' will result in four consecutive tofu calls.<br>
@@ -161,6 +180,23 @@ For the defender only: inputs of the form "tick:t/c/w/1/2/3/l/r" will perform th
 then copy this output into that player's commands input instead of having to type out each command by hand.
 <br>
 <br>
+
+<b>Runner movements to check:</b> The runner movements to check with the simulator. Similar to the input to "Runner movements", but in addition to "s", "w", and "e";
+you can also specify "x" to indicate that all directions should be checked for that movement. Any unspecified movements will be random. For example, "wx-s-e" will
+simulate against "ww-s-e", "ws-s-e", and "we-s-e" once each, with all unspecified movements (i.e. third and later movements for the first runner and second and later movements
+for the second and third runner) being random.
+<br>
+<br>
+
+<b>Runners dead by tick:</b> The tick to check if all runners are dead in the simulation.
+<br>
+<br>
+
+<b>Runners do not die with movements:</b> A list of runner movements from the "Runner movements to check" input for which not all runners died by the "Runners dead by tick" input.
+The list is limited to 10,000 entries.
+<br>
+<br>
+
 
 <b>Save/Load:</b><br>
 Save with  <b>s</b>, load with <b>y</b> while sim is running (started). After loading, unpause with <b>p</b>.

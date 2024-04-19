@@ -723,7 +723,7 @@ function simulateButtonOnClick() {
     simulateButton.disabled = true;
     const movementsRunnersDoNotDieOnTime = getMovementsRunnersDoNotDieOnTime(foodCalls, runnerMovementsToCheck, runnersDeadByTick);
     let runnersDoNotDieWithMovementsInnerHTML = "";
-    for (let i = 0; i < 10000 && i < movementsRunnersDoNotDieOnTime.length; i++) {
+    for (let i = 0; i < movementsRunnersDoNotDieOnTime.length; i++) {
         const movement = movementsRunnersDoNotDieOnTime[i];
         runnersDoNotDieWithMovementsInnerHTML += getMovementsStringFromArray(movement) + "<br>";
     }
@@ -930,9 +930,6 @@ function getMovementsRunnersDoNotDieOnTime(foodCalls, runnerMovementsToCheck, ru
         const runnerMovements = allCombinations[i];
         if (!runnersDieOnTimeForMovements(runnerMovements, foodCalls, runnersDeadByTick, mainAttackerCommands, secondAttackerCommands, healerCommands, collectorCommands, defenderCommands)) {
             movementsRunnersDoNotDieOnTime.push(runnerMovements);
-            if (movementsRunnersDoNotDieOnTime.length >= 10000) {
-                return movementsRunnersDoNotDieOnTime;
-            }
         }
     }
     return movementsRunnersDoNotDieOnTime;

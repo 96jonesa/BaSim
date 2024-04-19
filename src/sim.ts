@@ -870,7 +870,7 @@ function simulateButtonOnClick(): void {
 
     let runnersDoNotDieWithMovementsInnerHTML: string = "";
 
-    for (let i: number = 0; i < 10000 && i < movementsRunnersDoNotDieOnTime.length; i++) {
+    for (let i: number = 0; i < movementsRunnersDoNotDieOnTime.length; i++) {
         const movement: Array<string> = movementsRunnersDoNotDieOnTime[i];
 
         runnersDoNotDieWithMovementsInnerHTML += getMovementsStringFromArray(movement) + "<br>";
@@ -1140,10 +1140,6 @@ function getMovementsRunnersDoNotDieOnTime(foodCalls: Array<FoodType>, runnerMov
 
         if (!runnersDieOnTimeForMovements(runnerMovements, foodCalls, runnersDeadByTick, mainAttackerCommands, secondAttackerCommands, healerCommands, collectorCommands, defenderCommands)) {
             movementsRunnersDoNotDieOnTime.push(runnerMovements);
-
-            if (movementsRunnersDoNotDieOnTime.length >= 10000) {
-                return movementsRunnersDoNotDieOnTime;
-            }
         }
     }
 

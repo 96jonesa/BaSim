@@ -137,7 +137,7 @@ export class RunnerPenance extends Penance {
                 const foodZone = barbarianAssault.map.getFoodZone(x, y);
                 for (let foodIndex = foodZone.foodList.length - 1; foodIndex >= 0; foodIndex--) {
                     const food = foodZone.foodList[foodIndex];
-                    if (!barbarianAssault.map.hasLineOfSight(new Position(this.position.x, this.position.y), new Position(food.position.x, food.position.y), 999)) {
+                    if (!barbarianAssault.map.hasLineOfSight(new Position(food.position.x, food.position.y), new Position(this.position.x, this.position.y), 999)) {
                         continue;
                     }
                     if (firstFoodFound === null) {

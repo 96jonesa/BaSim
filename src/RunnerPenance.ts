@@ -158,7 +158,7 @@ export class RunnerPenance extends Penance {
                 for (let foodIndex: number = foodZone.foodList.length - 1; foodIndex >= 0; foodIndex--) {
                     const food: Food = foodZone.foodList[foodIndex];
 
-                    if (!barbarianAssault.map.hasLineOfSight(new Position(this.position.x, this.position.y), new Position(food.position.x, food.position.y), 999)) {
+                    if (!barbarianAssault.map.hasLineOfSight(new Position(food.position.x, food.position.y), new Position(this.position.x, this.position.y), 999)) {
                         continue;
                     }
 

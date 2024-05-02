@@ -117,16 +117,16 @@ export class BarbarianAssaultMap {
         return (this.getFlag(new Position(position.x, position.y - 1)) & (MOVE_NORTH_MASK | MOVE_FULL_MASK)) === 0;
     }
     /**
-     * Determines if a {@link Character} at the given position1 can see an entity at the given position2,
+     * Determines if an entity at the given position2 can see an entity at the given position1,
      * if the given range is its maximum vision distance.
      *
-     * @param position1 the position to check if a Character can see an entity at the given
-     *                  position2 from
-     * @param position2 the position to check if a Character at the given position1 can see an
+     * @param position1 the position to check if an entity at the given position2 can see an
      *                  entity at
+     * @param position2 the position to check if an entity can see an entity at the given
+     *                  position1 from
      * @param range     the maximum (L-infinity) distance to consider an entity visible from
-     * @return          true if a Character at the given position1 can see an entity at the
-     *                  given position2 if the given range is its maximum vision distance,
+     * @return          true if an entity at the given position2 can see an entity at the
+     *                  given position1 if the given range is its maximum vision distance,
      *                  otherwise false
      */
     hasLineOfSight(position1, position2, range) {

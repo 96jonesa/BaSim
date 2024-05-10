@@ -365,6 +365,15 @@ export class BarbarianAssault {
         if (position.equals(this.collectorPlayer.position)) {
             return true;
         }
+        if (position.equals(this.mainAttackerPlayer.position)) {
+            return true;
+        }
+        if (position.equals(this.secondAttackerPlayer.position)) {
+            return true;
+        }
+        if (position.equals(this.healerPlayer.position)) {
+            return true;
+        }
         if (position.y === 22) {
             if (position.x >= 20 && position.x <= 22) {
                 return true;

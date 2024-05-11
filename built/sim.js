@@ -7,6 +7,8 @@ import { LOS_EAST_MASK, LOS_FULL_MASK, LOS_NORTH_MASK, LOS_SOUTH_MASK, LOS_WEST_
 import { MoveCommand } from "./MoveCommand.js";
 import { DefenderActionCommand } from "./DefenderActionCommand.js";
 import { DefenderActionType } from "./DefenderActionType.js";
+import { TileMarker } from "./TileMarker.js";
+import { RGBColor } from "./RGBColor.js";
 const HTML_CANVAS = "basimcanvas";
 const HTML_RUNNER_MOVEMENTS = "runnermovements";
 const HTML_START_BUTTON = "wavestart";
@@ -143,6 +145,7 @@ function init() {
     wave = Number(waveSelect.value);
     defenderLevel = Number(defenderLevelSelection.value);
     markerColor = Number("0x" + markerColorInput.value.substring(1));
+    markerColorInput.onchange = markerColorInputOnChange;
     playerSelect = document.getElementById(HTML_PLAYER_SELECT);
     playerSelect.onchange = playerSelectOnChange;
     player = playerSelect.value;
@@ -385,13 +388,13 @@ function canvasOnMouseDown(mouseEvent) {
         if (markingTiles) {
             let tileAlreadyMarked = false;
             for (let i = 0; i < markedTiles.length; i++) {
-                if ((markedTiles[i][0] === xTile) && (markedTiles[i][1] === yTile)) {
+                if ((markedTiles[i].position.x === xTile) && (markedTiles[i].position.y === yTile)) {
                     tileAlreadyMarked = true;
                     markedTiles.splice(i, 1);
                 }
             }
             if (!tileAlreadyMarked) {
-                markedTiles.push([xTile, yTile]);
+                markedTiles.push(new TileMarker(new Position(xTile, yTile), RGBColor.fromHexColor(markerColor)));
             }
             if (!isRunning) {
                 draw();
@@ -490,7 +493,8 @@ function drawMap() {
     renderer.setDrawColor((markerColor >> 16) & 255, (markerColor >> 8) & 255, markerColor & 255, 255);
     for (let i = 0; i < markedTiles.length; i++) {
         const markedTile = markedTiles[i];
-        renderer.outline(markedTile[0], markedTile[1]);
+        renderer.setDrawColor(markedTile.rgbColor.r, markedTile.rgbColor.g, markedTile.rgbColor.b, 255);
+        renderer.outline(markedTile.position.x, markedTile.position.y);
     }
 }
 /**
@@ -791,6 +795,9 @@ function runnersDeadByTickInputOnChange() {
 }
 function foodCallsInputOnChange() {
     reset();
+}
+function markerColorInputOnChange() {
+    markerColor = Number("0x" + markerColorInput.value.substring(1));
 }
 /**
  * Toggles whether the simulator must be paused before saving / loading.

@@ -23,6 +23,8 @@ import {Command} from "./Command.js";
 import {MoveCommand} from "./MoveCommand.js";
 import {DefenderActionCommand} from "./DefenderActionCommand.js";
 import {DefenderActionType} from "./DefenderActionType.js";
+import {TileMarker} from "./TileMarker.js";
+import {RGBColor} from "./RGBColor.js";
 
 const HTML_CANVAS: string = "basimcanvas";
 const HTML_RUNNER_MOVEMENTS: string = "runnermovements";
@@ -54,7 +56,7 @@ const HTML_RUNNERS_DO_NOT_DIE_WITH_MOVEMENTS: string = "runnersdonotdiemovements
 window.onload = init;
 
 var markingTiles: boolean;
-var markedTiles: Array<Array<number>>;
+var markedTiles: Array<TileMarker>;
 var canvas: HTMLCanvasElement;
 var movementsInput: HTMLInputElement;
 var tickDurationInput: HTMLInputElement;
@@ -165,6 +167,7 @@ function init(): void {
     wave = Number(waveSelect.value);
     defenderLevel = Number(defenderLevelSelection.value);
     markerColor = Number("0x" + markerColorInput.value.substring(1));
+    markerColorInput.onchange = markerColorInputOnChange;
     playerSelect = document.getElementById(HTML_PLAYER_SELECT) as HTMLInputElement;
     playerSelect.onchange = playerSelectOnChange;
     player = playerSelect.value;
@@ -461,14 +464,14 @@ function canvasOnMouseDown(mouseEvent: MouseEvent): void {
             let tileAlreadyMarked: boolean = false;
 
             for (let i: number = 0; i < markedTiles.length; i++) {
-                if ((markedTiles[i][0] === xTile) && (markedTiles[i][1] === yTile)) {
+                if ((markedTiles[i].position.x === xTile) && (markedTiles[i].position.y === yTile)) {
                     tileAlreadyMarked = true;
                     markedTiles.splice(i, 1);
                 }
             }
 
             if (!tileAlreadyMarked) {
-                markedTiles.push([xTile, yTile]);
+                markedTiles.push(new TileMarker(new Position(xTile, yTile), RGBColor.fromHexColor(markerColor)));
             }
 
             if (!isRunning) {
@@ -572,8 +575,10 @@ function drawMap(): void {
     renderer.setDrawColor((markerColor >> 16) & 255, (markerColor >> 8) & 255, markerColor & 255, 255);
 
     for (let i: number = 0; i < markedTiles.length; i++) {
-        const markedTile: Array<number> = markedTiles[i];
-        renderer.outline(markedTile[0], markedTile[1]);
+        const markedTile: TileMarker = markedTiles[i];
+
+        renderer.setDrawColor(markedTile.rgbColor.r, markedTile.rgbColor.g, markedTile.rgbColor.b, 255);
+        renderer.outline(markedTile.position.x, markedTile.position.y);
     }
 }
 
@@ -950,6 +955,10 @@ function runnersDeadByTickInputOnChange(): void {
 
 function foodCallsInputOnChange(): void {
     reset();
+}
+
+function markerColorInputOnChange(): void {
+    markerColor = Number("0x" + markerColorInput.value.substring(1));
 }
 
 /**

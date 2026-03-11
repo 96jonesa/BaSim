@@ -35,6 +35,7 @@ export class HealerPenance extends Penance {
     public blueCounter: number = -1;
     public greenCounter: number = -1;
     public zombieState: boolean = false;
+    public forcedTarget: string = "";
 
     public constructor(position: Position, maxHealth: number, spawnTick: number, id: number) {
         super(position);
@@ -270,20 +271,26 @@ export class HealerPenance extends Penance {
      * @private
      */
     private tryToTargetPlayer(barbarianAssault: BarbarianAssault): void {
-        const players: Array<Player> = [
-            barbarianAssault.collectorPlayer,
-            barbarianAssault.defenderPlayer,
-            barbarianAssault.mainAttackerPlayer,
-            barbarianAssault.secondAttackerPlayer,
-            barbarianAssault.healerPlayer
+        const playerRoles: Array<{player: Player, role: string}> = [
+            {player: barbarianAssault.mainAttackerPlayer, role: "main"},
+            {player: barbarianAssault.secondAttackerPlayer, role: "second"},
+            {player: barbarianAssault.healerPlayer, role: "heal"},
+            {player: barbarianAssault.collectorPlayer, role: "collector"},
+            {player: barbarianAssault.defenderPlayer, role: "player"},
         ];
 
-        const candidates: Array<Player> = players.filter((player: Player): boolean => {
-            return barbarianAssault.map.hasLineOfSight(this.position, player.position, 15);
+        let candidates = playerRoles.filter((entry): boolean => {
+            return barbarianAssault.map.hasLineOfSight(this.position, entry.player.position, 15);
         });
 
+        if (this.forcedTarget.length > 0 && this.previousTargetType === null) {
+            candidates = candidates.filter((entry): boolean => {
+                return this.forcedTarget.includes(entry.role);
+            });
+        }
+
         if (candidates.length > 0) {
-            this.target = candidates[Math.floor(Math.random() * candidates.length)];
+            this.target = candidates[Math.floor(Math.random() * candidates.length)].player;
 
             return;
         }
@@ -462,6 +469,7 @@ export class HealerPenance extends Penance {
         healerPenance.blueCounter = this.blueCounter;
         healerPenance.greenCounter = this.greenCounter;
         healerPenance.zombieState = this.zombieState;
+        healerPenance.forcedTarget = this.forcedTarget;
 
         return healerPenance;
     }

@@ -66,6 +66,7 @@ export class BarbarianAssault {
     public foodCalls: Array<FoodType>;
     public foodCallsIndex: number = 0;
     public cannon: Cannon = new Cannon();
+    public healerSpawnTargets: Array<string> = [];
 
 
     public constructor(
@@ -340,12 +341,22 @@ export class BarbarianAssault {
      * @private
      */
     private spawnHealer(): void {
-        if (this.wave === 10) {
-            this.healers.push(new HealerPenance(new Position(36, 49), this.maxHealerHealth, this.ticks, this.currentHealerId));
-        } else {
-            this.healers.push(new HealerPenance(new Position(42, 37), this.maxHealerHealth, this.ticks, this.currentHealerId));
+        const spawnPos = this.wave === 10 ? new Position(36, 49) : new Position(42, 37);
+        const healer = new HealerPenance(spawnPos, this.maxHealerHealth, this.ticks, this.currentHealerId);
+
+        const spawnIndex = this.currentHealerId - 1;
+        if (spawnIndex < this.healerSpawnTargets.length) {
+            const targetStr = this.healerSpawnTargets[spawnIndex];
+            let forced = "";
+            if (targetStr.includes("m")) forced += "main";
+            if (targetStr.includes("2")) forced += "second";
+            if (targetStr.includes("h")) forced += "heal";
+            if (targetStr.includes("c")) forced += "collector";
+            if (targetStr.includes("d")) forced += "player";
+            healer.forcedTarget = forced;
         }
 
+        this.healers.push(healer);
         this.currentHealerId++;
         this.healersAlive++;
     }
@@ -589,6 +600,7 @@ export class BarbarianAssault {
             barbarianAssault.foodCalls.push(this.foodCalls[i]);
         }
         barbarianAssault.cannon = this.cannon.clone();
+        barbarianAssault.healerSpawnTargets = [...this.healerSpawnTargets];
 
         return barbarianAssault;
     }

@@ -25,6 +25,7 @@ export class HealerPenance extends Penance {
         this.blueCounter = -1;
         this.greenCounter = -1;
         this.zombieState = false;
+        this.forcedTarget = "";
         this.spawnPosition = position.clone();
         this.maxHealth = maxHealth;
         this.health = maxHealth;
@@ -233,18 +234,23 @@ export class HealerPenance extends Penance {
      * @private
      */
     tryToTargetPlayer(barbarianAssault) {
-        const players = [
-            barbarianAssault.collectorPlayer,
-            barbarianAssault.defenderPlayer,
-            barbarianAssault.mainAttackerPlayer,
-            barbarianAssault.secondAttackerPlayer,
-            barbarianAssault.healerPlayer
+        const playerRoles = [
+            { player: barbarianAssault.mainAttackerPlayer, role: "main" },
+            { player: barbarianAssault.secondAttackerPlayer, role: "second" },
+            { player: barbarianAssault.healerPlayer, role: "heal" },
+            { player: barbarianAssault.collectorPlayer, role: "collector" },
+            { player: barbarianAssault.defenderPlayer, role: "player" },
         ];
-        const candidates = players.filter((player) => {
-            return barbarianAssault.map.hasLineOfSight(this.position, player.position, 15);
+        let candidates = playerRoles.filter((entry) => {
+            return barbarianAssault.map.hasLineOfSight(this.position, entry.player.position, 15);
         });
+        if (this.forcedTarget.length > 0 && this.previousTargetType === null) {
+            candidates = candidates.filter((entry) => {
+                return this.forcedTarget.includes(entry.role);
+            });
+        }
         if (candidates.length > 0) {
-            this.target = candidates[Math.floor(Math.random() * candidates.length)];
+            this.target = candidates[Math.floor(Math.random() * candidates.length)].player;
             return;
         }
         this.target = null;
@@ -403,6 +409,7 @@ export class HealerPenance extends Penance {
         healerPenance.blueCounter = this.blueCounter;
         healerPenance.greenCounter = this.greenCounter;
         healerPenance.zombieState = this.zombieState;
+        healerPenance.forcedTarget = this.forcedTarget;
         return healerPenance;
     }
 }

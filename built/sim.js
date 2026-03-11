@@ -46,6 +46,7 @@ const HTML_RUNNER_TABLE = "runnertable";
 const HTML_HEALER_TABLE = "healertable";
 const HTML_TOGGLE_DARK_MODE = "toggledarkmode";
 const HTML_HEALER_CODES = "healercodes";
+const HTML_HEALER_SPAWN_TARGETS = "healerspawntargets";
 const HTML_EXPORT_MARKERS = "exportmarkers";
 const HTML_IMPORT_MARKERS = "importmarkers";
 const HTML_MARKER_IMPORT_FIELD = "markerimportfield";
@@ -89,6 +90,7 @@ var simulateButton;
 var runnersDoNotDieWithMovements;
 var cannonQueueInput;
 var healerCodesInput;
+var healerSpawnTargetsInput;
 const STATE_HISTORY_LIMIT = 1000;
 var stateHistory = [];
 var stateIndex = -1;
@@ -111,6 +113,7 @@ var savedRequireLogs;
 var savedFoodCallsString;
 var savedCannonQueueString;
 var savedHealerCodesString;
+var savedHealerSpawnTargetsString;
 /**
  * Initializes the simulator.
  */
@@ -186,6 +189,12 @@ function init() {
     };
     healerCodesInput = document.getElementById(HTML_HEALER_CODES);
     healerCodesInput.onkeydown = function (keyboardEvent) {
+        if (keyboardEvent.key === " ") {
+            keyboardEvent.preventDefault();
+        }
+    };
+    healerSpawnTargetsInput = document.getElementById(HTML_HEALER_SPAWN_TARGETS);
+    healerSpawnTargetsInput.onkeydown = function (keyboardEvent) {
         if (keyboardEvent.key === " ") {
             keyboardEvent.preventDefault();
         }
@@ -403,6 +412,7 @@ function save() {
     savedFoodCallsString = foodCallsInput.value;
     savedCannonQueueString = cannonQueueInput.value;
     savedHealerCodesString = healerCodesInput.value;
+    savedHealerSpawnTargetsString = healerSpawnTargetsInput.value;
 }
 /**
  * Pauses and loads the previously saved state of the simulator.
@@ -430,6 +440,7 @@ function load() {
     foodCallsInput.value = savedFoodCallsString;
     cannonQueueInput.value = savedCannonQueueString;
     healerCodesInput.value = savedHealerCodesString;
+    healerSpawnTargetsInput.value = savedHealerSpawnTargetsString;
     barbarianAssault = savedBarbarianAssault;
     // the existing save state will mutate as the simulator proceeds,
     // so re-clone the save state in case of subsequent loads
@@ -850,6 +861,10 @@ function startStopButtonOnClick() {
         barbarianAssault = new BarbarianAssault(wave, requireRepairs, requireLogs, infiniteFood, movements, defenderLevel, player === "mainattacker" ? new Map : mainAttackerCommands, player === "secondattacker" ? new Map : secondAttackerCommands, player === "healer" ? new Map : healerCommands, player === "collector" ? new Map : collectorCommands, player === "defender" ? new Map : defenderCommands, foodCalls, cannonQueue);
         if (healerCodeActions.length > 0) {
             barbarianAssault.healerPlayer.codeQueue = healerCodeActions;
+        }
+        const spawnTargetsValue = healerSpawnTargetsInput.value.trim();
+        if (spawnTargetsValue.length > 0) {
+            barbarianAssault.healerSpawnTargets = spawnTargetsValue.split("-");
         }
         console.log("Wave " + wave + " started!");
         tick();

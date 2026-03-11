@@ -67,6 +67,9 @@ Cannon queue: <input id="cannonqueue" type="text" size="40"/>
 Healer codes: <input id="healercodes" type="text" size="40" placeholder="h1,3-h2,5-h3,4"/>
 <br>
 
+Healer spawn targets: <input id="healerspawntargets" type="text" size="40" placeholder="m-c-m2h"/>
+<br>
+
 Tick duration (milliseconds): <input id="tickduration" type="number" min="100" max="1200" value="600"/>
 <br>
 
@@ -288,6 +291,12 @@ Optional timing: <code>h1,3:24</code> delays the last food until tick 24.<br>
 First poison for each healer auto-waits until its spawn tick (h1=tick 11, h2=tick 21, etc.).<br>
 Actions are sorted by priority (spawn time). Dead healers are skipped automatically.<br>
 Example: <code>h1,3-h2,5-h3,4</code><br>
+<br>
+
+<b>Healer spawn targets:</b> Force each healer penance to target a specific player role on spawn.<br>
+Each healer's target is separated by <code>-</code>. Role letters: <b>m</b>=main, <b>2</b>=second, <b>h</b>=healer, <b>c</b>=collector, <b>d</b>=defender.<br>
+Multiple roles can be combined (e.g., <code>m2h</code> = main, second, or healer). Only affects the first target after spawning.<br>
+Example: <code>m-c-m2h</code> (healer 1 targets main, healer 2 targets collector, healer 3 targets main/second/healer)<br>
 <br>
 
 <b>Save/Load:</b><br>

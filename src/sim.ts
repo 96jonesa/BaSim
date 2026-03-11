@@ -63,6 +63,7 @@ const HTML_RUNNER_TABLE: string = "runnertable";
 const HTML_HEALER_TABLE: string = "healertable";
 const HTML_TOGGLE_DARK_MODE: string = "toggledarkmode";
 const HTML_HEALER_CODES: string = "healercodes";
+const HTML_HEALER_SPAWN_TARGETS: string = "healerspawntargets";
 const HTML_EXPORT_MARKERS: string = "exportmarkers";
 const HTML_IMPORT_MARKERS: string = "importmarkers";
 const HTML_MARKER_IMPORT_FIELD: string = "markerimportfield";
@@ -108,6 +109,7 @@ var simulateButton: HTMLButtonElement;
 var runnersDoNotDieWithMovements: HTMLElement;
 var cannonQueueInput: HTMLInputElement;
 var healerCodesInput: HTMLInputElement;
+var healerSpawnTargetsInput: HTMLInputElement;
 
 const STATE_HISTORY_LIMIT: number = 1000;
 var stateHistory: Array<{ba: BarbarianAssault, tickHTML: string, foodHTML: string, commandsHTML: string}> = [];
@@ -132,6 +134,7 @@ var savedRequireLogs: boolean;
 var savedFoodCallsString: string;
 var savedCannonQueueString: string;
 var savedHealerCodesString: string;
+var savedHealerSpawnTargetsString: string;
 
 /**
  * Initializes the simulator.
@@ -208,6 +211,12 @@ function init(): void {
     };
     healerCodesInput = document.getElementById(HTML_HEALER_CODES) as HTMLInputElement;
     healerCodesInput.onkeydown = function (keyboardEvent: KeyboardEvent): void {
+        if (keyboardEvent.key === " ") {
+            keyboardEvent.preventDefault();
+        }
+    };
+    healerSpawnTargetsInput = document.getElementById(HTML_HEALER_SPAWN_TARGETS) as HTMLInputElement;
+    healerSpawnTargetsInput.onkeydown = function (keyboardEvent: KeyboardEvent): void {
         if (keyboardEvent.key === " ") {
             keyboardEvent.preventDefault();
         }
@@ -473,6 +482,7 @@ function save(): void {
     savedFoodCallsString = foodCallsInput.value;
     savedCannonQueueString = cannonQueueInput.value;
     savedHealerCodesString = healerCodesInput.value;
+    savedHealerSpawnTargetsString = healerSpawnTargetsInput.value;
 }
 
 /**
@@ -502,6 +512,7 @@ function load(): void {
     foodCallsInput.value = savedFoodCallsString;
     cannonQueueInput.value = savedCannonQueueString;
     healerCodesInput.value = savedHealerCodesString;
+    healerSpawnTargetsInput.value = savedHealerSpawnTargetsString;
 
     barbarianAssault = savedBarbarianAssault;
 
@@ -988,6 +999,11 @@ function startStopButtonOnClick(): void {
 
         if (healerCodeActions.length > 0) {
             barbarianAssault.healerPlayer.codeQueue = healerCodeActions;
+        }
+
+        const spawnTargetsValue = healerSpawnTargetsInput.value.trim();
+        if (spawnTargetsValue.length > 0) {
+            barbarianAssault.healerSpawnTargets = spawnTargetsValue.split("-");
         }
 
         console.log("Wave " + wave + " started!");

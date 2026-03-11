@@ -204,4 +204,19 @@ describe("processEggQueue", (): void => {
         expect(cloned.eggQueue[0].stalled).toBe(4);
         expect(cloned.eggQueue[0].type).toBe(EggType.GREEN);
     });
+
+    test("clone copies forcedTarget", (): void => {
+        const healer = new HealerPenance(new Position(42, 37), 27, 1, 1);
+        healer.forcedTarget = "mainsecond";
+
+        const cloned = healer.clone();
+
+        expect(cloned.forcedTarget).toBe("mainsecond");
+    });
+
+    test("lastPoisonTick initialized to spawnTick", (): void => {
+        const healer = new HealerPenance(new Position(42, 37), 27, 11, 1);
+
+        expect(healer.lastPoisonTick).toBe(11);
+    });
 });

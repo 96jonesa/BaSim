@@ -16,6 +16,7 @@ export class RunnerPenance extends Penance {
     public cycleTick: number = 1;
     public targetState: number = 0;
     public foodTarget: Food = null;
+    public chat: string = "";
     public blughhhhCountdown: number = 0;
     public ticksStandingStill: number = 0;
     public despawnCountdown: number = null;
@@ -83,6 +84,7 @@ export class RunnerPenance extends Penance {
      * @inheritDoc
      */
     public tick(barbarianAssault: BarbarianAssault): void {
+        this.chat = "";
         this.cycleTick++;
 
         if (this.cycleTick > 10) {
@@ -541,6 +543,7 @@ export class RunnerPenance extends Penance {
      */
     private print(message: string, barbarianAssault: BarbarianAssault): void {
         // console.log(barbarianAssault.ticks + ": Runner " + this.id + ": " + message);
+        this.chat = message;
     }
 
     /**
@@ -553,6 +556,7 @@ export class RunnerPenance extends Penance {
         runnerPenance.cycleTick = this.cycleTick;
         runnerPenance.targetState = this.targetState;
         runnerPenance.foodTarget = this.foodTarget === null ? null : this.foodTarget.clone();
+        runnerPenance.chat = this.chat;
         runnerPenance.blughhhhCountdown = this.blughhhhCountdown;
         runnerPenance.ticksStandingStill = this.ticksStandingStill;
         runnerPenance.despawnCountdown = this.despawnCountdown;

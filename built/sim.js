@@ -321,6 +321,8 @@ function init() {
             stepBackButton.style.display = "";
             stepForwardButton.style.display = "";
             saveStateButton.disabled = false;
+            document.getElementById(HTML_RUNNER_TABLE).style.display = "table";
+            document.getElementById(HTML_HEALER_TABLE).style.display = "table";
             tickTimerId = setInterval(tick, Number(tickDurationInput.value));
         }
         isPaused = true;
@@ -550,6 +552,8 @@ function windowOnKeyDown(keyboardEvent) {
             stepBackButton.style.display = "";
             stepForwardButton.style.display = "";
             saveStateButton.disabled = false;
+            document.getElementById(HTML_RUNNER_TABLE).style.display = "table";
+            document.getElementById(HTML_HEALER_TABLE).style.display = "table";
             tickTimerId = setInterval(tick, Number(tickDurationInput.value));
         }
         isPaused = true;
@@ -1062,6 +1066,8 @@ function startStopButtonOnClick() {
         stepBackButton.style.display = "";
         stepForwardButton.style.display = "";
         saveStateButton.disabled = false;
+        document.getElementById(HTML_RUNNER_TABLE).style.display = "table";
+        document.getElementById(HTML_HEALER_TABLE).style.display = "table";
         controlledCommands.innerHTML = "";
         barbarianAssault = new BarbarianAssault(wave, requireRepairs, requireLogs, simpleFood ? true : infiniteFood, movements, defenderLevel, player === "mainattacker" ? new Map : mainAttackerCommands, player === "secondattacker" ? new Map : secondAttackerCommands, player === "healer" ? new Map : healerCommands, player === "collector" ? new Map : collectorCommands, player === "defender" ? new Map : defenderCommands, foodCalls, cannonQueue);
         if (healerCodeActions.length > 0) {
@@ -1132,11 +1138,6 @@ function simulateButtonOnClick() {
  */
 function updateRunnerTable() {
     const table = document.getElementById(HTML_RUNNER_TABLE);
-    if (!isRunning) {
-        table.style.display = "none";
-        return;
-    }
-    table.style.display = "table";
     const oldBody = table.querySelector("tbody");
     if (oldBody) {
         oldBody.remove();
@@ -1152,6 +1153,7 @@ function updateRunnerTable() {
         row.insertCell().outerHTML = `<td style="${cellStyle}">(${runner.position.x}, ${runner.position.y})</td>`;
         row.insertCell().outerHTML = `<td style="${cellStyle}">(${runner.destination.x}, ${runner.destination.y})</td>`;
         row.insertCell().outerHTML = `<td style="${cellStyle}">${runner.foodTarget !== null ? "(" + runner.foodTarget.position.x + ", " + runner.foodTarget.position.y + ")" : "None"}</td>`;
+        row.insertCell().outerHTML = `<td style="${cellStyle}">${runner.chat}</td>`;
         let status = "";
         if (runner.isDying)
             status = "Dying";
@@ -1167,11 +1169,6 @@ function updateRunnerTable() {
 }
 function updateHealerTable() {
     const table = document.getElementById(HTML_HEALER_TABLE);
-    if (!isRunning) {
-        table.style.display = "none";
-        return;
-    }
-    table.style.display = "table";
     const oldBody = table.querySelector("tbody");
     if (oldBody) {
         oldBody.remove();

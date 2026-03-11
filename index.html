@@ -71,6 +71,12 @@
     body.dark table {
         border-color: #555;
     }
+    #runnertable td,
+    #runnertable th,
+    #healertable td,
+    #healertable th {
+        text-align: center;
+    }
     body.dark th,
     body.dark td {
         border-color: #555;
@@ -232,36 +238,38 @@ Runners dead by tick: <input id="runnersdeadbytick" type="text"/> <span title="T
 
 <div style="display: flex; gap: 0.5rem; align-items: flex-start;">
 <div><button id="savestate" disabled>Save (s)</button> <button id="loadstate">Load (y)</button></div>
+<div>
+<table id="healertable" style="display: none; border-collapse: collapse; margin-bottom: 0.5rem;">
+    <thead>
+        <tr>
+            <th style="border: 1px solid; padding: 2px 6px;">Healer</th>
+            <th style="border: 1px solid; padding: 2px 6px; min-width: 6em;">Target</th>
+            <th style="border: 1px solid; padding: 2px 6px;">Last<br>Target</th>
+            <th style="border: 1px solid; padding: 2px 6px;">Spray<br>Timer</th>
+            <th style="border: 1px solid; padding: 2px 6px;">Poisoned</th>
+            <th style="border: 1px solid; padding: 2px 6px;">Health</th>
+            <th style="border: 1px solid; padding: 2px 6px;">Position</th>
+            <th style="border: 1px solid; padding: 2px 6px;">Destination</th>
+            <th style="border: 1px solid; padding: 2px 6px; min-width: 5em;">Status</th>
+        </tr>
+    </thead>
+</table>
 <table id="runnertable" style="display: none; border-collapse: collapse; margin-bottom: 0.5rem;">
     <thead>
         <tr>
             <th style="border: 1px solid; padding: 2px 6px;">Runner</th>
             <th style="border: 1px solid; padding: 2px 6px;">Tick</th>
             <th style="border: 1px solid; padding: 2px 6px;">State</th>
-            <th style="border: 1px solid; padding: 2px 6px;">HP</th>
+            <th style="border: 1px solid; padding: 2px 6px;">Health</th>
             <th style="border: 1px solid; padding: 2px 6px;">Position</th>
             <th style="border: 1px solid; padding: 2px 6px;">Destination</th>
             <th style="border: 1px solid; padding: 2px 6px;">Target</th>
-            <th style="border: 1px solid; padding: 2px 6px;">Status</th>
+            <th style="border: 1px solid; padding: 2px 6px; min-width: 8em;">Chat</th>
+            <th style="border: 1px solid; padding: 2px 6px; min-width: 5em;">Status</th>
         </tr>
     </thead>
 </table>
-
-<table id="healertable" style="display: none; border-collapse: collapse; margin-bottom: 0.5rem;">
-    <thead>
-        <tr>
-            <th style="border: 1px solid; padding: 2px 6px;">Healer</th>
-            <th style="border: 1px solid; padding: 2px 6px;">Target</th>
-            <th style="border: 1px solid; padding: 2px 6px;">Last<br>Target</th>
-            <th style="border: 1px solid; padding: 2px 6px;">Spray<br>Timer</th>
-            <th style="border: 1px solid; padding: 2px 6px;">Poisoned</th>
-            <th style="border: 1px solid; padding: 2px 6px;">HP</th>
-            <th style="border: 1px solid; padding: 2px 6px;">Position</th>
-            <th style="border: 1px solid; padding: 2px 6px;">Destination</th>
-            <th style="border: 1px solid; padding: 2px 6px;">Status</th>
-        </tr>
-    </thead>
-</table>
+</div>
 </div>
 
 <b>space</b> starts or stops the wave.<br>

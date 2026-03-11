@@ -344,6 +344,8 @@ function init(): void {
             stepBackButton.style.display = "";
             stepForwardButton.style.display = "";
             saveStateButton.disabled = false;
+            (document.getElementById(HTML_RUNNER_TABLE) as HTMLElement).style.display = "table";
+            (document.getElementById(HTML_HEALER_TABLE) as HTMLElement).style.display = "table";
             tickTimerId = setInterval(tick, Number(tickDurationInput.value));
         }
         isPaused = true;
@@ -619,6 +621,8 @@ function windowOnKeyDown(keyboardEvent: KeyboardEvent): void {
             stepBackButton.style.display = "";
             stepForwardButton.style.display = "";
             saveStateButton.disabled = false;
+            (document.getElementById(HTML_RUNNER_TABLE) as HTMLElement).style.display = "table";
+            (document.getElementById(HTML_HEALER_TABLE) as HTMLElement).style.display = "table";
             tickTimerId = setInterval(tick, Number(tickDurationInput.value));
         }
         isPaused = true;
@@ -1188,6 +1192,8 @@ function startStopButtonOnClick(): void {
         stepBackButton.style.display = "";
         stepForwardButton.style.display = "";
         saveStateButton.disabled = false;
+        (document.getElementById(HTML_RUNNER_TABLE) as HTMLElement).style.display = "table";
+        (document.getElementById(HTML_HEALER_TABLE) as HTMLElement).style.display = "table";
 
         controlledCommands.innerHTML = "";
 
@@ -1295,13 +1301,6 @@ function simulateButtonOnClick(): void {
 function updateRunnerTable(): void {
     const table = document.getElementById(HTML_RUNNER_TABLE) as HTMLTableElement;
 
-    if (!isRunning) {
-        table.style.display = "none";
-        return;
-    }
-
-    table.style.display = "table";
-
     const oldBody = table.querySelector("tbody");
     if (oldBody) {
         oldBody.remove();
@@ -1320,6 +1319,7 @@ function updateRunnerTable(): void {
         row.insertCell().outerHTML = `<td style="${cellStyle}">(${runner.position.x}, ${runner.position.y})</td>`;
         row.insertCell().outerHTML = `<td style="${cellStyle}">(${runner.destination.x}, ${runner.destination.y})</td>`;
         row.insertCell().outerHTML = `<td style="${cellStyle}">${runner.foodTarget !== null ? "(" + runner.foodTarget.position.x + ", " + runner.foodTarget.position.y + ")" : "None"}</td>`;
+        row.insertCell().outerHTML = `<td style="${cellStyle}">${runner.chat}</td>`;
 
         let status = "";
         if (runner.isDying) status = "Dying";
@@ -1334,13 +1334,6 @@ function updateRunnerTable(): void {
 
 function updateHealerTable(): void {
     const table = document.getElementById(HTML_HEALER_TABLE) as HTMLTableElement;
-
-    if (!isRunning) {
-        table.style.display = "none";
-        return;
-    }
-
-    table.style.display = "table";
 
     const oldBody = table.querySelector("tbody");
     if (oldBody) {

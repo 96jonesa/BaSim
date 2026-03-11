@@ -245,9 +245,12 @@ export class HealerPenance extends Penance {
             return barbarianAssault.map.hasLineOfSight(this.position, entry.player.position, 15);
         });
         if (this.forcedTarget.length > 0 && this.previousTargetType === null) {
-            candidates = candidates.filter((entry) => {
+            const priorityCandidates = candidates.filter((entry) => {
                 return this.forcedTarget.includes(entry.role);
             });
+            if (priorityCandidates.length > 0) {
+                candidates = priorityCandidates;
+            }
         }
         if (candidates.length > 0) {
             this.target = candidates[Math.floor(Math.random() * candidates.length)].player;

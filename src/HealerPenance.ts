@@ -284,9 +284,12 @@ export class HealerPenance extends Penance {
         });
 
         if (this.forcedTarget.length > 0 && this.previousTargetType === null) {
-            candidates = candidates.filter((entry): boolean => {
+            const priorityCandidates = candidates.filter((entry): boolean => {
                 return this.forcedTarget.includes(entry.role);
             });
+            if (priorityCandidates.length > 0) {
+                candidates = priorityCandidates;
+            }
         }
 
         if (candidates.length > 0) {

@@ -83,6 +83,9 @@ var runnersDeadByTickInput;
 var simulateButton;
 var runnersDoNotDieWithMovements;
 var cannonQueueInput;
+const STATE_HISTORY_LIMIT = 1000;
+var stateHistory = [];
+var stateIndex = -1;
 var savedBarbarianAssault;
 var savedTickCountSpanInnerHTML;
 var savedCurrentDefenderFoodSpanInnerHTML;
@@ -207,6 +210,8 @@ function reset() {
     startStopButton.innerHTML = "Start Wave";
     document.getElementById(HTML_RUNNER_TABLE).style.display = "none";
     document.getElementById(HTML_HEALER_TABLE).style.display = "none";
+    stateHistory = [];
+    stateIndex = -1;
     barbarianAssault = new BarbarianAssault(wave, requireRepairs, requireLogs, infiniteFood, [], defenderLevel, player === "mainattacker" ? new Map : convertCommandsStringToMap(document.getElementById(HTML_MAIN_ATTACKER_COMMANDS).value, "mainattacker"), player === "secondattacker" ? new Map : convertCommandsStringToMap(document.getElementById(HTML_SECOND_ATTACKER_COMMANDS).value, "secondattacker"), player === "healer" ? new Map : convertCommandsStringToMap(document.getElementById(HTML_HEALER_COMMANDS).value, "healer"), player === "collector" ? new Map : convertCommandsStringToMap(document.getElementById(HTML_COLLECTOR_COMMANDS).value, "collector"), player === "defender" ? new Map : convertCommandsStringToMap(document.getElementById(HTML_DEFENDER_COMMANDS).value, "defender"), []);
     draw();
 }
@@ -344,6 +349,14 @@ function windowOnKeyDown(keyboardEvent) {
                     load();
                 }
                 break;
+            case "d":
+                isPaused = true;
+                stepBackward();
+                break;
+            case "f":
+                isPaused = true;
+                stepForward();
+                break;
         }
     }
     if (key === " ") {
@@ -405,6 +418,44 @@ function load() {
     // so re-clone the save state in case of subsequent loads
     save();
     draw();
+}
+function pushState() {
+    const snapshot = {
+        ba: barbarianAssault.clone(),
+        tickHTML: tickCountSpan.innerHTML,
+        foodHTML: currentDefenderFoodSpan.innerHTML,
+        commandsHTML: controlledCommands.innerHTML
+    };
+    stateHistory.splice(stateIndex + 1, Infinity, snapshot);
+    stateIndex = stateHistory.length - 1;
+    if (stateHistory.length > STATE_HISTORY_LIMIT) {
+        const deleteCount = stateHistory.length - STATE_HISTORY_LIMIT;
+        stateHistory.splice(0, deleteCount);
+        stateIndex -= deleteCount;
+    }
+}
+function stepBackward() {
+    if (stateIndex <= 0) {
+        return;
+    }
+    stateIndex--;
+    loadState(stateHistory[stateIndex]);
+}
+function stepForward() {
+    if (stateIndex >= stateHistory.length - 1) {
+        return;
+    }
+    stateIndex++;
+    loadState(stateHistory[stateIndex]);
+}
+function loadState(snapshot) {
+    barbarianAssault = snapshot.ba.clone();
+    tickCountSpan.innerHTML = snapshot.tickHTML;
+    currentDefenderFoodSpan.innerHTML = snapshot.foodHTML;
+    controlledCommands.innerHTML = snapshot.commandsHTML;
+    draw();
+    updateRunnerTable();
+    updateHealerTable();
 }
 /**
  * Handles the given mouse event.
@@ -920,6 +971,7 @@ function updateHealerTable() {
 }
 function tick() {
     if (!isPaused) {
+        pushState();
         barbarianAssault.tick();
         currentDefenderFoodSpan.innerHTML = barbarianAssault.defenderFoodCall.toString();
         tickCountSpan.innerHTML = barbarianAssault.ticks.toString() + " (" + ticksToSeconds(barbarianAssault.ticks) + "s)";

@@ -419,6 +419,18 @@ export class BarbarianAssault {
         }
         barbarianAssault.runnersAlive = this.runnersAlive;
         barbarianAssault.runnersKilled = this.runnersKilled;
+        barbarianAssault.healersToRemove = [];
+        for (let i = 0; i < this.healersToRemove.length; i++) {
+            barbarianAssault.healersToRemove.push(this.healersToRemove[i] === null ? null : this.healersToRemove[i].clone());
+        }
+        barbarianAssault.healers = [];
+        for (let i = 0; i < this.healers.length; i++) {
+            barbarianAssault.healers.push(this.healers[i] === null ? null : this.healers[i].clone());
+        }
+        barbarianAssault.healersAlive = this.healersAlive;
+        barbarianAssault.healersKilled = this.healersKilled;
+        barbarianAssault.currentHealerId = this.currentHealerId;
+        barbarianAssault.foodCallsIndex = this.foodCallsIndex;
         barbarianAssault.collectorPlayer = this.collectorPlayer === null ? null : this.collectorPlayer.clone();
         barbarianAssault.defenderPlayer = this.defenderPlayer === null ? null : this.defenderPlayer.clone();
         barbarianAssault.mainAttackerPlayer = this.mainAttackerPlayer === null ? null : this.mainAttackerPlayer.clone();

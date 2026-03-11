@@ -103,6 +103,9 @@ var simulateButton: HTMLButtonElement;
 var runnersDoNotDieWithMovements: HTMLElement;
 var cannonQueueInput: HTMLInputElement;
 
+const STATE_HISTORY_LIMIT: number = 1000;
+var stateHistory: Array<{ba: BarbarianAssault, tickHTML: string, foodHTML: string, commandsHTML: string}> = [];
+var stateIndex: number = -1;
 
 var savedBarbarianAssault: BarbarianAssault;
 var savedTickCountSpanInnerHTML: string;
@@ -232,6 +235,8 @@ function reset(): void {
     startStopButton.innerHTML = "Start Wave";
     (document.getElementById(HTML_RUNNER_TABLE) as HTMLElement).style.display = "none";
     (document.getElementById(HTML_HEALER_TABLE) as HTMLElement).style.display = "none";
+    stateHistory = [];
+    stateIndex = -1;
 
     barbarianAssault = new BarbarianAssault(
         wave,
@@ -410,6 +415,14 @@ function windowOnKeyDown(keyboardEvent: KeyboardEvent): void {
                 }
 
                 break;
+            case "d":
+                isPaused = true;
+                stepBackward();
+                break;
+            case "f":
+                isPaused = true;
+                stepForward();
+                break;
         }
     }
 
@@ -479,6 +492,48 @@ function load(): void {
     save();
 
     draw();
+}
+
+function pushState(): void {
+    const snapshot = {
+        ba: barbarianAssault.clone(),
+        tickHTML: tickCountSpan.innerHTML,
+        foodHTML: currentDefenderFoodSpan.innerHTML,
+        commandsHTML: controlledCommands.innerHTML
+    };
+    stateHistory.splice(stateIndex + 1, Infinity, snapshot);
+    stateIndex = stateHistory.length - 1;
+    if (stateHistory.length > STATE_HISTORY_LIMIT) {
+        const deleteCount = stateHistory.length - STATE_HISTORY_LIMIT;
+        stateHistory.splice(0, deleteCount);
+        stateIndex -= deleteCount;
+    }
+}
+
+function stepBackward(): void {
+    if (stateIndex <= 0) {
+        return;
+    }
+    stateIndex--;
+    loadState(stateHistory[stateIndex]);
+}
+
+function stepForward(): void {
+    if (stateIndex >= stateHistory.length - 1) {
+        return;
+    }
+    stateIndex++;
+    loadState(stateHistory[stateIndex]);
+}
+
+function loadState(snapshot: {ba: BarbarianAssault, tickHTML: string, foodHTML: string, commandsHTML: string}): void {
+    barbarianAssault = snapshot.ba.clone();
+    tickCountSpan.innerHTML = snapshot.tickHTML;
+    currentDefenderFoodSpan.innerHTML = snapshot.foodHTML;
+    controlledCommands.innerHTML = snapshot.commandsHTML;
+    draw();
+    updateRunnerTable();
+    updateHealerTable();
 }
 
 /**
@@ -1074,6 +1129,7 @@ function updateHealerTable(): void {
 
 function tick(): void {
     if (!isPaused) {
+        pushState();
         barbarianAssault.tick();
         currentDefenderFoodSpan.innerHTML = barbarianAssault.defenderFoodCall.toString();
         tickCountSpan.innerHTML = barbarianAssault.ticks.toString() + " (" + ticksToSeconds(barbarianAssault.ticks) + "s)";

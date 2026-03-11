@@ -77,7 +77,7 @@ Wave: <select id="waveselect">
 <br>
 Runner movements: <input id="runnermovements" type="text"/>
 <br>
-Food calls: <input id="foodcalls" type="text"/>
+<span id="foodcallsrow" style="display: none;">Food calls: <input id="foodcalls" type="text"/></span>
 <br>
 Cannon queue: <input id="cannonqueue" type="text" size="40"/>
 <br>
@@ -92,11 +92,14 @@ Healer spawns: <input id="healerspawns" type="text" size="40" placeholder="11,21
 Tick duration (milliseconds): <input id="tickduration" type="number" min="100" max="1200" value="600"/>
 </div>
 <div>
+<button id="togglesimplefood">Disable simple food</button>
+<span title="When enabled: infinite food is forced on, food call is always tofu, and hotkeys change to r=drop good food, w=drop bad food, e=pick up food, t=repair trap. When disabled: normal food mechanics with specific food types, calls, and pickup keys.">(?)</span>
+<br>
 <input type="checkbox" id="toggledarkmode">
 <label for="toggledarkmode">Dark mode</label>
 <br>
-<input type="checkbox" id="toggleinfinitefood" checked>
-<label for="toggleinfinitefood">Infinite food</label>
+<span id="infinitefoodrow" style="display: none;"><input type="checkbox" id="toggleinfinitefood" checked>
+<label for="toggleinfinitefood">Infinite food</label></span>
 <br>
 <input type="checkbox" id="togglerepair" checked>
 <label for="togglerepair">Require repairs</label>
@@ -108,7 +111,7 @@ Tick duration (milliseconds): <input id="tickduration" type="number" min="100" m
 <label for="togglepausesl">Require paused to save/load</label>
 <br>
 <input type="checkbox" id="togglerenderdistance">
-<label for="togglerenderdistance">Render distance</label>
+<label for="togglerenderdistance">Require render</label>
 <br>
 <input type="checkbox" id="markingtiles">
 <label for="markingtiles">Tile marker mode</label>
@@ -191,7 +194,7 @@ Runners dead by tick: <input id="runnersdeadbytick" type="text"/>
 </div>
 </div>
 
-<button id="wavestart"></button> <b>Tick count: <span id="tickcount"></span></b> --- <b>Current Food: <span id="currdeffood"></span></b>
+<button id="wavestart"></button> <b>Tick count: <span id="tickcount"></span></b><span id="currfoodrow" style="display: none;"> --- <b>Current Food: <span id="currdeffood"></span></b></span>
 <br>
 
 <canvas id="basimcanvas"></canvas>
@@ -230,14 +233,19 @@ Runners dead by tick: <input id="runnersdeadbytick" type="text"/>
 
 <b>space</b> starts or stops the wave.<br>
 <b>left-click</b> moves the player.<br>
-<b>t</b> drops tofu.<br>
+<span id="hotkeylegend-normal" style="display: none;"><b>t</b> drops tofu.<br>
 <b>c</b> drops crackers.<br>
 <b>w</b> drops worms.<br>
 <b>1</b> picks up tofu.<br>
 <b>2</b> picks up crackers.<br>
 <b>3</b> picks up worms.<br>
 <b>l</b> picks up logs.<br>
-<b>r</b> repairs a trap.<br>
+<b>r</b> repairs a trap.<br></span>
+<span id="hotkeylegend-simple"><b>r</b> drops good food.<br>
+<b>w</b> drops bad food.<br>
+<b>e</b> picks up food.<br>
+<b>l</b> picks up logs.<br>
+<b>t</b> repairs a trap.<br></span>
 <b>p</b> pauses/unpauses.<br>
 <b>d</b> steps backward one tick (pauses).<br>
 <b>f</b> steps forward one tick (pauses).<br>
@@ -261,7 +269,7 @@ Click the colored rectangle to change the color of marked tiles.<br>
 <b>Import tiles</b> imports tile markers from the text field (paste RuneLite Ground Markers JSON).<br>
 <br>
 
-<b>Render distance:</b> When enabled, runners outside the 15-tile Chebyshev distance of all players have their target state progression frozen and cannot target food. Tiles outside render range are dimmed on the map.<br>
+<b>Require render:</b> When enabled, runners outside the 15-tile Chebyshev distance of all players have their target state progression frozen and cannot target food. Tiles outside render range are dimmed on the map.<br>
 <br>
 
 <b>Team Commands:</b> For each player, you can enter a list of positions to click to move to at specified ticks.

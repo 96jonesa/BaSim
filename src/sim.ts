@@ -63,6 +63,10 @@ const HTML_RUNNER_TABLE: string = "runnertable";
 const HTML_HEALER_TABLE: string = "healertable";
 const HTML_TOGGLE_DARK_MODE: string = "toggledarkmode";
 const HTML_TOGGLE_RENDER_DISTANCE: string = "togglerenderdistance";
+const HTML_TOGGLE_SIMPLE_FOOD: string = "togglesimplefood";
+const HTML_FOOD_CALLS_ROW: string = "foodcallsrow";
+const HTML_INFINITE_FOOD_ROW: string = "infinitefoodrow";
+const HTML_CURRENT_FOOD_ROW: string = "currfoodrow";
 const HTML_HEALER_CODES: string = "healercodes";
 const HTML_HEALER_SPAWN_TARGETS: string = "healerspawntargets";
 const HTML_RUNNER_SPAWNS: string = "runnerspawns";
@@ -95,6 +99,7 @@ var markerColorInput: HTMLInputElement;
 var isRunning: boolean = false;
 var barbarianAssault: BarbarianAssault;
 var infiniteFood: boolean;
+var simpleFood: boolean = true;
 var isPaused: boolean;
 var pauseSaveLoad: boolean;
 var saveExists: boolean;
@@ -192,6 +197,19 @@ function init(): void {
     markingTiles = toggleMarkingTiles.checked;
     markedTiles = [];
     infiniteFood = toggleInfiniteFood.checked;
+
+    const toggleSimpleFoodButton = document.getElementById(HTML_TOGGLE_SIMPLE_FOOD) as HTMLButtonElement;
+    toggleSimpleFoodButton.onclick = function (): void {
+        simpleFood = !simpleFood;
+        toggleSimpleFoodButton.innerHTML = simpleFood ? "Disable simple food" : "Enable simple food";
+        const display = simpleFood ? "none" : "";
+        document.getElementById(HTML_FOOD_CALLS_ROW).style.display = display;
+        document.getElementById(HTML_INFINITE_FOOD_ROW).style.display = display;
+        document.getElementById(HTML_CURRENT_FOOD_ROW).style.display = display;
+        document.getElementById("hotkeylegend-normal").style.display = display;
+        document.getElementById("hotkeylegend-simple").style.display = simpleFood ? "" : "none";
+    };
+
     requireRepairs = toggleRepair.checked;
     requireLogs = toggleLogToRepair.checked;
     pauseSaveLoad = togglePauseSaveLoad.checked;
@@ -406,9 +424,39 @@ function windowOnKeyDown(keyboardEvent: KeyboardEvent): void {
     const key: string = keyboardEvent.key;
 
     if (isRunning) {
+        if (simpleFood && player === "defender") {
+            switch (key) {
+                case "r":
+                    barbarianAssault.defenderPlayer.dropFood(barbarianAssault, FoodType.TOFU);
+                    controlledCommands.innerHTML += barbarianAssault.ticks + ":t<br>";
+                    controlledCommands.scrollTop = controlledCommands.scrollHeight;
+                    break;
+                case "w":
+                    barbarianAssault.defenderPlayer.dropFood(barbarianAssault, FoodType.CRACKERS);
+                    controlledCommands.innerHTML += barbarianAssault.ticks + ":c<br>";
+                    controlledCommands.scrollTop = controlledCommands.scrollHeight;
+                    break;
+                case "t":
+                    barbarianAssault.defenderPlayer.startRepairing(barbarianAssault);
+                    controlledCommands.innerHTML += barbarianAssault.ticks + ":r<br>";
+                    controlledCommands.scrollTop = controlledCommands.scrollHeight;
+                    break;
+                case "e":
+                    barbarianAssault.defenderPlayer.foodBeingPickedUp = FoodType.TOFU;
+                    controlledCommands.innerHTML += barbarianAssault.ticks + ":1<br>";
+                    controlledCommands.scrollTop = controlledCommands.scrollHeight;
+                    break;
+                case "l":
+                    barbarianAssault.defenderPlayer.isPickingUpLogs = true;
+                    controlledCommands.innerHTML += barbarianAssault.ticks + ":l<br>";
+                    controlledCommands.scrollTop = controlledCommands.scrollHeight;
+                    break;
+            }
+        }
+
         switch (key) {
             case "t":
-                if (player === "defender") {
+                if (!simpleFood && player === "defender") {
                     barbarianAssault.defenderPlayer.dropFood(barbarianAssault, FoodType.TOFU);
 
                     controlledCommands.innerHTML += barbarianAssault.ticks + ":t<br>";
@@ -416,7 +464,7 @@ function windowOnKeyDown(keyboardEvent: KeyboardEvent): void {
                 }
                 break;
             case "c":
-                if (player === "defender") {
+                if (!simpleFood && player === "defender") {
                     barbarianAssault.defenderPlayer.dropFood(barbarianAssault, FoodType.CRACKERS);
 
                     controlledCommands.innerHTML += barbarianAssault.ticks + ":c<br>";
@@ -424,7 +472,7 @@ function windowOnKeyDown(keyboardEvent: KeyboardEvent): void {
                 }
                 break;
             case "w":
-                if (player === "defender") {
+                if (!simpleFood && player === "defender") {
                     barbarianAssault.defenderPlayer.dropFood(barbarianAssault, FoodType.WORMS);
 
                     controlledCommands.innerHTML += barbarianAssault.ticks + ":w<br>";
@@ -432,7 +480,7 @@ function windowOnKeyDown(keyboardEvent: KeyboardEvent): void {
                 }
                 break;
             case "1":
-                if (player === "defender") {
+                if (!simpleFood && player === "defender") {
                     barbarianAssault.defenderPlayer.foodBeingPickedUp = FoodType.TOFU;
 
                     controlledCommands.innerHTML += barbarianAssault.ticks + ":1<br>";
@@ -440,7 +488,7 @@ function windowOnKeyDown(keyboardEvent: KeyboardEvent): void {
                 }
                 break;
             case "2":
-                if (player === "defender") {
+                if (!simpleFood && player === "defender") {
                     barbarianAssault.defenderPlayer.foodBeingPickedUp = FoodType.CRACKERS;
 
                     controlledCommands.innerHTML += barbarianAssault.ticks + ":2<br>";
@@ -448,7 +496,7 @@ function windowOnKeyDown(keyboardEvent: KeyboardEvent): void {
                 }
                 break;
             case "3":
-                if (player === "defender") {
+                if (!simpleFood && player === "defender") {
                     barbarianAssault.defenderPlayer.foodBeingPickedUp = FoodType.WORMS;
 
                     controlledCommands.innerHTML += barbarianAssault.ticks + ":3<br>";
@@ -456,7 +504,7 @@ function windowOnKeyDown(keyboardEvent: KeyboardEvent): void {
                 }
                 break;
             case "l":
-                if (player === "defender") {
+                if (!simpleFood && player === "defender") {
                     barbarianAssault.defenderPlayer.isPickingUpLogs = true;
 
                     controlledCommands.innerHTML += barbarianAssault.ticks + ":l<br>";
@@ -464,7 +512,7 @@ function windowOnKeyDown(keyboardEvent: KeyboardEvent): void {
                 }
                 break;
             case "r":
-                if (player === "defender") {
+                if (!simpleFood && player === "defender") {
                     barbarianAssault.defenderPlayer.startRepairing(barbarianAssault);
 
                     controlledCommands.innerHTML += barbarianAssault.ticks + ":r<br>";
@@ -1025,7 +1073,7 @@ function startStopButtonOnClick(): void {
             return;
         }
 
-        const foodCalls: Array<FoodType> = parseFoodCallsInput();
+        const foodCalls: Array<FoodType> = simpleFood ? [] : parseFoodCallsInput();
 
         if (foodCalls === null) {
             alert("Invalid food calls. Example: twcw");
@@ -1069,7 +1117,7 @@ function startStopButtonOnClick(): void {
             wave,
             requireRepairs,
             requireLogs,
-            infiniteFood,
+            simpleFood ? true : infiniteFood,
             movements,
             defenderLevel,
             player === "mainattacker" ? new Map<number, Array<Command>> : mainAttackerCommands,
@@ -1266,7 +1314,9 @@ function tick(): void {
     if (!isPaused) {
         pushState();
         barbarianAssault.tick();
-        currentDefenderFoodSpan.innerHTML = barbarianAssault.defenderFoodCall.toString();
+        if (!simpleFood) {
+            currentDefenderFoodSpan.innerHTML = barbarianAssault.defenderFoodCall.toString();
+        }
         tickCountSpan.innerHTML = barbarianAssault.ticks.toString() + " (" + ticksToSeconds(barbarianAssault.ticks) + "s)";
         draw();
         updateRunnerTable();
@@ -1351,6 +1401,7 @@ function exportSettings(): void {
         requireRepairs: (document.getElementById(HTML_TOGGLE_REPAIR) as HTMLInputElement).checked,
         requireLogToRepair: (document.getElementById(HTML_TOGGLE_LOG_TO_REPAIR) as HTMLInputElement).checked,
         renderDistance: (document.getElementById(HTML_TOGGLE_RENDER_DISTANCE) as HTMLInputElement).checked,
+        simpleFood: simpleFood,
         mainAttacker: (document.getElementById(HTML_MAIN_ATTACKER_COMMANDS) as HTMLTextAreaElement).value,
         secondAttacker: (document.getElementById(HTML_SECOND_ATTACKER_COMMANDS) as HTMLTextAreaElement).value,
         healer: (document.getElementById(HTML_HEALER_COMMANDS) as HTMLTextAreaElement).value,
@@ -1388,6 +1439,9 @@ function importSettings(): void {
         if (s.requireRepairs !== undefined) (document.getElementById(HTML_TOGGLE_REPAIR) as HTMLInputElement).checked = s.requireRepairs;
         if (s.requireLogToRepair !== undefined) (document.getElementById(HTML_TOGGLE_LOG_TO_REPAIR) as HTMLInputElement).checked = s.requireLogToRepair;
         if (s.renderDistance !== undefined) (document.getElementById(HTML_TOGGLE_RENDER_DISTANCE) as HTMLInputElement).checked = s.renderDistance;
+        if (s.simpleFood !== undefined && s.simpleFood !== simpleFood) {
+            (document.getElementById(HTML_TOGGLE_SIMPLE_FOOD) as HTMLButtonElement).click();
+        }
         if (s.mainAttacker !== undefined) (document.getElementById(HTML_MAIN_ATTACKER_COMMANDS) as HTMLTextAreaElement).value = s.mainAttacker;
         if (s.secondAttacker !== undefined) (document.getElementById(HTML_SECOND_ATTACKER_COMMANDS) as HTMLTextAreaElement).value = s.secondAttacker;
         if (s.healer !== undefined) (document.getElementById(HTML_HEALER_COMMANDS) as HTMLTextAreaElement).value = s.healer;

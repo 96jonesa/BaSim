@@ -46,6 +46,10 @@ const HTML_RUNNER_TABLE = "runnertable";
 const HTML_HEALER_TABLE = "healertable";
 const HTML_TOGGLE_DARK_MODE = "toggledarkmode";
 const HTML_TOGGLE_RENDER_DISTANCE = "togglerenderdistance";
+const HTML_TOGGLE_SIMPLE_FOOD = "togglesimplefood";
+const HTML_FOOD_CALLS_ROW = "foodcallsrow";
+const HTML_INFINITE_FOOD_ROW = "infinitefoodrow";
+const HTML_CURRENT_FOOD_ROW = "currfoodrow";
 const HTML_HEALER_CODES = "healercodes";
 const HTML_HEALER_SPAWN_TARGETS = "healerspawntargets";
 const HTML_RUNNER_SPAWNS = "runnerspawns";
@@ -76,6 +80,7 @@ var markerColorInput;
 var isRunning = false;
 var barbarianAssault;
 var infiniteFood;
+var simpleFood = true;
 var isPaused;
 var pauseSaveLoad;
 var saveExists;
@@ -170,6 +175,17 @@ function init() {
     markingTiles = toggleMarkingTiles.checked;
     markedTiles = [];
     infiniteFood = toggleInfiniteFood.checked;
+    const toggleSimpleFoodButton = document.getElementById(HTML_TOGGLE_SIMPLE_FOOD);
+    toggleSimpleFoodButton.onclick = function () {
+        simpleFood = !simpleFood;
+        toggleSimpleFoodButton.innerHTML = simpleFood ? "Disable simple food" : "Enable simple food";
+        const display = simpleFood ? "none" : "";
+        document.getElementById(HTML_FOOD_CALLS_ROW).style.display = display;
+        document.getElementById(HTML_INFINITE_FOOD_ROW).style.display = display;
+        document.getElementById(HTML_CURRENT_FOOD_ROW).style.display = display;
+        document.getElementById("hotkeylegend-normal").style.display = display;
+        document.getElementById("hotkeylegend-simple").style.display = simpleFood ? "" : "none";
+    };
     requireRepairs = toggleRepair.checked;
     requireLogs = toggleLogToRepair.checked;
     pauseSaveLoad = togglePauseSaveLoad.checked;
@@ -348,58 +364,87 @@ function parseSpawnsInput(value) {
 function windowOnKeyDown(keyboardEvent) {
     const key = keyboardEvent.key;
     if (isRunning) {
+        if (simpleFood && player === "defender") {
+            switch (key) {
+                case "r":
+                    barbarianAssault.defenderPlayer.dropFood(barbarianAssault, FoodType.TOFU);
+                    controlledCommands.innerHTML += barbarianAssault.ticks + ":t<br>";
+                    controlledCommands.scrollTop = controlledCommands.scrollHeight;
+                    break;
+                case "w":
+                    barbarianAssault.defenderPlayer.dropFood(barbarianAssault, FoodType.CRACKERS);
+                    controlledCommands.innerHTML += barbarianAssault.ticks + ":c<br>";
+                    controlledCommands.scrollTop = controlledCommands.scrollHeight;
+                    break;
+                case "t":
+                    barbarianAssault.defenderPlayer.startRepairing(barbarianAssault);
+                    controlledCommands.innerHTML += barbarianAssault.ticks + ":r<br>";
+                    controlledCommands.scrollTop = controlledCommands.scrollHeight;
+                    break;
+                case "e":
+                    barbarianAssault.defenderPlayer.foodBeingPickedUp = FoodType.TOFU;
+                    controlledCommands.innerHTML += barbarianAssault.ticks + ":1<br>";
+                    controlledCommands.scrollTop = controlledCommands.scrollHeight;
+                    break;
+                case "l":
+                    barbarianAssault.defenderPlayer.isPickingUpLogs = true;
+                    controlledCommands.innerHTML += barbarianAssault.ticks + ":l<br>";
+                    controlledCommands.scrollTop = controlledCommands.scrollHeight;
+                    break;
+            }
+        }
         switch (key) {
             case "t":
-                if (player === "defender") {
+                if (!simpleFood && player === "defender") {
                     barbarianAssault.defenderPlayer.dropFood(barbarianAssault, FoodType.TOFU);
                     controlledCommands.innerHTML += barbarianAssault.ticks + ":t<br>";
                     controlledCommands.scrollTop = controlledCommands.scrollHeight;
                 }
                 break;
             case "c":
-                if (player === "defender") {
+                if (!simpleFood && player === "defender") {
                     barbarianAssault.defenderPlayer.dropFood(barbarianAssault, FoodType.CRACKERS);
                     controlledCommands.innerHTML += barbarianAssault.ticks + ":c<br>";
                     controlledCommands.scrollTop = controlledCommands.scrollHeight;
                 }
                 break;
             case "w":
-                if (player === "defender") {
+                if (!simpleFood && player === "defender") {
                     barbarianAssault.defenderPlayer.dropFood(barbarianAssault, FoodType.WORMS);
                     controlledCommands.innerHTML += barbarianAssault.ticks + ":w<br>";
                     controlledCommands.scrollTop = controlledCommands.scrollHeight;
                 }
                 break;
             case "1":
-                if (player === "defender") {
+                if (!simpleFood && player === "defender") {
                     barbarianAssault.defenderPlayer.foodBeingPickedUp = FoodType.TOFU;
                     controlledCommands.innerHTML += barbarianAssault.ticks + ":1<br>";
                     controlledCommands.scrollTop = controlledCommands.scrollHeight;
                 }
                 break;
             case "2":
-                if (player === "defender") {
+                if (!simpleFood && player === "defender") {
                     barbarianAssault.defenderPlayer.foodBeingPickedUp = FoodType.CRACKERS;
                     controlledCommands.innerHTML += barbarianAssault.ticks + ":2<br>";
                     controlledCommands.scrollTop = controlledCommands.scrollHeight;
                 }
                 break;
             case "3":
-                if (player === "defender") {
+                if (!simpleFood && player === "defender") {
                     barbarianAssault.defenderPlayer.foodBeingPickedUp = FoodType.WORMS;
                     controlledCommands.innerHTML += barbarianAssault.ticks + ":3<br>";
                     controlledCommands.scrollTop = controlledCommands.scrollHeight;
                 }
                 break;
             case "l":
-                if (player === "defender") {
+                if (!simpleFood && player === "defender") {
                     barbarianAssault.defenderPlayer.isPickingUpLogs = true;
                     controlledCommands.innerHTML += barbarianAssault.ticks + ":l<br>";
                     controlledCommands.scrollTop = controlledCommands.scrollHeight;
                 }
                 break;
             case "r":
-                if (player === "defender") {
+                if (!simpleFood && player === "defender") {
                     barbarianAssault.defenderPlayer.startRepairing(barbarianAssault);
                     controlledCommands.innerHTML += barbarianAssault.ticks + ":r<br>";
                     controlledCommands.scrollTop = controlledCommands.scrollHeight;
@@ -905,7 +950,7 @@ function startStopButtonOnClick() {
             alert("Invalid runner movements. Example: ws-s");
             return;
         }
-        const foodCalls = parseFoodCallsInput();
+        const foodCalls = simpleFood ? [] : parseFoodCallsInput();
         if (foodCalls === null) {
             alert("Invalid food calls. Example: twcw");
             return;
@@ -937,7 +982,7 @@ function startStopButtonOnClick() {
         isPaused = false;
         startStopButton.innerHTML = "Stop Wave";
         controlledCommands.innerHTML = "";
-        barbarianAssault = new BarbarianAssault(wave, requireRepairs, requireLogs, infiniteFood, movements, defenderLevel, player === "mainattacker" ? new Map : mainAttackerCommands, player === "secondattacker" ? new Map : secondAttackerCommands, player === "healer" ? new Map : healerCommands, player === "collector" ? new Map : collectorCommands, player === "defender" ? new Map : defenderCommands, foodCalls, cannonQueue);
+        barbarianAssault = new BarbarianAssault(wave, requireRepairs, requireLogs, simpleFood ? true : infiniteFood, movements, defenderLevel, player === "mainattacker" ? new Map : mainAttackerCommands, player === "secondattacker" ? new Map : secondAttackerCommands, player === "healer" ? new Map : healerCommands, player === "collector" ? new Map : collectorCommands, player === "defender" ? new Map : defenderCommands, foodCalls, cannonQueue);
         if (healerCodeActions.length > 0) {
             barbarianAssault.healerPlayer.codeQueue = healerCodeActions;
         }
@@ -1099,7 +1144,9 @@ function tick() {
     if (!isPaused) {
         pushState();
         barbarianAssault.tick();
-        currentDefenderFoodSpan.innerHTML = barbarianAssault.defenderFoodCall.toString();
+        if (!simpleFood) {
+            currentDefenderFoodSpan.innerHTML = barbarianAssault.defenderFoodCall.toString();
+        }
         tickCountSpan.innerHTML = barbarianAssault.ticks.toString() + " (" + ticksToSeconds(barbarianAssault.ticks) + "s)";
         draw();
         updateRunnerTable();
@@ -1179,6 +1226,7 @@ function exportSettings() {
         requireRepairs: document.getElementById(HTML_TOGGLE_REPAIR).checked,
         requireLogToRepair: document.getElementById(HTML_TOGGLE_LOG_TO_REPAIR).checked,
         renderDistance: document.getElementById(HTML_TOGGLE_RENDER_DISTANCE).checked,
+        simpleFood: simpleFood,
         mainAttacker: document.getElementById(HTML_MAIN_ATTACKER_COMMANDS).value,
         secondAttacker: document.getElementById(HTML_SECOND_ATTACKER_COMMANDS).value,
         healer: document.getElementById(HTML_HEALER_COMMANDS).value,
@@ -1228,6 +1276,9 @@ function importSettings() {
             document.getElementById(HTML_TOGGLE_LOG_TO_REPAIR).checked = s.requireLogToRepair;
         if (s.renderDistance !== undefined)
             document.getElementById(HTML_TOGGLE_RENDER_DISTANCE).checked = s.renderDistance;
+        if (s.simpleFood !== undefined && s.simpleFood !== simpleFood) {
+            document.getElementById(HTML_TOGGLE_SIMPLE_FOOD).click();
+        }
         if (s.mainAttacker !== undefined)
             document.getElementById(HTML_MAIN_ATTACKER_COMMANDS).value = s.mainAttacker;
         if (s.secondAttacker !== undefined)

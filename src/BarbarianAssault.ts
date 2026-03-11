@@ -202,9 +202,9 @@ export class BarbarianAssault {
         // console.log(this.ticks);
         this.runnersToRemove.length = 0;
 
-        this.cannon.tick(this);
         this.tickPenance();
         this.removePenance();
+        this.cannon.tick(this);
 
         if (this.ticks > 1 && this.ticks % 10 === 1) {
             this.northwestLogsArePresent = true;

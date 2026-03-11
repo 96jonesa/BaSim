@@ -44,6 +44,9 @@ const HTML_CANNON_QUEUE = "cannonqueue";
 const HTML_RUNNER_TABLE = "runnertable";
 const HTML_HEALER_TABLE = "healertable";
 const HTML_TOGGLE_DARK_MODE = "toggledarkmode";
+const HTML_EXPORT_MARKERS = "exportmarkers";
+const HTML_IMPORT_MARKERS = "importmarkers";
+const HTML_MARKER_IMPORT_FIELD = "markerimportfield";
 window.onload = init;
 var markingTiles;
 var markedTiles;
@@ -197,6 +200,8 @@ function init() {
         document.body.classList.toggle("dark", darkModeToggle.checked);
         localStorage.setItem("darkMode", String(darkModeToggle.checked));
     };
+    document.getElementById(HTML_EXPORT_MARKERS).onclick = exportMarkers;
+    document.getElementById(HTML_IMPORT_MARKERS).onclick = importMarkers;
 }
 /**
  * Resets the simulator: the simulator is stopped and the underlying {@link BarbarianAssault} game
@@ -985,6 +990,60 @@ function tick() {
  */
 function toggleMarkingTilesOnChange() {
     markingTiles = toggleMarkingTiles.checked;
+}
+function exportMarkers() {
+    const regionId = wave === 10 ? 7508 : 7509;
+    const tiles = markedTiles.map((tile) => ({
+        regionId: regionId,
+        regionX: tile.position.x,
+        regionY: tile.position.y + 8,
+        z: 0,
+        color: "#ff" + rgbToHex(tile.rgbColor)
+    }));
+    const json = JSON.stringify(tiles);
+    navigator.clipboard.writeText(json);
+    alert("Copied " + tiles.length + " tile marker(s) to clipboard.");
+}
+function importMarkers() {
+    const field = document.getElementById(HTML_MARKER_IMPORT_FIELD);
+    const input = field.value.trim();
+    if (input.length === 0) {
+        return;
+    }
+    try {
+        const tiles = JSON.parse(input);
+        const regionId = wave === 10 ? 7508 : 7509;
+        let count = 0;
+        for (const tile of tiles) {
+            if (tile.regionId !== regionId) {
+                continue;
+            }
+            const x = tile.regionX;
+            const y = tile.regionY - 8;
+            const colorHex = "#" + tile.color.slice(3);
+            const hexNum = Number("0x" + colorHex.substring(1));
+            const color = RGBColor.fromHexColor(hexNum);
+            // remove existing marker at same position
+            for (let i = markedTiles.length - 1; i >= 0; i--) {
+                if (markedTiles[i].position.x === x && markedTiles[i].position.y === y) {
+                    markedTiles.splice(i, 1);
+                }
+            }
+            markedTiles.push(new TileMarker(new Position(x, y), color));
+            count++;
+        }
+        field.value = "";
+        alert("Imported " + count + " tile marker(s).");
+        if (!isRunning) {
+            draw();
+        }
+    }
+    catch (e) {
+        alert("Failed to parse RuneLite tile marker JSON.");
+    }
+}
+function rgbToHex(color) {
+    return ((1 << 24) | (color.r << 16) | (color.g << 8) | color.b).toString(16).slice(1);
 }
 /**
  * Sets the wave to the selected wave value, and stops and resets the simulator.

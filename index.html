@@ -87,6 +87,10 @@ Tick duration (milliseconds): <input id="tickduration" type="number" min="100" m
 <label for="markingtiles">Tile marker mode</label>
 
 <input type="color" id="marker" name="marker" value="#000000"> Marker color
+
+<button id="exportmarkers">Export RuneLite</button>
+<button id="importmarkers">Import RuneLite</button>
+<input id="markerimportfield" type="text" size="30" placeholder="Paste RuneLite JSON here"/>
 <br>
 <br>
 
@@ -219,6 +223,8 @@ before targeting a food, then that movement will be west. If the runner later ha
 <b>Tile marker mode:</b> Click to switch between movement and tile marker mode.<br>
 While in tile marker mode, left-clicking an unmarked tile will mark it and left-clicking a marked tile will unmark it.<br>
 Click the colored rectangle to change the color of marked tiles.<br>
+<b>Export RuneLite</b> copies all tile markers to clipboard in RuneLite Ground Markers format.<br>
+<b>Import RuneLite</b> imports tile markers from the text field (paste RuneLite Ground Markers JSON).<br>
 <br>
 
 <b>Team Commands:</b> For each player, you can enter a list of positions to click to move to at specified ticks.

@@ -122,11 +122,11 @@ export class BarbarianAssault {
         if (wave === 10) {
             this.northwestLogsPosition = new Position(29, 39);
             this.southeastLogsPosition = new Position(30, 38);
-            this.collectorPlayer = new CollectorPlayer(new Position(24, 8));
             this.defenderPlayer = new DefenderPlayer(new Position(28, 8));
-            this.mainAttackerPlayer = new AttackerPlayer(new Position(26, 10));
-            this.secondAttackerPlayer = new AttackerPlayer(new Position(25, 9));
-            this.healerPlayer = new HealerPlayer(new Position(27, 9));
+            this.collectorPlayer = new CollectorPlayer(new Position(32, 8));
+            this.mainAttackerPlayer = new AttackerPlayer(new Position(30, 10));
+            this.secondAttackerPlayer = new AttackerPlayer(new Position(29, 9));
+            this.healerPlayer = new HealerPlayer(new Position(31, 9));
         }
         else {
             this.northwestLogsPosition = new Position(28, 39);

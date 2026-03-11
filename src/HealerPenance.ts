@@ -42,6 +42,7 @@ export class HealerPenance extends Penance {
         this.maxHealth = maxHealth;
         this.health = maxHealth;
         this.spawnTick = spawnTick;
+        this.lastPoisonTick = spawnTick;
         this.id = id;
     }
 
@@ -451,6 +452,7 @@ export class HealerPenance extends Penance {
         healerPenance.health = this.health;
         healerPenance.maxHealth = this.maxHealth;
         healerPenance.spawnTick = this.spawnTick;
+        healerPenance.lastPoisonTick = this.lastPoisonTick;
         healerPenance.isPoisoned = this.isPoisoned;
         healerPenance.poisonDamage = this.poisonDamage;
         healerPenance.poisonTickCount = this.poisonTickCount;

@@ -14,6 +14,7 @@ import { Player } from "./Player.js";
 import { HealerTargetType } from "./HealerTargetType.js";
 import { parseCannonInput, getCannonPosition } from "./Cannon.js";
 import { CannonSide } from "./CannonSide.js";
+import { parseHealerCodes, assignSpawnPriorities } from "./HealerCodeAction.js";
 const HTML_CANVAS = "basimcanvas";
 const HTML_RUNNER_MOVEMENTS = "runnermovements";
 const HTML_START_BUTTON = "wavestart";
@@ -44,6 +45,7 @@ const HTML_CANNON_QUEUE = "cannonqueue";
 const HTML_RUNNER_TABLE = "runnertable";
 const HTML_HEALER_TABLE = "healertable";
 const HTML_TOGGLE_DARK_MODE = "toggledarkmode";
+const HTML_HEALER_CODES = "healercodes";
 const HTML_EXPORT_MARKERS = "exportmarkers";
 const HTML_IMPORT_MARKERS = "importmarkers";
 const HTML_MARKER_IMPORT_FIELD = "markerimportfield";
@@ -86,6 +88,7 @@ var runnersDeadByTickInput;
 var simulateButton;
 var runnersDoNotDieWithMovements;
 var cannonQueueInput;
+var healerCodesInput;
 const STATE_HISTORY_LIMIT = 1000;
 var stateHistory = [];
 var stateIndex = -1;
@@ -107,6 +110,7 @@ var savedInfiniteFood;
 var savedRequireLogs;
 var savedFoodCallsString;
 var savedCannonQueueString;
+var savedHealerCodesString;
 /**
  * Initializes the simulator.
  */
@@ -176,6 +180,12 @@ function init() {
     runnerMovementsToCheckInput.onchange = runnerMovementsToCheckInputOnChange;
     cannonQueueInput = document.getElementById(HTML_CANNON_QUEUE);
     cannonQueueInput.onkeydown = function (keyboardEvent) {
+        if (keyboardEvent.key === " ") {
+            keyboardEvent.preventDefault();
+        }
+    };
+    healerCodesInput = document.getElementById(HTML_HEALER_CODES);
+    healerCodesInput.onkeydown = function (keyboardEvent) {
         if (keyboardEvent.key === " ") {
             keyboardEvent.preventDefault();
         }
@@ -392,6 +402,7 @@ function save() {
     savedRequireLogs = requireLogs;
     savedFoodCallsString = foodCallsInput.value;
     savedCannonQueueString = cannonQueueInput.value;
+    savedHealerCodesString = healerCodesInput.value;
 }
 /**
  * Pauses and loads the previously saved state of the simulator.
@@ -418,6 +429,7 @@ function load() {
     toggleInfiniteFood.checked = savedInfiniteFood;
     foodCallsInput.value = savedFoodCallsString;
     cannonQueueInput.value = savedCannonQueueString;
+    healerCodesInput.value = savedHealerCodesString;
     barbarianAssault = savedBarbarianAssault;
     // the existing save state will mutate as the simulator proceeds,
     // so re-clone the save state in case of subsequent loads
@@ -822,11 +834,23 @@ function startStopButtonOnClick() {
             alert("Invalid cannon queue. Example: wrr,1,51-erg,1,21");
             return;
         }
+        let healerCodeActions = [];
+        try {
+            healerCodeActions = parseHealerCodes(healerCodesInput.value);
+            assignSpawnPriorities(healerCodeActions);
+        }
+        catch (e) {
+            alert("Invalid healer codes. Example: h1,3-h2,5-h3,4");
+            return;
+        }
         isRunning = true;
         isPaused = false;
         startStopButton.innerHTML = "Stop Wave";
         controlledCommands.innerHTML = "";
         barbarianAssault = new BarbarianAssault(wave, requireRepairs, requireLogs, infiniteFood, movements, defenderLevel, player === "mainattacker" ? new Map : mainAttackerCommands, player === "secondattacker" ? new Map : secondAttackerCommands, player === "healer" ? new Map : healerCommands, player === "collector" ? new Map : collectorCommands, player === "defender" ? new Map : defenderCommands, foodCalls, cannonQueue);
+        if (healerCodeActions.length > 0) {
+            barbarianAssault.healerPlayer.codeQueue = healerCodeActions;
+        }
         console.log("Wave " + wave + " started!");
         tick();
         tickTimerId = setInterval(tick, Number(tickDurationInput.value));

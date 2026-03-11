@@ -30,6 +30,7 @@ import {HealerTargetType} from "./HealerTargetType.js";
 import {parseCannonInput, getCannonPosition} from "./Cannon.js";
 import {CannonCommand} from "./CannonCommand.js";
 import {CannonSide} from "./CannonSide.js";
+import {parseHealerCodes, assignSpawnPriorities} from "./HealerCodeAction.js";
 
 const HTML_CANVAS: string = "basimcanvas";
 const HTML_RUNNER_MOVEMENTS: string = "runnermovements";
@@ -61,6 +62,7 @@ const HTML_CANNON_QUEUE: string = "cannonqueue";
 const HTML_RUNNER_TABLE: string = "runnertable";
 const HTML_HEALER_TABLE: string = "healertable";
 const HTML_TOGGLE_DARK_MODE: string = "toggledarkmode";
+const HTML_HEALER_CODES: string = "healercodes";
 const HTML_EXPORT_MARKERS: string = "exportmarkers";
 const HTML_IMPORT_MARKERS: string = "importmarkers";
 const HTML_MARKER_IMPORT_FIELD: string = "markerimportfield";
@@ -105,6 +107,7 @@ var runnersDeadByTickInput: HTMLInputElement;
 var simulateButton: HTMLButtonElement;
 var runnersDoNotDieWithMovements: HTMLElement;
 var cannonQueueInput: HTMLInputElement;
+var healerCodesInput: HTMLInputElement;
 
 const STATE_HISTORY_LIMIT: number = 1000;
 var stateHistory: Array<{ba: BarbarianAssault, tickHTML: string, foodHTML: string, commandsHTML: string}> = [];
@@ -128,6 +131,7 @@ var savedInfiniteFood: boolean;
 var savedRequireLogs: boolean;
 var savedFoodCallsString: string;
 var savedCannonQueueString: string;
+var savedHealerCodesString: string;
 
 /**
  * Initializes the simulator.
@@ -198,6 +202,12 @@ function init(): void {
     runnerMovementsToCheckInput.onchange = runnerMovementsToCheckInputOnChange;
     cannonQueueInput = document.getElementById(HTML_CANNON_QUEUE) as HTMLInputElement;
     cannonQueueInput.onkeydown = function (keyboardEvent: KeyboardEvent): void {
+        if (keyboardEvent.key === " ") {
+            keyboardEvent.preventDefault();
+        }
+    };
+    healerCodesInput = document.getElementById(HTML_HEALER_CODES) as HTMLInputElement;
+    healerCodesInput.onkeydown = function (keyboardEvent: KeyboardEvent): void {
         if (keyboardEvent.key === " ") {
             keyboardEvent.preventDefault();
         }
@@ -462,6 +472,7 @@ function save(): void {
     savedRequireLogs = requireLogs;
     savedFoodCallsString = foodCallsInput.value;
     savedCannonQueueString = cannonQueueInput.value;
+    savedHealerCodesString = healerCodesInput.value;
 }
 
 /**
@@ -490,6 +501,7 @@ function load(): void {
     toggleInfiniteFood.checked = savedInfiniteFood;
     foodCallsInput.value = savedFoodCallsString;
     cannonQueueInput.value = savedCannonQueueString;
+    healerCodesInput.value = savedHealerCodesString;
 
     barbarianAssault = savedBarbarianAssault;
 
@@ -943,6 +955,15 @@ function startStopButtonOnClick(): void {
             return;
         }
 
+        let healerCodeActions = [];
+        try {
+            healerCodeActions = parseHealerCodes(healerCodesInput.value);
+            assignSpawnPriorities(healerCodeActions);
+        } catch (e) {
+            alert("Invalid healer codes. Example: h1,3-h2,5-h3,4");
+            return;
+        }
+
         isRunning = true;
         isPaused = false;
         startStopButton.innerHTML = "Stop Wave";
@@ -964,6 +985,10 @@ function startStopButtonOnClick(): void {
             foodCalls,
             cannonQueue
         );
+
+        if (healerCodeActions.length > 0) {
+            barbarianAssault.healerPlayer.codeQueue = healerCodeActions;
+        }
 
         console.log("Wave " + wave + " started!");
         tick();

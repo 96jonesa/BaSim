@@ -64,6 +64,9 @@ Food calls: <input id="foodcalls" type="text"/>
 Cannon queue: <input id="cannonqueue" type="text" size="40"/>
 <br>
 
+Healer codes: <input id="healercodes" type="text" size="40" placeholder="h1,3-h2,5-h3,4"/>
+<br>
+
 Tick duration (milliseconds): <input id="tickduration" type="number" min="100" max="1200" value="600"/>
 <br>
 
@@ -277,6 +280,14 @@ First char: cannon side (w/e). Second char: penance type (r/h). Third char: egg 
 Separate multiple commands with <code>-</code>. Shorthand <code>1,51</code> inherits cannon/penance/egg from previous command.<br>
 Egg types: <b>r</b>=red (3 dmg), <b>g</b>=green (1 dmg + poison), <b>b</b>=blue (stun + zombie).<br>
 Example: <code>wrr,2,11-erg,1,21-whb,1,31</code><br>
+<br>
+
+<b>Healer codes:</b> Poison code notation for the healer player. Format: <code>h&lt;id&gt;,&lt;count&gt;</code> separated by <code>-</code>.<br>
+The healer player will automatically pathfind to each healer penance and use poison food.<br>
+Optional timing: <code>h1,3:24</code> delays the last food until tick 24.<br>
+First poison for each healer auto-waits until its spawn tick (h1=tick 11, h2=tick 21, etc.).<br>
+Actions are sorted by priority (spawn time). Dead healers are skipped automatically.<br>
+Example: <code>h1,3-h2,5-h3,4</code><br>
 <br>
 
 <b>Save/Load:</b><br>

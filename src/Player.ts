@@ -1,6 +1,8 @@
 import {Position} from "./Position.js";
 import {BarbarianAssault} from "./BarbarianAssault.js";
 import {Character} from "./Character.js";
+import {HealerCodeAction} from "./HealerCodeAction.js";
+import {HealerPenance} from "./HealerPenance.js";
 
 /**
  * Represents a Barbarian Assault player character.
@@ -10,9 +12,61 @@ export abstract class Player extends Character {
     public pathQueuePositions: Array<Position> = [];
     public shortestDistances: Array<number> = [];
     public waypoints: Array<number> = [];
+    public codeQueue: Array<HealerCodeAction> = [];
+    public codeIndex: number = 0;
 
     protected constructor(position: Position) {
         super(position);
+    }
+
+    public clearCodeQueue(): void {
+        this.codeQueue = [];
+        this.codeIndex = 0;
+    }
+
+    public processCodeQueue(barbarianAssault: BarbarianAssault): void {
+        if (this.codeIndex >= this.codeQueue.length) {
+            return;
+        }
+
+        const action = this.codeQueue[this.codeIndex];
+
+        if (barbarianAssault.ticks < action.waitUntil) {
+            return;
+        }
+
+        const healer = this.findHealerById(barbarianAssault, action.healerId);
+        if (healer === null) {
+            this.codeIndex++;
+            return;
+        }
+
+        const adjacent = this.position.closestAdjacentPosition(healer.position);
+        if (this.position.equals(adjacent)) {
+            healer.eatFood(barbarianAssault);
+            this.codeIndex++;
+            if (this.codeIndex < this.codeQueue.length) {
+                const nextAction = this.codeQueue[this.codeIndex];
+                if (barbarianAssault.ticks >= nextAction.waitUntil) {
+                    const nextHealer = this.findHealerById(barbarianAssault, nextAction.healerId);
+                    if (nextHealer !== null) {
+                        const nextAdj = this.position.closestAdjacentPosition(nextHealer.position);
+                        this.findPath(barbarianAssault, nextAdj);
+                    }
+                }
+            }
+        } else {
+            this.findPath(barbarianAssault, adjacent);
+        }
+    }
+
+    private findHealerById(barbarianAssault: BarbarianAssault, healerId: number): HealerPenance | null {
+        for (const healer of barbarianAssault.healers) {
+            if (healer.id === healerId && !healer.isDying) {
+                return healer;
+            }
+        }
+        return null;
     }
 
     /**

@@ -28,6 +28,9 @@ export class DefenderPlayer extends Player {
      */
     tick(barbarianAssault) {
         this.ticksStandingStill++;
+        if (this.codeQueue.length > 0) {
+            this.processCodeQueue(barbarianAssault);
+        }
         if (this.repairTicksRemaining > 0) {
             this.repair(barbarianAssault);
         }
@@ -212,6 +215,8 @@ export class DefenderPlayer extends Player {
         defenderPlayer.ticksStandingStill = this.ticksStandingStill;
         defenderPlayer.logsInInventory = this.logsInInventory;
         defenderPlayer.foodInInventory = Object.assign({}, this.foodInInventory);
+        defenderPlayer.codeQueue = this.codeQueue.map(a => a.clone());
+        defenderPlayer.codeIndex = this.codeIndex;
         return defenderPlayer;
     }
 }

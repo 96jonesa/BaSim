@@ -10,6 +10,52 @@ export class Player extends Character {
         this.pathQueuePositions = [];
         this.shortestDistances = [];
         this.waypoints = [];
+        this.codeQueue = [];
+        this.codeIndex = 0;
+    }
+    clearCodeQueue() {
+        this.codeQueue = [];
+        this.codeIndex = 0;
+    }
+    processCodeQueue(barbarianAssault) {
+        if (this.codeIndex >= this.codeQueue.length) {
+            return;
+        }
+        const action = this.codeQueue[this.codeIndex];
+        if (barbarianAssault.ticks < action.waitUntil) {
+            return;
+        }
+        const healer = this.findHealerById(barbarianAssault, action.healerId);
+        if (healer === null) {
+            this.codeIndex++;
+            return;
+        }
+        const adjacent = this.position.closestAdjacentPosition(healer.position);
+        if (this.position.equals(adjacent)) {
+            healer.eatFood(barbarianAssault);
+            this.codeIndex++;
+            if (this.codeIndex < this.codeQueue.length) {
+                const nextAction = this.codeQueue[this.codeIndex];
+                if (barbarianAssault.ticks >= nextAction.waitUntil) {
+                    const nextHealer = this.findHealerById(barbarianAssault, nextAction.healerId);
+                    if (nextHealer !== null) {
+                        const nextAdj = this.position.closestAdjacentPosition(nextHealer.position);
+                        this.findPath(barbarianAssault, nextAdj);
+                    }
+                }
+            }
+        }
+        else {
+            this.findPath(barbarianAssault, adjacent);
+        }
+    }
+    findHealerById(barbarianAssault, healerId) {
+        for (const healer of barbarianAssault.healers) {
+            if (healer.id === healerId && !healer.isDying) {
+                return healer;
+            }
+        }
+        return null;
     }
     /**
      * Determines the path this player must take to move to the given destination in the given

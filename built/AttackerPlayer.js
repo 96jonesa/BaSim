@@ -10,6 +10,9 @@ export class AttackerPlayer extends Player {
      * @inheritDoc
      */
     tick(barbarianAssault) {
+        if (this.codeQueue.length > 0) {
+            this.processCodeQueue(barbarianAssault);
+        }
         this.move();
     }
     /**
@@ -20,6 +23,8 @@ export class AttackerPlayer extends Player {
     clone() {
         let attackerPlayer = new AttackerPlayer(this.position);
         attackerPlayer.position = this.position === null ? null : this.position.clone();
+        attackerPlayer.codeQueue = this.codeQueue.map(a => a.clone());
+        attackerPlayer.codeIndex = this.codeIndex;
         return attackerPlayer;
     }
 }

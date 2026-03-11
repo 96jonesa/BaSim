@@ -30,7 +30,7 @@ import {HealerTargetType} from "./HealerTargetType.js";
 import {parseCannonInput, getCannonPosition} from "./Cannon.js";
 import {CannonCommand} from "./CannonCommand.js";
 import {CannonSide} from "./CannonSide.js";
-import {parseHealerCodes, assignSpawnPriorities} from "./HealerCodeAction.js";
+import {HealerCodeCommand} from "./HealerCodeCommand.js";
 
 const HTML_CANVAS: string = "basimcanvas";
 const HTML_RUNNER_MOVEMENTS: string = "runnermovements";
@@ -67,7 +67,6 @@ const HTML_TOGGLE_SIMPLE_FOOD: string = "togglesimplefood";
 const HTML_FOOD_CALLS_ROW: string = "foodcallsrow";
 const HTML_INFINITE_FOOD_ROW: string = "infinitefoodrow";
 const HTML_CURRENT_FOOD_ROW: string = "currfoodrow";
-const HTML_HEALER_CODES: string = "healercodes";
 const HTML_HEALER_SPAWN_TARGETS: string = "healerspawntargets";
 const HTML_RUNNER_SPAWNS: string = "runnerspawns";
 const HTML_HEALER_SPAWNS: string = "healerspawns";
@@ -126,7 +125,6 @@ var runnersDeadByTickInput: HTMLInputElement;
 var simulateButton: HTMLButtonElement;
 var runnersDoNotDieWithMovements: HTMLElement;
 var cannonQueueInput: HTMLInputElement;
-var healerCodesInput: HTMLInputElement;
 var healerSpawnTargetsInput: HTMLInputElement;
 var runnerSpawnsInput: HTMLInputElement;
 var healerSpawnsInput: HTMLInputElement;
@@ -158,7 +156,6 @@ var savedInfiniteFood: boolean;
 var savedRequireLogs: boolean;
 var savedFoodCallsString: string;
 var savedCannonQueueString: string;
-var savedHealerCodesString: string;
 var savedHealerSpawnTargetsString: string;
 var savedRunnerSpawnsString: string;
 var savedHealerSpawnsString: string;
@@ -251,12 +248,6 @@ function init(): void {
     runnerMovementsToCheckInput.onchange = runnerMovementsToCheckInputOnChange;
     cannonQueueInput = document.getElementById(HTML_CANNON_QUEUE) as HTMLInputElement;
     cannonQueueInput.onkeydown = function (keyboardEvent: KeyboardEvent): void {
-        if (keyboardEvent.key === " ") {
-            keyboardEvent.preventDefault();
-        }
-    };
-    healerCodesInput = document.getElementById(HTML_HEALER_CODES) as HTMLInputElement;
-    healerCodesInput.onkeydown = function (keyboardEvent: KeyboardEvent): void {
         if (keyboardEvent.key === " ") {
             keyboardEvent.preventDefault();
         }
@@ -655,7 +646,6 @@ function save(): void {
     savedRequireLogs = requireLogs;
     savedFoodCallsString = foodCallsInput.value;
     savedCannonQueueString = cannonQueueInput.value;
-    savedHealerCodesString = healerCodesInput.value;
     savedHealerSpawnTargetsString = healerSpawnTargetsInput.value;
     savedRunnerSpawnsString = runnerSpawnsInput.value;
     savedHealerSpawnsString = healerSpawnsInput.value;
@@ -687,7 +677,6 @@ function load(): void {
     toggleInfiniteFood.checked = savedInfiniteFood;
     foodCallsInput.value = savedFoodCallsString;
     cannonQueueInput.value = savedCannonQueueString;
-    healerCodesInput.value = savedHealerCodesString;
     healerSpawnTargetsInput.value = savedHealerSpawnTargetsString;
     runnerSpawnsInput.value = savedRunnerSpawnsString;
     healerSpawnsInput.value = savedHealerSpawnsString;
@@ -1189,15 +1178,6 @@ function startStopButtonOnClick(): void {
             return;
         }
 
-        let healerCodeActions = [];
-        try {
-            healerCodeActions = parseHealerCodes(healerCodesInput.value);
-            assignSpawnPriorities(healerCodeActions);
-        } catch (e) {
-            alert("Invalid healer codes. Example: h1,3-h2,5-h3,4");
-            return;
-        }
-
         isRunning = true;
         isPaused = false;
         startStopButton.innerHTML = "Stop Wave";
@@ -1226,10 +1206,6 @@ function startStopButtonOnClick(): void {
             foodCalls,
             cannonQueue
         );
-
-        if (healerCodeActions.length > 0) {
-            barbarianAssault.healerPlayer.codeQueue = healerCodeActions;
-        }
 
         const spawnTargetsValue = healerSpawnTargetsInput.value.trim();
         if (spawnTargetsValue.length > 0) {
@@ -1478,7 +1454,6 @@ function exportSettings(): void {
         runnerMovements: movementsInput.value,
         foodCalls: foodCallsInput.value,
         cannonQueue: cannonQueueInput.value,
-        healerCodes: healerCodesInput.value,
         healerSpawnTargets: healerSpawnTargetsInput.value,
         runnerSpawns: runnerSpawnsInput.value,
         healerSpawns: healerSpawnsInput.value,
@@ -1516,7 +1491,6 @@ function importSettings(): void {
         if (s.runnerMovements !== undefined) movementsInput.value = s.runnerMovements;
         if (s.foodCalls !== undefined) foodCallsInput.value = s.foodCalls;
         if (s.cannonQueue !== undefined) cannonQueueInput.value = s.cannonQueue;
-        if (s.healerCodes !== undefined) healerCodesInput.value = s.healerCodes;
         if (s.healerSpawnTargets !== undefined) healerSpawnTargetsInput.value = s.healerSpawnTargets;
         if (s.runnerSpawns !== undefined) runnerSpawnsInput.value = s.runnerSpawns;
         if (s.healerSpawns !== undefined) healerSpawnsInput.value = s.healerSpawns;
@@ -1698,14 +1672,24 @@ function convertCommandsStringToMap(commandsString: string, player: string): Map
                     return null;
             }
         } else if (commandTokens.length === 2) {
-            const positionX: number = Number(commandTokens[0]);
-            const positionY: number = Number(commandTokens[1]);
+            const healerMatch = commandTokens[0].match(/^h(\d+)$/);
+            if (healerMatch) {
+                const healerId = parseInt(healerMatch[1]);
+                const count = parseInt(commandTokens[1]);
+                if (!Number.isInteger(healerId) || !Number.isInteger(count) || healerId < 1 || count < 1) {
+                    return null;
+                }
+                addToCommandsMap(commandsMap, tick, new HealerCodeCommand(healerId, count));
+            } else {
+                const positionX: number = Number(commandTokens[0]);
+                const positionY: number = Number(commandTokens[1]);
 
-            if (!Number.isInteger(positionX) || !Number.isInteger(positionY)) {
-                return null;
+                if (!Number.isInteger(positionX) || !Number.isInteger(positionY)) {
+                    return null;
+                }
+
+                addToCommandsMap(commandsMap, tick, new MoveCommand(new Position(positionX, positionY)));
             }
-
-            addToCommandsMap(commandsMap, tick, new MoveCommand(new Position(positionX, positionY)));
         } else {
             return null;
         }

@@ -10,6 +10,9 @@ export class CollectorPlayer extends Player {
      * @inheritDoc
      */
     tick(barbarianAssault) {
+        if (this.codeQueue.length > 0) {
+            this.processCodeQueue(barbarianAssault);
+        }
         this.move();
     }
     /**
@@ -20,6 +23,8 @@ export class CollectorPlayer extends Player {
     clone() {
         let collectorPlayer = new CollectorPlayer(this.position);
         collectorPlayer.position = this.position === null ? null : this.position.clone();
+        collectorPlayer.codeQueue = this.codeQueue.map(a => a.clone());
+        collectorPlayer.codeIndex = this.codeIndex;
         return collectorPlayer;
     }
 }

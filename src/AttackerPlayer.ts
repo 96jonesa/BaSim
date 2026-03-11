@@ -14,6 +14,9 @@ export class AttackerPlayer extends Player {
      * @inheritDoc
      */
     public tick(barbarianAssault: BarbarianAssault): void {
+        if (this.codeQueue.length > 0) {
+            this.processCodeQueue(barbarianAssault);
+        }
         this.move();
     }
 
@@ -25,6 +28,8 @@ export class AttackerPlayer extends Player {
     public clone(): AttackerPlayer {
         let attackerPlayer: AttackerPlayer = new AttackerPlayer(this.position);
         attackerPlayer.position = this.position === null ? null : this.position.clone();
+        attackerPlayer.codeQueue = this.codeQueue.map(a => a.clone());
+        attackerPlayer.codeIndex = this.codeIndex;
 
         return attackerPlayer;
     }

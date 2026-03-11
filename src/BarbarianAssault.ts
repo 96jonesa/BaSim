@@ -14,6 +14,9 @@ import {DefenderActionCommand} from "./DefenderActionCommand.js";
 import {DefenderActionType} from "./DefenderActionType.js";
 import {Cannon} from "./Cannon.js";
 import {CannonCommand} from "./CannonCommand.js";
+import {HealerCodeCommand} from "./HealerCodeCommand.js";
+import {HealerCodeAction} from "./HealerCodeAction.js";
+import {Player} from "./Player.js";
 
 /**
  * Represents a game of Barbarian Assault: holds state information and exposes functions for
@@ -262,7 +265,10 @@ export class BarbarianAssault {
         if (this.mainAttackerCommands.has(this.ticks)) {
             this.mainAttackerCommands.get(this.ticks).forEach((command: Command): void => {
                 if (command instanceof MoveCommand) {
+                    this.mainAttackerPlayer.clearCodeQueue();
                     this.mainAttackerPlayer.findPath(this, command.destination.clone());
+                } else if (command instanceof HealerCodeCommand) {
+                    this.expandHealerCodeCommand(command, this.mainAttackerPlayer);
                 }
             });
         }
@@ -270,7 +276,10 @@ export class BarbarianAssault {
         if (this.secondAttackerCommands.has(this.ticks)) {
             this.secondAttackerCommands.get(this.ticks).forEach((command: Command): void => {
                 if (command instanceof MoveCommand) {
+                    this.secondAttackerPlayer.clearCodeQueue();
                     this.secondAttackerPlayer.findPath(this, command.destination.clone());
+                } else if (command instanceof HealerCodeCommand) {
+                    this.expandHealerCodeCommand(command, this.secondAttackerPlayer);
                 }
             });
         }
@@ -278,7 +287,10 @@ export class BarbarianAssault {
         if (this.healerCommands.has(this.ticks)) {
             this.healerCommands.get(this.ticks).forEach((command: Command): void => {
                 if (command instanceof MoveCommand) {
+                    this.healerPlayer.clearCodeQueue();
                     this.healerPlayer.findPath(this, command.destination.clone());
+                } else if (command instanceof HealerCodeCommand) {
+                    this.expandHealerCodeCommand(command, this.healerPlayer);
                 }
             });
         }
@@ -286,7 +298,10 @@ export class BarbarianAssault {
         if (this.collectorCommands.has(this.ticks)) {
             this.collectorCommands.get(this.ticks).forEach((command: Command): void => {
                 if (command instanceof MoveCommand) {
+                    this.collectorPlayer.clearCodeQueue();
                     this.collectorPlayer.findPath(this, command.destination.clone());
+                } else if (command instanceof HealerCodeCommand) {
+                    this.expandHealerCodeCommand(command, this.collectorPlayer);
                 }
             });
         }
@@ -294,8 +309,12 @@ export class BarbarianAssault {
         if (this.defenderCommands.has(this.ticks)) {
             this.defenderCommands.get(this.ticks).forEach((command: Command): void => {
                 if (command instanceof MoveCommand) {
+                    this.defenderPlayer.clearCodeQueue();
                     this.defenderPlayer.findPath(this, command.destination.clone());
+                } else if (command instanceof HealerCodeCommand) {
+                    this.expandHealerCodeCommand(command, this.defenderPlayer);
                 } else if (command instanceof DefenderActionCommand) {
+                    this.defenderPlayer.clearCodeQueue();
                     switch (command.type) {
                         case DefenderActionType.DROP_TOFU:
                             this.defenderPlayer.dropFood(this, FoodType.TOFU);
@@ -329,6 +348,13 @@ export class BarbarianAssault {
                     }
                 }
             });
+        }
+    }
+
+    private expandHealerCodeCommand(command: HealerCodeCommand, player: Player): void {
+        for (let i: number = 0; i < command.count; i++) {
+            const waitUntil: number = (i === 0) ? command.healerId * 10 + 1 : 0;
+            player.codeQueue.push(new HealerCodeAction(command.healerId, waitUntil));
         }
     }
 

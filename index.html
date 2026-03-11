@@ -126,14 +126,12 @@ Healer spawn targets: <input id="healerspawntargets" type="text" size="20" place
 <br>
 Healer spawns: <input id="healerspawns" type="text" size="23" placeholder="11,21,31"/> <span title="Override default healer spawn ticks (11, 21, 31, ...) with custom comma-separated tick numbers. Leave empty for default every-10-ticks schedule." class="info-tip">i</span>
 <br>
-Healer codes: <input id="healercodes" type="text" size="24" placeholder="h1,3-h2,5-h3,4"/> <span title="Poison code notation. Format: h<id>,<count> separated by -. Healer player auto-pathfinds and uses poison food. Optional timing: h1,3:24 delays last food until tick 24. First poison auto-waits until spawn tick (h1=tick 11, h2=tick 21, etc.). Dead healers skipped." class="info-tip">i</span>
-<br>
 Eggs: <input id="cannonqueue" type="text" size="35"/> <span title="Egg firing commands. Format: wrr,1,51 = west cannon, runner target, red egg, 1 egg, start tick 51. First char: cannon side (w/e). Second: penance type (r/h). Third: egg type (r/g/b). Separate with -. Shorthand: 1,51 inherits from previous. Egg types: r=red (3 dmg), g=green (1 dmg + poison), b=blue (stun + zombie)." class="info-tip">i</span>
 <br>
 Tick duration (milliseconds): <input id="tickduration" type="number" min="100" max="1200" value="600"/>
 </div>
 <table id="teamtable" class="section" style="border-collapse: collapse;">
-    <caption><b>Team Commands</b> <span title="Enter commands as tick:x,y per line to move a player to (x,y) at that tick. e.g. 5:20,21. Multiple commands per tick allowed. For defender only: tick:t/c/w/1/2/3/l/r performs that key action at the specified tick." class="info-tip">i</span></caption>
+    <caption><b>Team Commands</b> <span title="Enter commands as tick:x,y per line to move a player to (x,y) at that tick. e.g. 5:20,21. Multiple commands per tick allowed. For defender only: tick:t/c/w/1/2/3/l/r performs that key action at the specified tick. Healer codes: tick:h<id>,<count> for any player. e.g. 1:h1,3 poisons healer 1 three times starting at its spawn tick. Player auto-pathfinds and uses poison food." class="info-tip">i</span></caption>
     <tr>
         <td name="mainattacker">
             <b>Main Attacker</b>

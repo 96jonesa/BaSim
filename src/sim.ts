@@ -502,8 +502,8 @@ function windowOnKeyDown(keyboardEvent: KeyboardEvent): void {
                     controlledCommands.scrollTop = controlledCommands.scrollHeight;
                     break;
                 case "e":
-                    barbarianAssault.defenderPlayer.foodBeingPickedUp = FoodType.TOFU;
-                    controlledCommands.innerHTML += barbarianAssault.ticks + ":1<br>";
+                    barbarianAssault.defenderPlayer.shouldPickUpAnyFood = true;
+                    controlledCommands.innerHTML += barbarianAssault.ticks + ":e<br>";
                     controlledCommands.scrollTop = controlledCommands.scrollHeight;
                     break;
                 case "l":
@@ -1669,6 +1669,9 @@ function convertCommandsStringToMap(commandsString: string, player: string): Map
                     break;
                 case "3":
                     addToCommandsMap(commandsMap, tick, new DefenderActionCommand(DefenderActionType.PICKUP_WORMS));
+                    break;
+                case "e":
+                    addToCommandsMap(commandsMap, tick, new DefenderActionCommand(DefenderActionType.PICKUP_ANY_FOOD));
                     break;
                 case "l":
                     addToCommandsMap(commandsMap, tick, new DefenderActionCommand(DefenderActionType.PICKUP_LOGS));

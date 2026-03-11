@@ -6,6 +6,7 @@ export var DefenderActionType;
     DefenderActionType["PICKUP_TOFU"] = "PICKUP_TOFU";
     DefenderActionType["PICKUP_CRACKERS"] = "PICKUP_CRACKERS";
     DefenderActionType["PICKUP_WORMS"] = "PICKUP_WORMS";
+    DefenderActionType["PICKUP_ANY_FOOD"] = "PICKUP_ANY_FOOD";
     DefenderActionType["PICKUP_LOGS"] = "PICKUP_LOGS";
     DefenderActionType["REPAIR_TRAP"] = "REPAIR_TRAP";
 })(DefenderActionType || (DefenderActionType = {}));

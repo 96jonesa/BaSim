@@ -315,6 +315,9 @@ export class BarbarianAssault {
                         case DefenderActionType.PICKUP_WORMS:
                             this.defenderPlayer.foodBeingPickedUp = FoodType.WORMS;
                             break;
+                        case DefenderActionType.PICKUP_ANY_FOOD:
+                            this.defenderPlayer.shouldPickUpAnyFood = true;
+                            break;
                         case DefenderActionType.PICKUP_LOGS:
                             this.defenderPlayer.isPickingUpLogs = true;
                             break;

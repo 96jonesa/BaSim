@@ -10,6 +10,7 @@ import {Player} from "./Player.js";
  */
 export class DefenderPlayer extends Player {
     public foodBeingPickedUp: FoodType = null;
+    public shouldPickUpAnyFood: boolean = false;
     public isPickingUpLogs: boolean = false;
     public repairTicksRemaining: number = 0;
     public pathQueueIndex: number = 0;
@@ -38,7 +39,7 @@ export class DefenderPlayer extends Player {
             this.repair(barbarianAssault);
         }
 
-        if (this.foodBeingPickedUp !== null) {
+        if (this.foodBeingPickedUp !== null || this.shouldPickUpAnyFood) {
             this.pickUpFood(barbarianAssault)
         }
 
@@ -103,6 +104,7 @@ export class DefenderPlayer extends Player {
         this.repairTicksRemaining--;
         this.pathQueueIndex = 0;
         this.foodBeingPickedUp = null;
+        this.shouldPickUpAnyFood = false;
         this.isPickingUpLogs = false;
     }
 
@@ -135,24 +137,35 @@ export class DefenderPlayer extends Player {
      * @private
      */
     private pickUpFood(barbarianAssault: BarbarianAssault): void {
-        if (this.foodBeingPickedUp === null) {
+        if (this.foodBeingPickedUp === null && !this.shouldPickUpAnyFood) {
             return;
         }
 
         const foodZone: FoodZone = barbarianAssault.map.getFoodZone(this.position.x >>> 3, this.position.y >>> 3);
 
-        for (let i: number = 0; i < foodZone.foodList.length; i++) {
-            const food: Food = foodZone.foodList[i];
-
-            if (this.position.x === food.position.x && this.position.y === food.position.y && food.type === this.foodBeingPickedUp) {
-                foodZone.foodList.splice(i, 1);
-                this.foodInInventory[this.foodBeingPickedUp]++;
-                break;
+        if (this.shouldPickUpAnyFood) {
+            for (let i: number = foodZone.foodList.length - 1; i >= 0; i--) {
+                const food: Food = foodZone.foodList[i];
+                if (this.position.x === food.position.x && this.position.y === food.position.y) {
+                    foodZone.foodList.splice(i, 1);
+                    this.foodInInventory[food.type]++;
+                    break;
+                }
+            }
+        } else {
+            for (let i: number = 0; i < foodZone.foodList.length; i++) {
+                const food: Food = foodZone.foodList[i];
+                if (this.position.x === food.position.x && this.position.y === food.position.y && food.type === this.foodBeingPickedUp) {
+                    foodZone.foodList.splice(i, 1);
+                    this.foodInInventory[this.foodBeingPickedUp]++;
+                    break;
+                }
             }
         }
 
         this.pathQueueIndex = 0;
         this.foodBeingPickedUp = null;
+        this.shouldPickUpAnyFood = false;
         this.isPickingUpLogs = false;
     }
 
@@ -183,6 +196,7 @@ export class DefenderPlayer extends Player {
 
         this.pathQueueIndex = 0;
         this.foodBeingPickedUp = null;
+        this.shouldPickUpAnyFood = false;
         this.isPickingUpLogs = false;
     }
 
@@ -208,6 +222,7 @@ export class DefenderPlayer extends Player {
         let defenderPlayer: DefenderPlayer = new DefenderPlayer(this.position);
         defenderPlayer.position = this.position === null ? null : this.position.clone();
         defenderPlayer.foodBeingPickedUp = this.foodBeingPickedUp;
+        defenderPlayer.shouldPickUpAnyFood = this.shouldPickUpAnyFood;
         defenderPlayer.isPickingUpLogs = this.isPickingUpLogs;
         defenderPlayer.repairTicksRemaining = this.repairTicksRemaining;
         defenderPlayer.pathQueueIndex = this.pathQueueIndex;

@@ -42,6 +42,10 @@
     button:active {
         background-color: #aaa;
     }
+    button:disabled {
+        opacity: 0.5;
+        cursor: default;
+    }
     body.dark button {
         background-color: #999;
         border-color: #888;
@@ -226,6 +230,8 @@ Runners dead by tick: <input id="runnersdeadbytick" type="text"/> <span title="T
 </div>
 </div>
 
+<div style="display: flex; gap: 0.5rem; align-items: flex-start;">
+<div><button id="savestate" disabled>Save (s)</button> <button id="loadstate">Load (y)</button></div>
 <table id="runnertable" style="display: none; border-collapse: collapse; margin-bottom: 0.5rem;">
     <thead>
         <tr>
@@ -256,6 +262,7 @@ Runners dead by tick: <input id="runnersdeadbytick" type="text"/> <span title="T
         </tr>
     </thead>
 </table>
+</div>
 
 <b>space</b> starts or stops the wave.<br>
 <b>left-click</b> moves the player.<br>

@@ -81,6 +81,8 @@ const HTML_SETTINGS_IMPORT_FIELD: string = "settingsimportfield";
 const HTML_PAUSE_RESUME: string = "pauseresume";
 const HTML_STEP_BACK: string = "stepback";
 const HTML_STEP_FORWARD: string = "stepforward";
+const HTML_SAVE_STATE: string = "savestate";
+const HTML_LOAD_STATE: string = "loadstate";
 
 window.onload = init;
 
@@ -131,6 +133,8 @@ var healerSpawnsInput: HTMLInputElement;
 var pauseResumeButton: HTMLButtonElement;
 var stepBackButton: HTMLButtonElement;
 var stepForwardButton: HTMLButtonElement;
+var saveStateButton: HTMLButtonElement;
+var loadStateButton: HTMLButtonElement;
 
 const STATE_HISTORY_LIMIT: number = 1000;
 var stateHistory: Array<{ba: BarbarianAssault, tickHTML: string, foodHTML: string, commandsHTML: string}> = [];
@@ -222,6 +226,8 @@ function init(): void {
     pauseResumeButton = document.getElementById(HTML_PAUSE_RESUME) as HTMLButtonElement;
     stepBackButton = document.getElementById(HTML_STEP_BACK) as HTMLButtonElement;
     stepForwardButton = document.getElementById(HTML_STEP_FORWARD) as HTMLButtonElement;
+    saveStateButton = document.getElementById(HTML_SAVE_STATE) as HTMLButtonElement;
+    loadStateButton = document.getElementById(HTML_LOAD_STATE) as HTMLButtonElement;
     reset();
     window.onkeydown = windowOnKeyDown;
     canvas.onmousedown = canvasOnMouseDown;
@@ -321,6 +327,29 @@ function init(): void {
         pauseResumeButton.innerHTML = "Resume";
         stepForward();
     };
+    saveStateButton.onclick = function (): void {
+        if (isPaused || !pauseSaveLoad) {
+            isPaused = true;
+            pauseResumeButton.innerHTML = "Resume";
+            save();
+            saveExists = true;
+        }
+    };
+    loadStateButton.onclick = function (): void {
+        if (!saveExists) return;
+        if (!isRunning) {
+            isRunning = true;
+            startStopButton.innerHTML = "Stop Wave";
+            pauseResumeButton.style.display = "";
+            stepBackButton.style.display = "";
+            stepForwardButton.style.display = "";
+            saveStateButton.disabled = false;
+            tickTimerId = setInterval(tick, Number(tickDurationInput.value));
+        }
+        isPaused = true;
+        pauseResumeButton.innerHTML = "Resume";
+        load();
+    };
 }
 
 /**
@@ -337,6 +366,7 @@ function reset(): void {
     pauseResumeButton.style.display = "none";
     stepBackButton.style.display = "none";
     stepForwardButton.style.display = "none";
+    saveStateButton.disabled = true;
     (document.getElementById(HTML_RUNNER_TABLE) as HTMLElement).style.display = "none";
     (document.getElementById(HTML_HEALER_TABLE) as HTMLElement).style.display = "none";
     stateHistory = [];
@@ -1149,6 +1179,7 @@ function startStopButtonOnClick(): void {
         pauseResumeButton.style.display = "";
         stepBackButton.style.display = "";
         stepForwardButton.style.display = "";
+        saveStateButton.disabled = false;
 
         controlledCommands.innerHTML = "";
 

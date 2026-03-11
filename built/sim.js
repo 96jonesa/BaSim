@@ -64,6 +64,8 @@ const HTML_SETTINGS_IMPORT_FIELD = "settingsimportfield";
 const HTML_PAUSE_RESUME = "pauseresume";
 const HTML_STEP_BACK = "stepback";
 const HTML_STEP_FORWARD = "stepforward";
+const HTML_SAVE_STATE = "savestate";
+const HTML_LOAD_STATE = "loadstate";
 window.onload = init;
 var markingTiles;
 var markedTiles;
@@ -112,6 +114,8 @@ var healerSpawnsInput;
 var pauseResumeButton;
 var stepBackButton;
 var stepForwardButton;
+var saveStateButton;
+var loadStateButton;
 const STATE_HISTORY_LIMIT = 1000;
 var stateHistory = [];
 var stateIndex = -1;
@@ -198,6 +202,8 @@ function init() {
     pauseResumeButton = document.getElementById(HTML_PAUSE_RESUME);
     stepBackButton = document.getElementById(HTML_STEP_BACK);
     stepForwardButton = document.getElementById(HTML_STEP_FORWARD);
+    saveStateButton = document.getElementById(HTML_SAVE_STATE);
+    loadStateButton = document.getElementById(HTML_LOAD_STATE);
     reset();
     window.onkeydown = windowOnKeyDown;
     canvas.onmousedown = canvasOnMouseDown;
@@ -297,6 +303,30 @@ function init() {
         pauseResumeButton.innerHTML = "Resume";
         stepForward();
     };
+    saveStateButton.onclick = function () {
+        if (isPaused || !pauseSaveLoad) {
+            isPaused = true;
+            pauseResumeButton.innerHTML = "Resume";
+            save();
+            saveExists = true;
+        }
+    };
+    loadStateButton.onclick = function () {
+        if (!saveExists)
+            return;
+        if (!isRunning) {
+            isRunning = true;
+            startStopButton.innerHTML = "Stop Wave";
+            pauseResumeButton.style.display = "";
+            stepBackButton.style.display = "";
+            stepForwardButton.style.display = "";
+            saveStateButton.disabled = false;
+            tickTimerId = setInterval(tick, Number(tickDurationInput.value));
+        }
+        isPaused = true;
+        pauseResumeButton.innerHTML = "Resume";
+        load();
+    };
 }
 /**
  * Resets the simulator: the simulator is stopped and the underlying {@link BarbarianAssault} game
@@ -311,6 +341,7 @@ function reset() {
     pauseResumeButton.style.display = "none";
     stepBackButton.style.display = "none";
     stepForwardButton.style.display = "none";
+    saveStateButton.disabled = true;
     document.getElementById(HTML_RUNNER_TABLE).style.display = "none";
     document.getElementById(HTML_HEALER_TABLE).style.display = "none";
     stateHistory = [];
@@ -1022,6 +1053,7 @@ function startStopButtonOnClick() {
         pauseResumeButton.style.display = "";
         stepBackButton.style.display = "";
         stepForwardButton.style.display = "";
+        saveStateButton.disabled = false;
         controlledCommands.innerHTML = "";
         barbarianAssault = new BarbarianAssault(wave, requireRepairs, requireLogs, simpleFood ? true : infiniteFood, movements, defenderLevel, player === "mainattacker" ? new Map : mainAttackerCommands, player === "secondattacker" ? new Map : secondAttackerCommands, player === "healer" ? new Map : healerCommands, player === "collector" ? new Map : collectorCommands, player === "defender" ? new Map : defenderCommands, foodCalls, cannonQueue);
         if (healerCodeActions.length > 0) {

@@ -1,6 +1,31 @@
 <!DOCTYPE html>
 <title>Ba simulator</title>
 <style>
+    button {
+        padding: 4px 10px;
+        border: 1px solid #aaa;
+        border-radius: 3px;
+        background-color: #ccc;
+        color: #000;
+        cursor: pointer;
+        font-weight: bold;
+    }
+    button:hover {
+        background-color: #bbb;
+    }
+    button:active {
+        background-color: #aaa;
+    }
+    body.dark button {
+        background-color: #999;
+        border-color: #888;
+    }
+    body.dark button:hover {
+        background-color: #aaa;
+    }
+    body.dark button:active {
+        background-color: #888;
+    }
     body.dark {
         background-color: #1e1e1e;
         color: #d4d4d4;
@@ -8,8 +33,7 @@
     body.dark select,
     body.dark input[type="text"],
     body.dark input[type="number"],
-    body.dark textarea,
-    body.dark button {
+    body.dark textarea {
         background-color: #2d2d2d;
         color: #d4d4d4;
         border: 1px solid #555;
@@ -31,16 +55,13 @@
 </style>
 <script type="module" src="built/sim.js"></script>
 
-<input type="checkbox" id="toggledarkmode">
-<label for="toggledarkmode">Dark mode</label>
-<br>
-
+<div style="display: flex; gap: 2rem; margin-bottom: 0.5rem;">
+<div>
 Defender level: <select id="deflevelselect">
     <option value="4">Level 1</option>
     <option value="5" selected>Level 2-5</option>
 </select>
 <br>
-
 Wave: <select id="waveselect">
     <option value="1">Wave 1</option>
     <option value="2">Wave 2</option>
@@ -54,66 +75,61 @@ Wave: <select id="waveselect">
     <option value="10">Wave 10</option>
 </select>
 <br>
-
 Runner movements: <input id="runnermovements" type="text"/>
 <br>
-
 Food calls: <input id="foodcalls" type="text"/>
 <br>
-
 Cannon queue: <input id="cannonqueue" type="text" size="40"/>
 <br>
-
 Healer codes: <input id="healercodes" type="text" size="40" placeholder="h1,3-h2,5-h3,4"/>
 <br>
-
 Healer spawn targets: <input id="healerspawntargets" type="text" size="40" placeholder="m-c-m2h"/>
 <br>
-
 Runner spawns: <input id="runnerspawns" type="text" size="40" placeholder="11,21,31"/>
 <br>
-
 Healer spawns: <input id="healerspawns" type="text" size="40" placeholder="11,21,31"/>
 <br>
-
 Tick duration (milliseconds): <input id="tickduration" type="number" min="100" max="1200" value="600"/>
+</div>
+<div>
+<input type="checkbox" id="toggledarkmode">
+<label for="toggledarkmode">Dark mode</label>
 <br>
-
 <input type="checkbox" id="toggleinfinitefood" checked>
 <label for="toggleinfinitefood">Infinite food</label>
 <br>
-
 <input type="checkbox" id="togglerepair" checked>
 <label for="togglerepair">Require repairs</label>
 <br>
-
 <input type="checkbox" id="togglelogtorepair" checked>
 <label for="togglelogtorepair">Require log to repair</label>
 <br>
-
 <input type="checkbox" id="togglepausesl">
 <label for="togglepausesl">Require paused to save/load</label>
 <br>
-
 <input type="checkbox" id="togglerenderdistance">
 <label for="togglerenderdistance">Render distance</label>
 <br>
-
 <input type="checkbox" id="markingtiles">
 <label for="markingtiles">Tile marker mode</label>
-
+<br>
 <input type="color" id="marker" name="marker" value="#000000"> Marker color
-
-<button id="exportmarkers">Export RuneLite</button>
-<button id="importmarkers">Import RuneLite</button>
+</div>
+<div>
+<b>Tiles</b><br>
+<button id="exportmarkers">Export tiles</button>
+<button id="importmarkers">Import tiles</button>
+<br><br>
 <input id="markerimportfield" type="text" size="30" placeholder="Paste RuneLite JSON here"/>
 <br>
-
+<br>
+<b>Settings</b><br>
 <button id="settingsexport">Export settings</button>
 <button id="settingsimport">Import settings</button>
-<input id="settingsimportfield" type="text" size="40" placeholder="Paste settings JSON here"/>
-<br>
-<br>
+<br><br>
+<input id="settingsimportfield" type="text" size="30" placeholder="Paste settings JSON here"/>
+</div>
+</div>
 
 <table id="teamtable" style="border: 1px solid">
     <caption><b>Team Commands</b></caption>
@@ -143,40 +159,37 @@ Tick duration (milliseconds): <input id="tickduration" type="number" min="100" m
             <br>
             <textarea id="defendercommands" rows=4 cols=15></textarea>
         </td>
+        <td style="vertical-align: top; padding-left: 1rem;">
+            <b>Player to control:</b><br>
+            <select id="playerselect">
+                <option value="defender">Defender</option>
+                <option value="mainattacker">Main Attacker</option>
+                <option value="secondattacker">Second Attacker</option>
+                <option value="healer">Healer</option>
+                <option value="collector">Collector</option>
+                <option value="none">None</option>
+            </select>
+            <br><br>
+            <b>Controlled commands:</b> <button id="copycontrolledcommands">Copy</button><br>
+            <div id="controlledcommands" style="border: 1px solid; height: 4lh; width: 9lh; overflow: auto"></div>
+        </td>
     </tr>
 </table>
 <br>
 
-<b>Player to control:</b> <select id="playerselect">
-    <option value="defender">Defender</option>
-    <option value="mainattacker">Main Attacker</option>
-    <option value="secondattacker">Second Attacker</option>
-    <option value="healer">Healer</option>
-    <option value="collector">Collector</option>
-    <option value="none">None</option>
-</select>
-<br>
-<br>
-
-<b>Controlled commands:</b> <button id="copycontrolledcommands">Copy</button><br>
-<div id="controlledcommands" style="border: 1px solid; height: 4lh; width: 9lh; overflow: auto"></div>
-<br>
-
+<div style="display: flex; gap: 2rem; margin-bottom: 0.5rem;">
+<div>
 <button id="simulate">Simulate against runner movements to check</button>
-<br>
-<br>
-
+<br><br>
 Runner movements to check: <input id="runnermovementstocheck" type="text"/>
-<br>
-<br>
-
+<br><br>
 Runners dead by tick: <input id="runnersdeadbytick" type="text"/>
-<br>
-<br>
-
+</div>
+<div>
 <b>Runners do not die with movements:</b><br>
 <div id="runnersdonotdiemovements" style="border: 1px solid; height: 4lh; width: 14lh; overflow: auto; resize: both"></div>
-<br>
+</div>
+</div>
 
 <button id="wavestart"></button> <b>Tick count: <span id="tickcount"></span></b> --- <b>Current Food: <span id="currdeffood"></span></b>
 <br>
@@ -244,8 +257,8 @@ before targeting a food, then that movement will be west. If the runner later ha
 <b>Tile marker mode:</b> Click to switch between movement and tile marker mode.<br>
 While in tile marker mode, left-clicking an unmarked tile will mark it and left-clicking a marked tile will unmark it.<br>
 Click the colored rectangle to change the color of marked tiles.<br>
-<b>Export RuneLite</b> copies all tile markers to clipboard in RuneLite Ground Markers format.<br>
-<b>Import RuneLite</b> imports tile markers from the text field (paste RuneLite Ground Markers JSON).<br>
+<b>Export tiles</b> copies all tile markers to clipboard in RuneLite Ground Markers format.<br>
+<b>Import tiles</b> imports tile markers from the text field (paste RuneLite Ground Markers JSON).<br>
 <br>
 
 <b>Render distance:</b> When enabled, runners outside the 15-tile Chebyshev distance of all players have their target state progression frozen and cannot target food. Tiles outside render range are dimmed on the map.<br>

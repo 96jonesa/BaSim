@@ -54,6 +54,9 @@ const HTML_COPY_CONTROLLED_COMMANDS = "copycontrolledcommands";
 const HTML_EXPORT_MARKERS = "exportmarkers";
 const HTML_IMPORT_MARKERS = "importmarkers";
 const HTML_MARKER_IMPORT_FIELD = "markerimportfield";
+const HTML_SETTINGS_EXPORT = "settingsexport";
+const HTML_SETTINGS_IMPORT = "settingsimport";
+const HTML_SETTINGS_IMPORT_FIELD = "settingsimportfield";
 window.onload = init;
 var markingTiles;
 var markedTiles;
@@ -247,6 +250,8 @@ function init() {
     };
     document.getElementById(HTML_EXPORT_MARKERS).onclick = exportMarkers;
     document.getElementById(HTML_IMPORT_MARKERS).onclick = importMarkers;
+    document.getElementById(HTML_SETTINGS_EXPORT).onclick = exportSettings;
+    document.getElementById(HTML_SETTINGS_IMPORT).onclick = importSettings;
 }
 /**
  * Resets the simulator: the simulator is stopped and the underlying {@link BarbarianAssault} game
@@ -1156,6 +1161,92 @@ function importMarkers() {
     }
     catch (e) {
         alert("Failed to parse RuneLite tile marker JSON.");
+    }
+}
+function exportSettings() {
+    const settings = {
+        defenderLevel: defenderLevelSelection.value,
+        wave: waveSelect.value,
+        runnerMovements: movementsInput.value,
+        foodCalls: foodCallsInput.value,
+        cannonQueue: cannonQueueInput.value,
+        healerCodes: healerCodesInput.value,
+        healerSpawnTargets: healerSpawnTargetsInput.value,
+        runnerSpawns: runnerSpawnsInput.value,
+        healerSpawns: healerSpawnsInput.value,
+        tickDuration: document.getElementById(HTML_TICK_DURATION).value,
+        infiniteFood: document.getElementById(HTML_TOGGLE_INFINITE_FOOD).checked,
+        requireRepairs: document.getElementById(HTML_TOGGLE_REPAIR).checked,
+        requireLogToRepair: document.getElementById(HTML_TOGGLE_LOG_TO_REPAIR).checked,
+        renderDistance: document.getElementById(HTML_TOGGLE_RENDER_DISTANCE).checked,
+        mainAttacker: document.getElementById(HTML_MAIN_ATTACKER_COMMANDS).value,
+        secondAttacker: document.getElementById(HTML_SECOND_ATTACKER_COMMANDS).value,
+        healer: document.getElementById(HTML_HEALER_COMMANDS).value,
+        collector: document.getElementById(HTML_COLLECTOR_COMMANDS).value,
+        defender: document.getElementById(HTML_DEFENDER_COMMANDS).value,
+        playerToControl: playerSelect.value,
+    };
+    const json = JSON.stringify(settings);
+    navigator.clipboard.writeText(json);
+    alert("Settings copied to clipboard.");
+}
+function importSettings() {
+    const field = document.getElementById(HTML_SETTINGS_IMPORT_FIELD);
+    const input = field.value.trim();
+    if (input.length === 0) {
+        return;
+    }
+    try {
+        const s = JSON.parse(input);
+        if (s.defenderLevel !== undefined)
+            defenderLevelSelection.value = s.defenderLevel;
+        if (s.wave !== undefined) {
+            waveSelect.value = s.wave;
+            wave = Number(waveSelect.value);
+        }
+        if (s.runnerMovements !== undefined)
+            movementsInput.value = s.runnerMovements;
+        if (s.foodCalls !== undefined)
+            foodCallsInput.value = s.foodCalls;
+        if (s.cannonQueue !== undefined)
+            cannonQueueInput.value = s.cannonQueue;
+        if (s.healerCodes !== undefined)
+            healerCodesInput.value = s.healerCodes;
+        if (s.healerSpawnTargets !== undefined)
+            healerSpawnTargetsInput.value = s.healerSpawnTargets;
+        if (s.runnerSpawns !== undefined)
+            runnerSpawnsInput.value = s.runnerSpawns;
+        if (s.healerSpawns !== undefined)
+            healerSpawnsInput.value = s.healerSpawns;
+        if (s.tickDuration !== undefined)
+            document.getElementById(HTML_TICK_DURATION).value = s.tickDuration;
+        if (s.infiniteFood !== undefined)
+            document.getElementById(HTML_TOGGLE_INFINITE_FOOD).checked = s.infiniteFood;
+        if (s.requireRepairs !== undefined)
+            document.getElementById(HTML_TOGGLE_REPAIR).checked = s.requireRepairs;
+        if (s.requireLogToRepair !== undefined)
+            document.getElementById(HTML_TOGGLE_LOG_TO_REPAIR).checked = s.requireLogToRepair;
+        if (s.renderDistance !== undefined)
+            document.getElementById(HTML_TOGGLE_RENDER_DISTANCE).checked = s.renderDistance;
+        if (s.mainAttacker !== undefined)
+            document.getElementById(HTML_MAIN_ATTACKER_COMMANDS).value = s.mainAttacker;
+        if (s.secondAttacker !== undefined)
+            document.getElementById(HTML_SECOND_ATTACKER_COMMANDS).value = s.secondAttacker;
+        if (s.healer !== undefined)
+            document.getElementById(HTML_HEALER_COMMANDS).value = s.healer;
+        if (s.collector !== undefined)
+            document.getElementById(HTML_COLLECTOR_COMMANDS).value = s.collector;
+        if (s.defender !== undefined)
+            document.getElementById(HTML_DEFENDER_COMMANDS).value = s.defender;
+        if (s.playerToControl !== undefined) {
+            playerSelect.value = s.playerToControl;
+            player = playerSelect.value;
+        }
+        field.value = "";
+        alert("Settings imported.");
+    }
+    catch (e) {
+        alert("Failed to parse settings JSON.");
     }
 }
 function rgbToHex(color) {

@@ -990,6 +990,7 @@ function startStopButtonOnClick() {
         if (spawnTargetsValue.length > 0) {
             barbarianAssault.healerSpawnTargets = spawnTargetsValue.split("-");
         }
+        barbarianAssault.simpleFood = simpleFood;
         barbarianAssault.runnerSpawns = parseSpawnsInput(runnerSpawnsInput.value);
         barbarianAssault.healerSpawns = parseSpawnsInput(healerSpawnsInput.value);
         barbarianAssault.renderDistanceEnabled = toggleRenderDistance.checked;
@@ -1461,6 +1462,7 @@ function ticksToSeconds(ticks) {
 function runnersDieOnTimeForMovements(runnerMovements, foodCalls, runnersDeadByTick, mainAttackerCommands, secondAttackerCommands, healerCommands, collectorCommands, defenderCommands) {
     const cannonQueue = parseCannonInput(cannonQueueInput.value);
     const barbarianAssaultSim = new BarbarianAssault(wave, requireRepairs, requireLogs, infiniteFood, runnerMovements, defenderLevel, mainAttackerCommands, secondAttackerCommands, healerCommands, collectorCommands, defenderCommands, foodCalls, cannonQueue || []);
+    barbarianAssaultSim.simpleFood = simpleFood;
     barbarianAssaultSim.runnerSpawns = parseSpawnsInput(runnerSpawnsInput.value);
     barbarianAssaultSim.healerSpawns = parseSpawnsInput(healerSpawnsInput.value);
     for (let i = 0; i < runnersDeadByTick; i++) {

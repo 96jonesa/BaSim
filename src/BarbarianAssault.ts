@@ -68,6 +68,7 @@ export class BarbarianAssault {
     public cannon: Cannon = new Cannon();
     public healerSpawnTargets: Array<string> = [];
     public renderDistanceEnabled: boolean = false;
+    public simpleFood: boolean = false;
     public runnerSpawns: Array<number> = [];
     public runnerSpawnsIndex: number = 0;
     public healerSpawns: Array<number> = [];
@@ -210,7 +211,7 @@ export class BarbarianAssault {
             this.southeastLogsArePresent = true;
         }
 
-        if (this.ticks > 2 && this.ticks % 50 === 2) {
+        if (this.ticks > 2 && this.ticks % 50 === 2 && !this.simpleFood) {
             this.changeDefenderFoodCall();
         }
 
@@ -620,6 +621,7 @@ export class BarbarianAssault {
         barbarianAssault.cannon = this.cannon.clone();
         barbarianAssault.healerSpawnTargets = [...this.healerSpawnTargets];
         barbarianAssault.renderDistanceEnabled = this.renderDistanceEnabled;
+        barbarianAssault.simpleFood = this.simpleFood;
         barbarianAssault.runnerSpawns = [...this.runnerSpawns];
         barbarianAssault.runnerSpawnsIndex = this.runnerSpawnsIndex;
         barbarianAssault.healerSpawns = [...this.healerSpawns];

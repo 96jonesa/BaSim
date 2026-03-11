@@ -1138,6 +1138,7 @@ function startStopButtonOnClick(): void {
             barbarianAssault.healerSpawnTargets = spawnTargetsValue.split("-");
         }
 
+        barbarianAssault.simpleFood = simpleFood;
         barbarianAssault.runnerSpawns = parseSpawnsInput(runnerSpawnsInput.value);
         barbarianAssault.healerSpawns = parseSpawnsInput(healerSpawnsInput.value);
         barbarianAssault.renderDistanceEnabled = toggleRenderDistance.checked;
@@ -1671,6 +1672,7 @@ function runnersDieOnTimeForMovements(
         foodCalls,
         cannonQueue || []
     );
+    barbarianAssaultSim.simpleFood = simpleFood;
     barbarianAssaultSim.runnerSpawns = parseSpawnsInput(runnerSpawnsInput.value);
     barbarianAssaultSim.healerSpawns = parseSpawnsInput(healerSpawnsInput.value);
 

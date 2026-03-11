@@ -968,7 +968,7 @@ function drawEntities(): void {
 function drawGrid(): void {
     for (let xTile: number = 0; xTile < barbarianAssault.map.width; xTile++) {
         if (xTile % 8 === 7) {
-            renderer.setDrawColor(0, 0, 0, 72);
+            renderer.setDrawColor(40, 22, 12, 175);
         } else {
             renderer.setDrawColor(0, 0, 0, 48);
         }
@@ -978,7 +978,7 @@ function drawGrid(): void {
 
     for (let yTile: number = 0; yTile < barbarianAssault.map.height; yTile++) {
         if (yTile % 8 === 7) {
-            renderer.setDrawColor(0, 0, 0, 72);
+            renderer.setDrawColor(40, 22, 12, 175);
         } else {
             renderer.setDrawColor(0, 0, 0, 48);
         }

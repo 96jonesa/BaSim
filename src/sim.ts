@@ -78,6 +78,9 @@ const HTML_MARKER_IMPORT_FIELD: string = "markerimportfield";
 const HTML_SETTINGS_EXPORT: string = "settingsexport";
 const HTML_SETTINGS_IMPORT: string = "settingsimport";
 const HTML_SETTINGS_IMPORT_FIELD: string = "settingsimportfield";
+const HTML_PAUSE_RESUME: string = "pauseresume";
+const HTML_STEP_BACK: string = "stepback";
+const HTML_STEP_FORWARD: string = "stepforward";
 
 window.onload = init;
 
@@ -125,6 +128,9 @@ var healerCodesInput: HTMLInputElement;
 var healerSpawnTargetsInput: HTMLInputElement;
 var runnerSpawnsInput: HTMLInputElement;
 var healerSpawnsInput: HTMLInputElement;
+var pauseResumeButton: HTMLButtonElement;
+var stepBackButton: HTMLButtonElement;
+var stepForwardButton: HTMLButtonElement;
 
 const STATE_HISTORY_LIMIT: number = 1000;
 var stateHistory: Array<{ba: BarbarianAssault, tickHTML: string, foodHTML: string, commandsHTML: string}> = [];
@@ -213,6 +219,9 @@ function init(): void {
     requireRepairs = toggleRepair.checked;
     requireLogs = toggleLogToRepair.checked;
     pauseSaveLoad = togglePauseSaveLoad.checked;
+    pauseResumeButton = document.getElementById(HTML_PAUSE_RESUME) as HTMLButtonElement;
+    stepBackButton = document.getElementById(HTML_STEP_BACK) as HTMLButtonElement;
+    stepForwardButton = document.getElementById(HTML_STEP_FORWARD) as HTMLButtonElement;
     reset();
     window.onkeydown = windowOnKeyDown;
     canvas.onmousedown = canvasOnMouseDown;
@@ -294,6 +303,24 @@ function init(): void {
     (document.getElementById(HTML_IMPORT_MARKERS) as HTMLButtonElement).onclick = importMarkers;
     (document.getElementById(HTML_SETTINGS_EXPORT) as HTMLButtonElement).onclick = exportSettings;
     (document.getElementById(HTML_SETTINGS_IMPORT) as HTMLButtonElement).onclick = importSettings;
+
+    pauseResumeButton.onclick = function (): void {
+        if (!isRunning) return;
+        isPaused = !isPaused;
+        pauseResumeButton.innerHTML = isPaused ? "Resume" : "Pause";
+    };
+    stepBackButton.onclick = function (): void {
+        if (!isRunning) return;
+        isPaused = true;
+        pauseResumeButton.innerHTML = "Resume";
+        stepBackward();
+    };
+    stepForwardButton.onclick = function (): void {
+        if (!isRunning) return;
+        isPaused = true;
+        pauseResumeButton.innerHTML = "Resume";
+        stepForward();
+    };
 }
 
 /**
@@ -307,6 +334,9 @@ function reset(): void {
 
     isRunning = false;
     startStopButton.innerHTML = "Start Wave";
+    pauseResumeButton.style.display = "none";
+    stepBackButton.style.display = "none";
+    stepForwardButton.style.display = "none";
     (document.getElementById(HTML_RUNNER_TABLE) as HTMLElement).style.display = "none";
     (document.getElementById(HTML_HEALER_TABLE) as HTMLElement).style.display = "none";
     stateHistory = [];
@@ -521,10 +551,12 @@ function windowOnKeyDown(keyboardEvent: KeyboardEvent): void {
                 break;
             case "p":
                 isPaused = !isPaused;
+                pauseResumeButton.innerHTML = isPaused ? "Resume" : "Pause";
                 break;
             case "s":
                 if (isPaused || !pauseSaveLoad) {
                     isPaused = true;
+                    pauseResumeButton.innerHTML = "Resume";
                     save();
                     saveExists = true;
                 }
@@ -533,16 +565,19 @@ function windowOnKeyDown(keyboardEvent: KeyboardEvent): void {
             case "y":
                 if (saveExists && (isPaused || !pauseSaveLoad)) {
                     isPaused = true;
+                    pauseResumeButton.innerHTML = "Resume";
                     load();
                 }
 
                 break;
             case "d":
                 isPaused = true;
+                pauseResumeButton.innerHTML = "Resume";
                 stepBackward();
                 break;
             case "f":
                 isPaused = true;
+                pauseResumeButton.innerHTML = "Resume";
                 stepForward();
                 break;
         }
@@ -1110,6 +1145,10 @@ function startStopButtonOnClick(): void {
         isRunning = true;
         isPaused = false;
         startStopButton.innerHTML = "Stop Wave";
+        pauseResumeButton.innerHTML = "Pause";
+        pauseResumeButton.style.display = "";
+        stepBackButton.style.display = "";
+        stepForwardButton.style.display = "";
 
         controlledCommands.innerHTML = "";
 
@@ -1313,12 +1352,12 @@ function updateHealerTable(): void {
 
 function tick(): void {
     if (!isPaused) {
-        pushState();
         barbarianAssault.tick();
         if (!simpleFood) {
             currentDefenderFoodSpan.innerHTML = barbarianAssault.defenderFoodCall.toString();
         }
         tickCountSpan.innerHTML = barbarianAssault.ticks.toString() + " (" + ticksToSeconds(barbarianAssault.ticks) + "s)";
+        pushState();
         draw();
         updateRunnerTable();
         updateHealerTable();

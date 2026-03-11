@@ -198,7 +198,34 @@ export class RunnerPenance extends Penance {
      *                          to target a Food in
      * @private
      */
+    public isRendered(barbarianAssault: BarbarianAssault): boolean {
+        if (!barbarianAssault.renderDistanceEnabled) {
+            return true;
+        }
+
+        const players = [
+            barbarianAssault.defenderPlayer,
+            barbarianAssault.collectorPlayer,
+            barbarianAssault.mainAttackerPlayer,
+            barbarianAssault.secondAttackerPlayer,
+            barbarianAssault.healerPlayer
+        ];
+
+        for (const player of players) {
+            const dist = Math.max(Math.abs(this.position.x - player.position.x), Math.abs(this.position.y - player.position.y));
+            if (dist <= 15) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     private tryTargetFood(barbarianAssault: BarbarianAssault): void {
+        if (!this.isRendered(barbarianAssault)) {
+            return;
+        }
+
         const xZone: number = this.position.x >> 3;
         const yZone: number = this.position.y >> 3;
         const endXZone: number = Math.max(xZone - 1, 0);
@@ -394,7 +421,7 @@ export class RunnerPenance extends Penance {
 
         if (this.blughhhhCountdown > 0) {
             this.blughhhhCountdown--;
-        } else {
+        } else if (this.isRendered(barbarianAssault)) {
             this.targetState++;
 
             if (this.targetState > 3) {

@@ -45,6 +45,7 @@ const HTML_CANNON_QUEUE = "cannonqueue";
 const HTML_RUNNER_TABLE = "runnertable";
 const HTML_HEALER_TABLE = "healertable";
 const HTML_TOGGLE_DARK_MODE = "toggledarkmode";
+const HTML_TOGGLE_RENDER_DISTANCE = "togglerenderdistance";
 const HTML_HEALER_CODES = "healercodes";
 const HTML_HEALER_SPAWN_TARGETS = "healerspawntargets";
 const HTML_EXPORT_MARKERS = "exportmarkers";
@@ -79,6 +80,7 @@ var tickTimerId;
 var wave;
 var defenderLevel;
 var markerColor;
+var toggleRenderDistance;
 var toggleMarkingTiles;
 var playerSelect;
 var player;
@@ -148,6 +150,7 @@ function init() {
     toggleInfiniteFood.onchange = toggleInfiniteFoodOnChange;
     toggleLogToRepair = document.getElementById(HTML_TOGGLE_LOG_TO_REPAIR);
     toggleLogToRepair.onchange = toggleLogToRepairOnChange;
+    toggleRenderDistance = document.getElementById(HTML_TOGGLE_RENDER_DISTANCE);
     tickCountSpan = document.getElementById(HTML_TICK_COUNT);
     currentDefenderFoodSpan = document.getElementById(HTML_CURRENT_DEF_FOOD);
     markerColorInput = document.getElementById(HTML_MARKER_COLOR);
@@ -810,6 +813,33 @@ function drawOverlays() {
     renderer.setDrawColor(240, 240, 10, 220);
     ;
     renderer.fill(36, 6);
+    if (toggleRenderDistance.checked) {
+        drawRenderDistance();
+    }
+}
+function drawRenderDistance() {
+    const players = [
+        barbarianAssault.defenderPlayer,
+        barbarianAssault.collectorPlayer,
+        barbarianAssault.mainAttackerPlayer,
+        barbarianAssault.secondAttackerPlayer,
+        barbarianAssault.healerPlayer
+    ];
+    renderer.setDrawColor(0, 0, 0, 80);
+    for (let x = 0; x < barbarianAssault.map.width; x++) {
+        for (let y = 0; y < barbarianAssault.map.height; y++) {
+            let inRange = false;
+            for (const p of players) {
+                if (Math.max(Math.abs(x - p.position.x), Math.abs(y - p.position.y)) <= 15) {
+                    inRange = true;
+                    break;
+                }
+            }
+            if (!inRange) {
+                renderer.fill(x, y);
+            }
+        }
+    }
 }
 /**
  * If the simulator is running, then stops and resets the simulator.
@@ -866,6 +896,7 @@ function startStopButtonOnClick() {
         if (spawnTargetsValue.length > 0) {
             barbarianAssault.healerSpawnTargets = spawnTargetsValue.split("-");
         }
+        barbarianAssault.renderDistanceEnabled = toggleRenderDistance.checked;
         console.log("Wave " + wave + " started!");
         tick();
         tickTimerId = setInterval(tick, Number(tickDurationInput.value));

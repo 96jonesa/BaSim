@@ -39,6 +39,7 @@ export class BarbarianAssault {
         this.foodCallsIndex = 0;
         this.cannon = new Cannon();
         this.healerSpawnTargets = [];
+        this.renderDistanceEnabled = false;
         this.wave = wave;
         this.requireRepairs = requireRepairs;
         this.requireLogs = requireLogs;
@@ -503,6 +504,7 @@ export class BarbarianAssault {
         }
         barbarianAssault.cannon = this.cannon.clone();
         barbarianAssault.healerSpawnTargets = [...this.healerSpawnTargets];
+        barbarianAssault.renderDistanceEnabled = this.renderDistanceEnabled;
         return barbarianAssault;
     }
 }

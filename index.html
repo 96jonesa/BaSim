@@ -89,6 +89,10 @@ Tick duration (milliseconds): <input id="tickduration" type="number" min="100" m
 <label for="togglepausesl">Require paused to save/load</label>
 <br>
 
+<input type="checkbox" id="togglerenderdistance">
+<label for="togglerenderdistance">Render distance</label>
+<br>
+
 <input type="checkbox" id="markingtiles">
 <label for="markingtiles">Tile marker mode</label>
 
@@ -231,6 +235,9 @@ While in tile marker mode, left-clicking an unmarked tile will mark it and left-
 Click the colored rectangle to change the color of marked tiles.<br>
 <b>Export RuneLite</b> copies all tile markers to clipboard in RuneLite Ground Markers format.<br>
 <b>Import RuneLite</b> imports tile markers from the text field (paste RuneLite Ground Markers JSON).<br>
+<br>
+
+<b>Render distance:</b> When enabled, runners outside the 15-tile Chebyshev distance of all players have their target state progression frozen and cannot target food. Tiles outside render range are dimmed on the map.<br>
 <br>
 
 <b>Team Commands:</b> For each player, you can enter a list of positions to click to move to at specified ticks.

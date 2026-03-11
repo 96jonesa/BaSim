@@ -67,6 +67,7 @@ export class BarbarianAssault {
     public foodCallsIndex: number = 0;
     public cannon: Cannon = new Cannon();
     public healerSpawnTargets: Array<string> = [];
+    public renderDistanceEnabled: boolean = false;
 
 
     public constructor(
@@ -601,6 +602,7 @@ export class BarbarianAssault {
         }
         barbarianAssault.cannon = this.cannon.clone();
         barbarianAssault.healerSpawnTargets = [...this.healerSpawnTargets];
+        barbarianAssault.renderDistanceEnabled = this.renderDistanceEnabled;
 
         return barbarianAssault;
     }

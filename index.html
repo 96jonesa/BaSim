@@ -1,6 +1,39 @@
 <!DOCTYPE html>
 <title>Ba simulator</title>
+<style>
+    body.dark {
+        background-color: #1e1e1e;
+        color: #d4d4d4;
+    }
+    body.dark select,
+    body.dark input[type="text"],
+    body.dark input[type="number"],
+    body.dark textarea,
+    body.dark button {
+        background-color: #2d2d2d;
+        color: #d4d4d4;
+        border: 1px solid #555;
+    }
+    body.dark table {
+        border-color: #555;
+    }
+    body.dark th,
+    body.dark td {
+        border-color: #555;
+    }
+    body.dark div#controlledcommands,
+    body.dark div#runnersdonotdiemovements {
+        border-color: #555;
+    }
+    body.dark a {
+        color: #6dacf0;
+    }
+</style>
 <script type="module" src="built/sim.js"></script>
+
+<input type="checkbox" id="toggledarkmode">
+<label for="toggledarkmode">Dark mode</label>
+<br>
 
 Defender level: <select id="deflevelselect">
     <option value="4">Level 1</option>

@@ -43,6 +43,7 @@ const HTML_RUNNERS_DO_NOT_DIE_WITH_MOVEMENTS = "runnersdonotdiemovements";
 const HTML_CANNON_QUEUE = "cannonqueue";
 const HTML_RUNNER_TABLE = "runnertable";
 const HTML_HEALER_TABLE = "healertable";
+const HTML_TOGGLE_DARK_MODE = "toggledarkmode";
 window.onload = init;
 var markingTiles;
 var markedTiles;
@@ -183,6 +184,16 @@ function init() {
     simulateButton = document.getElementById(HTML_SIMULATE);
     simulateButton.onclick = simulateButtonOnClick;
     runnersDoNotDieWithMovements = document.getElementById(HTML_RUNNERS_DO_NOT_DIE_WITH_MOVEMENTS);
+    const darkModeToggle = document.getElementById(HTML_TOGGLE_DARK_MODE);
+    const savedDarkMode = localStorage.getItem("darkMode");
+    if (savedDarkMode === "true") {
+        document.body.classList.add("dark");
+        darkModeToggle.checked = true;
+    }
+    darkModeToggle.onchange = function () {
+        document.body.classList.toggle("dark", darkModeToggle.checked);
+        localStorage.setItem("darkMode", String(darkModeToggle.checked));
+    };
 }
 /**
  * Resets the simulator: the simulator is stopped and the underlying {@link BarbarianAssault} game

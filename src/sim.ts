@@ -60,6 +60,7 @@ const HTML_RUNNERS_DO_NOT_DIE_WITH_MOVEMENTS: string = "runnersdonotdiemovements
 const HTML_CANNON_QUEUE: string = "cannonqueue";
 const HTML_RUNNER_TABLE: string = "runnertable";
 const HTML_HEALER_TABLE: string = "healertable";
+const HTML_TOGGLE_DARK_MODE: string = "toggledarkmode";
 
 window.onload = init;
 
@@ -205,6 +206,17 @@ function init(): void {
     simulateButton = document.getElementById(HTML_SIMULATE) as HTMLButtonElement;
     simulateButton.onclick = simulateButtonOnClick;
     runnersDoNotDieWithMovements = document.getElementById(HTML_RUNNERS_DO_NOT_DIE_WITH_MOVEMENTS);
+
+    const darkModeToggle = document.getElementById(HTML_TOGGLE_DARK_MODE) as HTMLInputElement;
+    const savedDarkMode = localStorage.getItem("darkMode");
+    if (savedDarkMode === "true") {
+        document.body.classList.add("dark");
+        darkModeToggle.checked = true;
+    }
+    darkModeToggle.onchange = function (): void {
+        document.body.classList.toggle("dark", darkModeToggle.checked);
+        localStorage.setItem("darkMode", String(darkModeToggle.checked));
+    };
 }
 
 /**

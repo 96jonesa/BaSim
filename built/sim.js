@@ -525,12 +525,6 @@ function windowOnKeyDown(keyboardEvent) {
                     saveExists = true;
                 }
                 break;
-            case "y":
-                if (saveExists && (isPaused || !pauseSaveLoad)) {
-                    isPaused = true;
-                    pauseResumeButton.innerHTML = "Resume";
-                    load();
-                }
                 break;
             case "d":
                 isPaused = true;
@@ -547,6 +541,20 @@ function windowOnKeyDown(keyboardEvent) {
     if (key === " ") {
         startStopButtonOnClick();
         keyboardEvent.preventDefault();
+    }
+    if (key === "y" && saveExists) {
+        if (!isRunning) {
+            isRunning = true;
+            startStopButton.innerHTML = "Stop Wave";
+            pauseResumeButton.style.display = "";
+            stepBackButton.style.display = "";
+            stepForwardButton.style.display = "";
+            saveStateButton.disabled = false;
+            tickTimerId = setInterval(tick, Number(tickDurationInput.value));
+        }
+        isPaused = true;
+        pauseResumeButton.innerHTML = "Resume";
+        load();
     }
 }
 /**

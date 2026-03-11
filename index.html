@@ -1,6 +1,20 @@
 <!DOCTYPE html>
 <title>Ba simulator</title>
 <style>
+    .info-tip {
+        display: inline-block;
+        width: 14px;
+        height: 14px;
+        line-height: 14px;
+        text-align: center;
+        border-radius: 50%;
+        background-color: #888;
+        color: #fff;
+        font-size: 10px;
+        font-style: normal;
+        cursor: help;
+        vertical-align: middle;
+    }
     button {
         padding: 4px 10px;
         border: 1px solid #aaa;
@@ -75,25 +89,25 @@ Wave: <select id="waveselect">
     <option value="10">Wave 10</option>
 </select>
 <br>
-Runner movements: <input id="runnermovements" type="text"/> <span title="Forced runner movements. e.g. 'ww-e-s' for first runner west west, second runner east, third runner south. These specify only the non-food-targeting movements. If a runner targets food before exhausting its movements, remaining movements are used later.">(?)</span>
+Runner movements: <input id="runnermovements" type="text"/> <span title="Forced runner movements. e.g. 'ww-e-s' for first runner west west, second runner east, third runner south. These specify only the non-food-targeting movements. If a runner targets food before exhausting its movements, remaining movements are used later." class="info-tip">i</span>
 <br>
-<span id="foodcallsrow" style="display: none;">Food calls: <input id="foodcalls" type="text"/> <span title="Order of defender food calls. e.g. 'twcw' for tofu worms crackers worms. You may repeat the same food, e.g. 'tttt'. First food is always tofu, changes every 50 ticks.">(?)</span></span>
+<span id="foodcallsrow" style="display: none;">Food calls: <input id="foodcalls" type="text"/> <span title="Order of defender food calls. e.g. 'twcw' for tofu worms crackers worms. You may repeat the same food, e.g. 'tttt'. First food is always tofu, changes every 50 ticks." class="info-tip">i</span></span>
 <br>
-Cannon queue: <input id="cannonqueue" type="text" size="40"/> <span title="Egg firing commands. Format: wrr,1,51 = west cannon, runner target, red egg, 1 egg, start tick 51. First char: cannon side (w/e). Second: penance type (r/h). Third: egg type (r/g/b). Separate with -. Shorthand: 1,51 inherits from previous. Egg types: r=red (3 dmg), g=green (1 dmg + poison), b=blue (stun + zombie).">(?)</span>
+Cannon queue: <input id="cannonqueue" type="text" size="40"/> <span title="Egg firing commands. Format: wrr,1,51 = west cannon, runner target, red egg, 1 egg, start tick 51. First char: cannon side (w/e). Second: penance type (r/h). Third: egg type (r/g/b). Separate with -. Shorthand: 1,51 inherits from previous. Egg types: r=red (3 dmg), g=green (1 dmg + poison), b=blue (stun + zombie)." class="info-tip">i</span>
 <br>
-Healer codes: <input id="healercodes" type="text" size="40" placeholder="h1,3-h2,5-h3,4"/> <span title="Poison code notation. Format: h<id>,<count> separated by -. Healer player auto-pathfinds and uses poison food. Optional timing: h1,3:24 delays last food until tick 24. First poison auto-waits until spawn tick (h1=tick 11, h2=tick 21, etc.). Dead healers skipped.">(?)</span>
+Healer codes: <input id="healercodes" type="text" size="40" placeholder="h1,3-h2,5-h3,4"/> <span title="Poison code notation. Format: h<id>,<count> separated by -. Healer player auto-pathfinds and uses poison food. Optional timing: h1,3:24 delays last food until tick 24. First poison auto-waits until spawn tick (h1=tick 11, h2=tick 21, etc.). Dead healers skipped." class="info-tip">i</span>
 <br>
-Healer spawn targets: <input id="healerspawntargets" type="text" size="40" placeholder="m-c-m2h"/> <span title="Force healer penance to target a specific player role on spawn. Separated by -. Role letters: m=main, 2=second, h=healer, c=collector, d=defender. Multiple roles: m2h = main, second, or healer. Only affects first target after spawning.">(?)</span>
+Healer spawn targets: <input id="healerspawntargets" type="text" size="40" placeholder="m-c-m2h"/> <span title="Force healer penance to target a specific player role on spawn. Separated by -. Role letters: m=main, 2=second, h=healer, c=collector, d=defender. Multiple roles: m2h = main, second, or healer. Only affects first target after spawning." class="info-tip">i</span>
 <br>
-Runner spawns: <input id="runnerspawns" type="text" size="40" placeholder="11,21,31"/> <span title="Override default runner spawn ticks (11, 21, 31, ...) with custom comma-separated tick numbers. Leave empty for default every-10-ticks schedule.">(?)</span>
+Runner spawns: <input id="runnerspawns" type="text" size="40" placeholder="11,21,31"/> <span title="Override default runner spawn ticks (11, 21, 31, ...) with custom comma-separated tick numbers. Leave empty for default every-10-ticks schedule." class="info-tip">i</span>
 <br>
-Healer spawns: <input id="healerspawns" type="text" size="40" placeholder="11,21,31"/> <span title="Override default healer spawn ticks (11, 21, 31, ...) with custom comma-separated tick numbers. Leave empty for default every-10-ticks schedule.">(?)</span>
+Healer spawns: <input id="healerspawns" type="text" size="40" placeholder="11,21,31"/> <span title="Override default healer spawn ticks (11, 21, 31, ...) with custom comma-separated tick numbers. Leave empty for default every-10-ticks schedule." class="info-tip">i</span>
 <br>
 Tick duration (milliseconds): <input id="tickduration" type="number" min="100" max="1200" value="600"/>
 </div>
 <div>
 <button id="togglesimplefood">Disable simple food</button>
-<span title="When enabled: infinite food is forced on, food call is always tofu, and hotkeys change to r=drop good food, w=drop bad food, e=pick up food, t=repair trap. When disabled: normal food mechanics with specific food types, calls, and pickup keys.">(?)</span>
+<span title="When enabled: infinite food is forced on, food call is always tofu, and hotkeys change to r=drop good food, w=drop bad food, e=pick up food, t=repair trap. When disabled: normal food mechanics with specific food types, calls, and pickup keys." class="info-tip">i</span>
 <br>
 <input type="checkbox" id="toggledarkmode">
 <label for="toggledarkmode">Dark mode</label>
@@ -111,10 +125,10 @@ Tick duration (milliseconds): <input id="tickduration" type="number" min="100" m
 <label for="togglepausesl">Require paused to save/load</label>
 <br>
 <input type="checkbox" id="togglerenderdistance">
-<label for="togglerenderdistance">Require render</label> <span title="When enabled, runners outside the 15-tile Chebyshev distance of all players have their target state progression frozen and cannot target food. Tiles outside render range are dimmed.">(?)</span>
+<label for="togglerenderdistance">Require render</label> <span title="When enabled, runners outside the 15-tile Chebyshev distance of all players have their target state progression frozen and cannot target food. Tiles outside render range are dimmed." class="info-tip">i</span>
 <br>
 <input type="checkbox" id="markingtiles">
-<label for="markingtiles">Tile marker mode</label> <span title="Toggle between movement and tile marker mode. While enabled, left-click marks/unmarks tiles. Use the color picker to change marker color.">(?)</span>
+<label for="markingtiles">Tile marker mode</label> <span title="Toggle between movement and tile marker mode. While enabled, left-click marks/unmarks tiles. Use the color picker to change marker color." class="info-tip">i</span>
 <br>
 <input type="color" id="marker" name="marker" value="#000000"> Marker color
 </div>
@@ -135,7 +149,7 @@ Tick duration (milliseconds): <input id="tickduration" type="number" min="100" m
 </div>
 
 <table id="teamtable" style="border: 1px solid">
-    <caption><b>Team Commands</b> <span title="Enter commands as tick:x,y per line to move a player to (x,y) at that tick. e.g. 5:20,21. Multiple commands per tick allowed. For defender only: tick:t/c/w/1/2/3/l/r performs that key action at the specified tick.">(?)</span></caption>
+    <caption><b>Team Commands</b> <span title="Enter commands as tick:x,y per line to move a player to (x,y) at that tick. e.g. 5:20,21. Multiple commands per tick allowed. For defender only: tick:t/c/w/1/2/3/l/r performs that key action at the specified tick." class="info-tip">i</span></caption>
     <tr>
         <td name="mainattacker">
             <b>Main Attacker</b>
@@ -163,7 +177,7 @@ Tick duration (milliseconds): <input id="tickduration" type="number" min="100" m
             <textarea id="defendercommands" rows=4 cols=15></textarea>
         </td>
         <td style="vertical-align: top; padding-left: 1rem;">
-            <b>Player to control:</b> <span title="Which player to control manually. All other players follow their team commands.">(?)</span><br>
+            <b>Player to control:</b> <span title="Which player to control manually. All other players follow their team commands." class="info-tip">i</span><br>
             <select id="playerselect">
                 <option value="defender">Defender</option>
                 <option value="mainattacker">Main Attacker</option>
@@ -173,7 +187,7 @@ Tick duration (milliseconds): <input id="tickduration" type="number" min="100" m
                 <option value="none">None</option>
             </select>
             <br><br>
-            <b>Controlled commands:</b> <span title="As you control a player, the commands for your manual movements are recorded here. Copy this output into that player's team commands input.">(?)</span> <button id="copycontrolledcommands">Copy</button><br>
+            <b>Controlled commands:</b> <span title="As you control a player, the commands for your manual movements are recorded here. Copy this output into that player's team commands input." class="info-tip">i</span> <button id="copycontrolledcommands">Copy</button><br>
             <div id="controlledcommands" style="border: 1px solid; height: 4lh; width: 9lh; overflow: auto"></div>
         </td>
     </tr>
@@ -184,12 +198,12 @@ Tick duration (milliseconds): <input id="tickduration" type="number" min="100" m
 <div>
 <button id="simulate">Simulate against runner movements to check</button>
 <br><br>
-Runner movements to check: <input id="runnermovementstocheck" type="text"/> <span title="Like runner movements, but use 'x' for any direction to check all possibilities. Unspecified movements are random. e.g. 'wx-s-e' checks ww-s-e, ws-s-e, and we-s-e.">(?)</span>
+Runner movements to check: <input id="runnermovementstocheck" type="text"/> <span title="Like runner movements, but use 'x' for any direction to check all possibilities. Unspecified movements are random. e.g. 'wx-s-e' checks ww-s-e, ws-s-e, and we-s-e." class="info-tip">i</span>
 <br><br>
-Runners dead by tick: <input id="runnersdeadbytick" type="text"/> <span title="The tick by which all runners must be dead in the simulation.">(?)</span>
+Runners dead by tick: <input id="runnersdeadbytick" type="text"/> <span title="The tick by which all runners must be dead in the simulation." class="info-tip">i</span>
 </div>
 <div>
-<b>Runners do not die with movements:</b> <span title="Lists runner movement combinations from the checked movements for which not all runners died by the specified tick.">(?)</span><br>
+<b>Runners do not die with movements:</b> <span title="Lists runner movement combinations from the checked movements for which not all runners died by the specified tick." class="info-tip">i</span><br>
 <div id="runnersdonotdiemovements" style="border: 1px solid; height: 4lh; width: 14lh; overflow: auto; resize: both"></div>
 </div>
 </div>

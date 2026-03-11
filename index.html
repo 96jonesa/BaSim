@@ -70,6 +70,12 @@ Healer codes: <input id="healercodes" type="text" size="40" placeholder="h1,3-h2
 Healer spawn targets: <input id="healerspawntargets" type="text" size="40" placeholder="m-c-m2h"/>
 <br>
 
+Runner spawns: <input id="runnerspawns" type="text" size="40" placeholder="11,21,31"/>
+<br>
+
+Healer spawns: <input id="healerspawns" type="text" size="40" placeholder="11,21,31"/>
+<br>
+
 Tick duration (milliseconds): <input id="tickduration" type="number" min="100" max="1200" value="600"/>
 <br>
 
@@ -304,6 +310,10 @@ Example: <code>h1,3-h2,5-h3,4</code><br>
 Each healer's target is separated by <code>-</code>. Role letters: <b>m</b>=main, <b>2</b>=second, <b>h</b>=healer, <b>c</b>=collector, <b>d</b>=defender.<br>
 Multiple roles can be combined (e.g., <code>m2h</code> = main, second, or healer). Only affects the first target after spawning.<br>
 Example: <code>m-c-m2h</code> (healer 1 targets main, healer 2 targets collector, healer 3 targets main/second/healer)<br>
+<br>
+
+<b>Runner/Healer spawns:</b> Override the default spawn ticks (11, 21, 31, ...) with custom comma-separated tick numbers.<br>
+If left empty, the default every-10-ticks schedule is used. Example: <code>11,21,31</code><br>
 <br>
 
 <b>Save/Load:</b><br>

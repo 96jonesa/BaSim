@@ -68,6 +68,10 @@ export class BarbarianAssault {
     public cannon: Cannon = new Cannon();
     public healerSpawnTargets: Array<string> = [];
     public renderDistanceEnabled: boolean = false;
+    public runnerSpawns: Array<number> = [];
+    public runnerSpawnsIndex: number = 0;
+    public healerSpawns: Array<number> = [];
+    public healerSpawnsIndex: number = 0;
 
 
     public constructor(
@@ -210,12 +214,25 @@ export class BarbarianAssault {
             this.changeDefenderFoodCall();
         }
 
-        if (this.ticks > 1 && this.ticks % 10 === 1 && this.runnersAlive < this.maxRunnersAlive && this.runnersKilled + this.runnersAlive < this.totalRunners) {
+        const isDefaultCycle: boolean = this.ticks > 1 && this.ticks % 10 === 1;
+        const shouldSpawnRunner: boolean = this.runnerSpawns.length === 0
+            ? isDefaultCycle
+            : this.runnerSpawnsIndex < this.runnerSpawns.length && this.runnerSpawns[this.runnerSpawnsIndex] === this.ticks;
+        if (shouldSpawnRunner && this.runnersAlive < this.maxRunnersAlive && this.runnersKilled + this.runnersAlive < this.totalRunners) {
             this.spawnRunner();
+            if (this.runnerSpawns.length > 0) {
+                this.runnerSpawnsIndex++;
+            }
         }
 
-        if (this.ticks > 1 && this.ticks % 10 === 1 && this.healersAlive < this.maxHealersAlive && this.healersKilled + this.healersAlive < this.totalHealers) {
+        const shouldSpawnHealer: boolean = this.healerSpawns.length === 0
+            ? isDefaultCycle
+            : this.healerSpawnsIndex < this.healerSpawns.length && this.healerSpawns[this.healerSpawnsIndex] === this.ticks;
+        if (shouldSpawnHealer && this.healersAlive < this.maxHealersAlive && this.healersKilled + this.healersAlive < this.totalHealers) {
             this.spawnHealer();
+            if (this.healerSpawns.length > 0) {
+                this.healerSpawnsIndex++;
+            }
         }
 
         this.tickPlayers();
@@ -603,6 +620,10 @@ export class BarbarianAssault {
         barbarianAssault.cannon = this.cannon.clone();
         barbarianAssault.healerSpawnTargets = [...this.healerSpawnTargets];
         barbarianAssault.renderDistanceEnabled = this.renderDistanceEnabled;
+        barbarianAssault.runnerSpawns = [...this.runnerSpawns];
+        barbarianAssault.runnerSpawnsIndex = this.runnerSpawnsIndex;
+        barbarianAssault.healerSpawns = [...this.healerSpawns];
+        barbarianAssault.healerSpawnsIndex = this.healerSpawnsIndex;
 
         return barbarianAssault;
     }

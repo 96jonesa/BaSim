@@ -48,6 +48,8 @@ const HTML_TOGGLE_DARK_MODE = "toggledarkmode";
 const HTML_TOGGLE_RENDER_DISTANCE = "togglerenderdistance";
 const HTML_HEALER_CODES = "healercodes";
 const HTML_HEALER_SPAWN_TARGETS = "healerspawntargets";
+const HTML_RUNNER_SPAWNS = "runnerspawns";
+const HTML_HEALER_SPAWNS = "healerspawns";
 const HTML_COPY_CONTROLLED_COMMANDS = "copycontrolledcommands";
 const HTML_EXPORT_MARKERS = "exportmarkers";
 const HTML_IMPORT_MARKERS = "importmarkers";
@@ -94,6 +96,8 @@ var runnersDoNotDieWithMovements;
 var cannonQueueInput;
 var healerCodesInput;
 var healerSpawnTargetsInput;
+var runnerSpawnsInput;
+var healerSpawnsInput;
 const STATE_HISTORY_LIMIT = 1000;
 var stateHistory = [];
 var stateIndex = -1;
@@ -117,6 +121,8 @@ var savedFoodCallsString;
 var savedCannonQueueString;
 var savedHealerCodesString;
 var savedHealerSpawnTargetsString;
+var savedRunnerSpawnsString;
+var savedHealerSpawnsString;
 /**
  * Initializes the simulator.
  */
@@ -199,6 +205,18 @@ function init() {
     };
     healerSpawnTargetsInput = document.getElementById(HTML_HEALER_SPAWN_TARGETS);
     healerSpawnTargetsInput.onkeydown = function (keyboardEvent) {
+        if (keyboardEvent.key === " ") {
+            keyboardEvent.preventDefault();
+        }
+    };
+    runnerSpawnsInput = document.getElementById(HTML_RUNNER_SPAWNS);
+    runnerSpawnsInput.onkeydown = function (keyboardEvent) {
+        if (keyboardEvent.key === " ") {
+            keyboardEvent.preventDefault();
+        }
+    };
+    healerSpawnsInput = document.getElementById(HTML_HEALER_SPAWNS);
+    healerSpawnsInput.onkeydown = function (keyboardEvent) {
         if (keyboardEvent.key === " ") {
             keyboardEvent.preventDefault();
         }
@@ -299,6 +317,23 @@ function parseFoodCallsInput() {
         }
     }
     return foodCalls;
+}
+function parseSpawnsInput(value) {
+    const trimmed = value.trim();
+    if (trimmed.length === 0) {
+        return [];
+    }
+    const parts = trimmed.split(/[,\-]/);
+    const spawns = [];
+    for (const part of parts) {
+        const tick = parseInt(part.trim(), 10);
+        if (isNaN(tick) || tick < 1) {
+            return [];
+        }
+        spawns.push(tick);
+    }
+    spawns.sort((a, b) => a - b);
+    return spawns;
 }
 /**
  * Handles the given keyboard event.
@@ -421,6 +456,8 @@ function save() {
     savedCannonQueueString = cannonQueueInput.value;
     savedHealerCodesString = healerCodesInput.value;
     savedHealerSpawnTargetsString = healerSpawnTargetsInput.value;
+    savedRunnerSpawnsString = runnerSpawnsInput.value;
+    savedHealerSpawnsString = healerSpawnsInput.value;
 }
 /**
  * Pauses and loads the previously saved state of the simulator.
@@ -449,6 +486,8 @@ function load() {
     cannonQueueInput.value = savedCannonQueueString;
     healerCodesInput.value = savedHealerCodesString;
     healerSpawnTargetsInput.value = savedHealerSpawnTargetsString;
+    runnerSpawnsInput.value = savedRunnerSpawnsString;
+    healerSpawnsInput.value = savedHealerSpawnsString;
     barbarianAssault = savedBarbarianAssault;
     // the existing save state will mutate as the simulator proceeds,
     // so re-clone the save state in case of subsequent loads
@@ -901,6 +940,8 @@ function startStopButtonOnClick() {
         if (spawnTargetsValue.length > 0) {
             barbarianAssault.healerSpawnTargets = spawnTargetsValue.split("-");
         }
+        barbarianAssault.runnerSpawns = parseSpawnsInput(runnerSpawnsInput.value);
+        barbarianAssault.healerSpawns = parseSpawnsInput(healerSpawnsInput.value);
         barbarianAssault.renderDistanceEnabled = toggleRenderDistance.checked;
         console.log("Wave " + wave + " started!");
         tick();
@@ -1278,6 +1319,8 @@ function ticksToSeconds(ticks) {
 function runnersDieOnTimeForMovements(runnerMovements, foodCalls, runnersDeadByTick, mainAttackerCommands, secondAttackerCommands, healerCommands, collectorCommands, defenderCommands) {
     const cannonQueue = parseCannonInput(cannonQueueInput.value);
     const barbarianAssaultSim = new BarbarianAssault(wave, requireRepairs, requireLogs, infiniteFood, runnerMovements, defenderLevel, mainAttackerCommands, secondAttackerCommands, healerCommands, collectorCommands, defenderCommands, foodCalls, cannonQueue || []);
+    barbarianAssaultSim.runnerSpawns = parseSpawnsInput(runnerSpawnsInput.value);
+    barbarianAssaultSim.healerSpawns = parseSpawnsInput(healerSpawnsInput.value);
     for (let i = 0; i < runnersDeadByTick; i++) {
         barbarianAssaultSim.tick();
     }

@@ -65,6 +65,8 @@ const HTML_TOGGLE_DARK_MODE: string = "toggledarkmode";
 const HTML_TOGGLE_RENDER_DISTANCE: string = "togglerenderdistance";
 const HTML_HEALER_CODES: string = "healercodes";
 const HTML_HEALER_SPAWN_TARGETS: string = "healerspawntargets";
+const HTML_RUNNER_SPAWNS: string = "runnerspawns";
+const HTML_HEALER_SPAWNS: string = "healerspawns";
 const HTML_COPY_CONTROLLED_COMMANDS: string = "copycontrolledcommands";
 const HTML_EXPORT_MARKERS: string = "exportmarkers";
 const HTML_IMPORT_MARKERS: string = "importmarkers";
@@ -113,6 +115,8 @@ var runnersDoNotDieWithMovements: HTMLElement;
 var cannonQueueInput: HTMLInputElement;
 var healerCodesInput: HTMLInputElement;
 var healerSpawnTargetsInput: HTMLInputElement;
+var runnerSpawnsInput: HTMLInputElement;
+var healerSpawnsInput: HTMLInputElement;
 
 const STATE_HISTORY_LIMIT: number = 1000;
 var stateHistory: Array<{ba: BarbarianAssault, tickHTML: string, foodHTML: string, commandsHTML: string}> = [];
@@ -138,6 +142,8 @@ var savedFoodCallsString: string;
 var savedCannonQueueString: string;
 var savedHealerCodesString: string;
 var savedHealerSpawnTargetsString: string;
+var savedRunnerSpawnsString: string;
+var savedHealerSpawnsString: string;
 
 /**
  * Initializes the simulator.
@@ -221,6 +227,18 @@ function init(): void {
     };
     healerSpawnTargetsInput = document.getElementById(HTML_HEALER_SPAWN_TARGETS) as HTMLInputElement;
     healerSpawnTargetsInput.onkeydown = function (keyboardEvent: KeyboardEvent): void {
+        if (keyboardEvent.key === " ") {
+            keyboardEvent.preventDefault();
+        }
+    };
+    runnerSpawnsInput = document.getElementById(HTML_RUNNER_SPAWNS) as HTMLInputElement;
+    runnerSpawnsInput.onkeydown = function (keyboardEvent: KeyboardEvent): void {
+        if (keyboardEvent.key === " ") {
+            keyboardEvent.preventDefault();
+        }
+    };
+    healerSpawnsInput = document.getElementById(HTML_HEALER_SPAWNS) as HTMLInputElement;
+    healerSpawnsInput.onkeydown = function (keyboardEvent: KeyboardEvent): void {
         if (keyboardEvent.key === " ") {
             keyboardEvent.preventDefault();
         }
@@ -354,6 +372,24 @@ function parseFoodCallsInput(): Array<FoodType> {
     }
 
     return foodCalls;
+}
+
+function parseSpawnsInput(value: string): Array<number> {
+    const trimmed = value.trim();
+    if (trimmed.length === 0) {
+        return [];
+    }
+    const parts = trimmed.split(/[,\-]/);
+    const spawns: Array<number> = [];
+    for (const part of parts) {
+        const tick = parseInt(part.trim(), 10);
+        if (isNaN(tick) || tick < 1) {
+            return [];
+        }
+        spawns.push(tick);
+    }
+    spawns.sort((a, b) => a - b);
+    return spawns;
 }
 
 /**
@@ -491,6 +527,8 @@ function save(): void {
     savedCannonQueueString = cannonQueueInput.value;
     savedHealerCodesString = healerCodesInput.value;
     savedHealerSpawnTargetsString = healerSpawnTargetsInput.value;
+    savedRunnerSpawnsString = runnerSpawnsInput.value;
+    savedHealerSpawnsString = healerSpawnsInput.value;
 }
 
 /**
@@ -521,6 +559,8 @@ function load(): void {
     cannonQueueInput.value = savedCannonQueueString;
     healerCodesInput.value = savedHealerCodesString;
     healerSpawnTargetsInput.value = savedHealerSpawnTargetsString;
+    runnerSpawnsInput.value = savedRunnerSpawnsString;
+    healerSpawnsInput.value = savedHealerSpawnsString;
 
     barbarianAssault = savedBarbarianAssault;
 
@@ -1045,6 +1085,8 @@ function startStopButtonOnClick(): void {
             barbarianAssault.healerSpawnTargets = spawnTargetsValue.split("-");
         }
 
+        barbarianAssault.runnerSpawns = parseSpawnsInput(runnerSpawnsInput.value);
+        barbarianAssault.healerSpawns = parseSpawnsInput(healerSpawnsInput.value);
         barbarianAssault.renderDistanceEnabled = toggleRenderDistance.checked;
 
         console.log("Wave " + wave + " started!");
@@ -1501,6 +1543,8 @@ function runnersDieOnTimeForMovements(
         foodCalls,
         cannonQueue || []
     );
+    barbarianAssaultSim.runnerSpawns = parseSpawnsInput(runnerSpawnsInput.value);
+    barbarianAssaultSim.healerSpawns = parseSpawnsInput(healerSpawnsInput.value);
 
     for (let i: number = 0; i < runnersDeadByTick; i++) {
         barbarianAssaultSim.tick();

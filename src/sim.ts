@@ -792,10 +792,24 @@ function canvasOnMouseDown(mouseEvent: MouseEvent): void {
                     break;
             }
 
+            drawYellowClick(mouseEvent);
             controlledCommands.innerHTML += barbarianAssault.ticks + ":" + xTile + "," + yTile + "<br>";
             controlledCommands.scrollTop = controlledCommands.scrollHeight;
         }
     }
+}
+
+function drawYellowClick(e: MouseEvent): void {
+    const existing = document.getElementsByClassName("yellow-click");
+    if (existing.length) {
+        existing[0].remove();
+    }
+    const el = document.createElement("img");
+    el.className = "yellow-click";
+    el.src = "static/yellow_click.gif?" + Date.now();
+    el.style.left = `${e.clientX - 6}px`;
+    el.style.top = `${e.clientY - 6}px`;
+    document.body.appendChild(el);
 }
 
 /**

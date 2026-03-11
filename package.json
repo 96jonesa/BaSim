@@ -10,6 +10,7 @@
     "build": "tsc",
     "clean": "rimraf built node_modules coverage package-lock.json",
     "test": "vitest run test",
-    "coverage": "vitest run test --coverage"
+    "coverage": "vitest run test --coverage",
+    "open": "python3 -m http.server 8080 & sleep 0.5 && open http://localhost:8080 && wait"
   }
 }

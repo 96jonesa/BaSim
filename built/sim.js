@@ -4,11 +4,16 @@ import { BarbarianAssault } from "./BarbarianAssault.js";
 import { Renderer } from "./Renderer.js";
 import { Position } from "./Position.js";
 import { LOS_EAST_MASK, LOS_FULL_MASK, LOS_NORTH_MASK, LOS_SOUTH_MASK, LOS_WEST_MASK, MOVE_EAST_MASK, MOVE_FULL_MASK, MOVE_NORTH_MASK, MOVE_SOUTH_MASK, MOVE_WEST_MASK } from "./BarbarianAssaultMap.js";
+import { RunnerPenance } from "./RunnerPenance.js";
 import { MoveCommand } from "./MoveCommand.js";
 import { DefenderActionCommand } from "./DefenderActionCommand.js";
 import { DefenderActionType } from "./DefenderActionType.js";
 import { TileMarker } from "./TileMarker.js";
 import { RGBColor } from "./RGBColor.js";
+import { Player } from "./Player.js";
+import { HealerTargetType } from "./HealerTargetType.js";
+import { parseCannonInput, getCannonPosition } from "./Cannon.js";
+import { CannonSide } from "./CannonSide.js";
 const HTML_CANVAS = "basimcanvas";
 const HTML_RUNNER_MOVEMENTS = "runnermovements";
 const HTML_START_BUTTON = "wavestart";
@@ -35,6 +40,9 @@ const HTML_RUNNER_MOVEMENTS_TO_CHECK = "runnermovementstocheck";
 const HTML_RUNNERS_DEAD_BY_TICK = "runnersdeadbytick";
 const HTML_SIMULATE = "simulate";
 const HTML_RUNNERS_DO_NOT_DIE_WITH_MOVEMENTS = "runnersdonotdiemovements";
+const HTML_CANNON_QUEUE = "cannonqueue";
+const HTML_RUNNER_TABLE = "runnertable";
+const HTML_HEALER_TABLE = "healertable";
 window.onload = init;
 var markingTiles;
 var markedTiles;
@@ -73,6 +81,7 @@ var runnerMovementsToCheckInput;
 var runnersDeadByTickInput;
 var simulateButton;
 var runnersDoNotDieWithMovements;
+var cannonQueueInput;
 var savedBarbarianAssault;
 var savedTickCountSpanInnerHTML;
 var savedCurrentDefenderFoodSpanInnerHTML;
@@ -90,6 +99,7 @@ var savedRequireRepairs;
 var savedInfiniteFood;
 var savedRequireLogs;
 var savedFoodCallsString;
+var savedCannonQueueString;
 /**
  * Initializes the simulator.
  */
@@ -157,6 +167,12 @@ function init() {
         }
     };
     runnerMovementsToCheckInput.onchange = runnerMovementsToCheckInputOnChange;
+    cannonQueueInput = document.getElementById(HTML_CANNON_QUEUE);
+    cannonQueueInput.onkeydown = function (keyboardEvent) {
+        if (keyboardEvent.key === " ") {
+            keyboardEvent.preventDefault();
+        }
+    };
     runnersDeadByTickInput = document.getElementById(HTML_RUNNERS_DEAD_BY_TICK);
     runnersDeadByTickInput.onkeydown = function (keyboardEvent) {
         if (keyboardEvent.key === " ") {
@@ -178,6 +194,8 @@ function reset() {
     }
     isRunning = false;
     startStopButton.innerHTML = "Start Wave";
+    document.getElementById(HTML_RUNNER_TABLE).style.display = "none";
+    document.getElementById(HTML_HEALER_TABLE).style.display = "none";
     barbarianAssault = new BarbarianAssault(wave, requireRepairs, requireLogs, infiniteFood, [], defenderLevel, player === "mainattacker" ? new Map : convertCommandsStringToMap(document.getElementById(HTML_MAIN_ATTACKER_COMMANDS).value, "mainattacker"), player === "secondattacker" ? new Map : convertCommandsStringToMap(document.getElementById(HTML_SECOND_ATTACKER_COMMANDS).value, "secondattacker"), player === "healer" ? new Map : convertCommandsStringToMap(document.getElementById(HTML_HEALER_COMMANDS).value, "healer"), player === "collector" ? new Map : convertCommandsStringToMap(document.getElementById(HTML_COLLECTOR_COMMANDS).value, "collector"), player === "defender" ? new Map : convertCommandsStringToMap(document.getElementById(HTML_DEFENDER_COMMANDS).value, "defender"), []);
     draw();
 }
@@ -344,6 +362,7 @@ function save() {
     savedInfiniteFood = infiniteFood;
     savedRequireLogs = requireLogs;
     savedFoodCallsString = foodCallsInput.value;
+    savedCannonQueueString = cannonQueueInput.value;
 }
 /**
  * Pauses and loads the previously saved state of the simulator.
@@ -369,6 +388,7 @@ function load() {
     toggleRepair.checked = savedRequireRepairs;
     toggleInfiniteFood.checked = savedInfiniteFood;
     foodCallsInput.value = savedFoodCallsString;
+    cannonQueueInput.value = savedCannonQueueString;
     barbarianAssault = savedBarbarianAssault;
     // the existing save state will mutate as the simulator proceeds,
     // so re-clone the save state in case of subsequent loads
@@ -545,6 +565,15 @@ function drawDetails() {
     }
     renderer.setDrawColor(127, 127, 127, 255);
     renderer.fillItem(32, 34);
+    // Draw cannons
+    const westCannon = getCannonPosition(CannonSide.WEST);
+    const eastCannon = getCannonPosition(CannonSide.EAST);
+    renderer.setDrawColor(80, 80, 80, 200);
+    renderer.fill(westCannon.x, westCannon.y);
+    renderer.fill(eastCannon.x, eastCannon.y);
+    renderer.setDrawColor(40, 40, 40, 255);
+    renderer.outline(westCannon.x, westCannon.y);
+    renderer.outline(eastCannon.x, eastCannon.y);
 }
 /**
  * Draws items (e.g. {@link Food}.
@@ -563,13 +592,49 @@ function drawItems() {
  * Draws entities ({@link Character}s}.
  */
 function drawEntities() {
-    renderer.setDrawColor(10, 10, 240, 127);
     barbarianAssault.runners.forEach((runner) => {
-        renderer.fill(runner.position.x, runner.position.y);
+        if (runner.blueCounter >= 0) {
+            renderer.setDrawColor(10, 10, 240, 200);
+            renderer.fill(runner.position.x, runner.position.y);
+            renderer.setDrawColor(100, 100, 255, 255);
+            renderer.outline(runner.position.x, runner.position.y);
+        }
+        else if (runner.greenCounter >= 0) {
+            renderer.setDrawColor(10, 10, 240, 127);
+            renderer.fill(runner.position.x, runner.position.y);
+            renderer.setDrawColor(0, 200, 0, 255);
+            renderer.outline(runner.position.x, runner.position.y);
+        }
+        else if (runner.isDying) {
+            renderer.setDrawColor(5, 5, 120, 127);
+            renderer.fill(runner.position.x, runner.position.y);
+        }
+        else {
+            renderer.setDrawColor(10, 10, 240, 127);
+            renderer.fill(runner.position.x, runner.position.y);
+        }
     });
-    renderer.setDrawColor(10, 240, 10, 127);
     barbarianAssault.healers.forEach((healer) => {
-        renderer.fill(healer.position.x, healer.position.y);
+        if (healer.zombieState) {
+            renderer.setDrawColor(80, 80, 80, 180);
+            renderer.fill(healer.position.x, healer.position.y);
+            renderer.setDrawColor(0, 200, 0, 255);
+            renderer.outline(healer.position.x, healer.position.y);
+        }
+        else if (healer.blueCounter >= 0) {
+            renderer.setDrawColor(10, 240, 10, 127);
+            renderer.fill(healer.position.x, healer.position.y);
+            renderer.setDrawColor(100, 100, 255, 255);
+            renderer.outline(healer.position.x, healer.position.y);
+        }
+        else if (healer.isDying) {
+            renderer.setDrawColor(5, 120, 5, 127);
+            renderer.fill(healer.position.x, healer.position.y);
+        }
+        else {
+            renderer.setDrawColor(10, 240, 10, 127);
+            renderer.fill(healer.position.x, healer.position.y);
+        }
     });
     if (barbarianAssault.collectorPlayer.position.x >= 0 && barbarianAssault.collectorPlayer.position.y >= 0) {
         renderer.setDrawColor(240, 240, 10, 220);
@@ -685,11 +750,16 @@ function startStopButtonOnClick() {
             alert("Invalid team commands. Example: 7:20,24");
             return;
         }
+        const cannonQueue = parseCannonInput(cannonQueueInput.value);
+        if (cannonQueue === null) {
+            alert("Invalid cannon queue. Example: wrr,1,51-erg,1,21");
+            return;
+        }
         isRunning = true;
         isPaused = false;
         startStopButton.innerHTML = "Stop Wave";
         controlledCommands.innerHTML = "";
-        barbarianAssault = new BarbarianAssault(wave, requireRepairs, requireLogs, infiniteFood, movements, defenderLevel, player === "mainattacker" ? new Map : mainAttackerCommands, player === "secondattacker" ? new Map : secondAttackerCommands, player === "healer" ? new Map : healerCommands, player === "collector" ? new Map : collectorCommands, player === "defender" ? new Map : defenderCommands, foodCalls);
+        barbarianAssault = new BarbarianAssault(wave, requireRepairs, requireLogs, infiniteFood, movements, defenderLevel, player === "mainattacker" ? new Map : mainAttackerCommands, player === "secondattacker" ? new Map : secondAttackerCommands, player === "healer" ? new Map : healerCommands, player === "collector" ? new Map : collectorCommands, player === "defender" ? new Map : defenderCommands, foodCalls, cannonQueue);
         console.log("Wave " + wave + " started!");
         tick();
         tickTimerId = setInterval(tick, Number(tickDurationInput.value));
@@ -745,12 +815,106 @@ function simulateButtonOnClick() {
 /**
  * Progresses the state of the simulator by a single tick.
  */
+function updateRunnerTable() {
+    const table = document.getElementById(HTML_RUNNER_TABLE);
+    if (!isRunning) {
+        table.style.display = "none";
+        return;
+    }
+    table.style.display = "table";
+    const oldBody = table.querySelector("tbody");
+    if (oldBody) {
+        oldBody.remove();
+    }
+    const tbody = document.createElement("tbody");
+    barbarianAssault.runners.forEach((runner) => {
+        const row = tbody.insertRow();
+        const cellStyle = "border: 1px solid; padding: 2px 6px;";
+        row.insertCell().outerHTML = `<td style="${cellStyle}">${runner.id}</td>`;
+        row.insertCell().outerHTML = `<td style="${cellStyle}">${runner.cycleTick}</td>`;
+        row.insertCell().outerHTML = `<td style="${cellStyle}">${runner.targetState}</td>`;
+        row.insertCell().outerHTML = `<td style="${cellStyle}">${runner.hp}/5</td>`;
+        row.insertCell().outerHTML = `<td style="${cellStyle}">(${runner.position.x}, ${runner.position.y})</td>`;
+        row.insertCell().outerHTML = `<td style="${cellStyle}">(${runner.destination.x}, ${runner.destination.y})</td>`;
+        row.insertCell().outerHTML = `<td style="${cellStyle}">${runner.foodTarget !== null ? "(" + runner.foodTarget.position.x + ", " + runner.foodTarget.position.y + ")" : "None"}</td>`;
+        let status = "";
+        if (runner.isDying)
+            status = "Dying";
+        else if (runner.blueCounter >= 0)
+            status = "Stunned";
+        else if (runner.greenCounter >= 0)
+            status = "Poisoned";
+        else if (runner.blughhhhCountdown > 0)
+            status = "Blughhhh";
+        row.insertCell().outerHTML = `<td style="${cellStyle}">${status}</td>`;
+    });
+    table.appendChild(tbody);
+}
+function updateHealerTable() {
+    const table = document.getElementById(HTML_HEALER_TABLE);
+    if (!isRunning) {
+        table.style.display = "none";
+        return;
+    }
+    table.style.display = "table";
+    const oldBody = table.querySelector("tbody");
+    if (oldBody) {
+        oldBody.remove();
+    }
+    const tbody = document.createElement("tbody");
+    barbarianAssault.healers.forEach((healer) => {
+        const row = tbody.insertRow();
+        const cellStyle = "border: 1px solid; padding: 2px 6px;";
+        row.insertCell().outerHTML = `<td style="${cellStyle}">${healer.id}</td>`;
+        let targetStr = "";
+        if (healer.target instanceof Player) {
+            if (healer.target === barbarianAssault.mainAttackerPlayer)
+                targetStr = "Main";
+            else if (healer.target === barbarianAssault.secondAttackerPlayer)
+                targetStr = "Second";
+            else if (healer.target === barbarianAssault.healerPlayer)
+                targetStr = "Healer";
+            else if (healer.target === barbarianAssault.collectorPlayer)
+                targetStr = "Collector";
+            else if (healer.target === barbarianAssault.defenderPlayer)
+                targetStr = "Defender";
+        }
+        else if (healer.target instanceof RunnerPenance) {
+            targetStr = "Runner";
+        }
+        row.insertCell().outerHTML = `<td style="${cellStyle}">${targetStr}</td>`;
+        let lastTargetStr = "";
+        if (healer.previousTargetType === HealerTargetType.PLAYER)
+            lastTargetStr = "Player";
+        else if (healer.previousTargetType === HealerTargetType.RUNNER)
+            lastTargetStr = "Runner";
+        row.insertCell().outerHTML = `<td style="${cellStyle}">${lastTargetStr}</td>`;
+        row.insertCell().outerHTML = `<td style="${cellStyle}">${healer.sprayTimer}</td>`;
+        row.insertCell().outerHTML = `<td style="${cellStyle}">${healer.isPoisoned ? "Yes" : "No"}</td>`;
+        row.insertCell().outerHTML = `<td style="${cellStyle}">${healer.health}/${healer.maxHealth}</td>`;
+        row.insertCell().outerHTML = `<td style="${cellStyle}">(${healer.position.x}, ${healer.position.y})</td>`;
+        row.insertCell().outerHTML = `<td style="${cellStyle}">(${healer.destination.x}, ${healer.destination.y})</td>`;
+        let status = "";
+        if (healer.isDying)
+            status = "Dying";
+        else if (healer.zombieState)
+            status = "Zombie";
+        else if (healer.blueCounter >= 0)
+            status = "Stunned";
+        else if (healer.greenCounter >= 0)
+            status = "Egg Psn";
+        row.insertCell().outerHTML = `<td style="${cellStyle}">${status}</td>`;
+    });
+    table.appendChild(tbody);
+}
 function tick() {
     if (!isPaused) {
         barbarianAssault.tick();
         currentDefenderFoodSpan.innerHTML = barbarianAssault.defenderFoodCall.toString();
         tickCountSpan.innerHTML = barbarianAssault.ticks.toString() + " (" + ticksToSeconds(barbarianAssault.ticks) + "s)";
         draw();
+        updateRunnerTable();
+        updateHealerTable();
     }
 }
 /**
@@ -915,7 +1079,8 @@ function ticksToSeconds(ticks) {
     return (0.6 * Math.max(ticks - 1, 0)).toFixed(1);
 }
 function runnersDieOnTimeForMovements(runnerMovements, foodCalls, runnersDeadByTick, mainAttackerCommands, secondAttackerCommands, healerCommands, collectorCommands, defenderCommands) {
-    const barbarianAssaultSim = new BarbarianAssault(wave, requireRepairs, requireLogs, infiniteFood, runnerMovements, defenderLevel, mainAttackerCommands, secondAttackerCommands, healerCommands, collectorCommands, defenderCommands, foodCalls);
+    const cannonQueue = parseCannonInput(cannonQueueInput.value);
+    const barbarianAssaultSim = new BarbarianAssault(wave, requireRepairs, requireLogs, infiniteFood, runnerMovements, defenderLevel, mainAttackerCommands, secondAttackerCommands, healerCommands, collectorCommands, defenderCommands, foodCalls, cannonQueue || []);
     for (let i = 0; i < runnersDeadByTick; i++) {
         barbarianAssaultSim.tick();
     }

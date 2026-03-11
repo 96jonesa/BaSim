@@ -12,6 +12,8 @@ import {Command} from "./Command.js";
 import {MoveCommand} from "./MoveCommand.js";
 import {DefenderActionCommand} from "./DefenderActionCommand.js";
 import {DefenderActionType} from "./DefenderActionType.js";
+import {Cannon} from "./Cannon.js";
+import {CannonCommand} from "./CannonCommand.js";
 
 /**
  * Represents a game of Barbarian Assault: holds state information and exposes functions for
@@ -63,6 +65,7 @@ export class BarbarianAssault {
     public defenderCommands: Map<number, Array<Command>>;
     public foodCalls: Array<FoodType>;
     public foodCallsIndex: number = 0;
+    public cannon: Cannon = new Cannon();
 
 
     public constructor(
@@ -77,7 +80,8 @@ export class BarbarianAssault {
         healerCommands: Map<number, Array<Command>>,
         collectorCommands: Map<number, Array<Command>>,
         defenderCommands: Map<number, Array<Command>>,
-        foodCalls: Array<FoodType>
+        foodCalls: Array<FoodType>,
+        cannonQueue: Array<CannonCommand> = []
     ) {
         this.wave = wave;
         this.requireRepairs = requireRepairs;
@@ -91,6 +95,7 @@ export class BarbarianAssault {
         this.collectorCommands = collectorCommands;
         this.defenderCommands = defenderCommands;
         this.foodCalls = foodCalls;
+        this.cannon.queue = cannonQueue;
 
         switch (wave) {
             case 1:
@@ -190,6 +195,7 @@ export class BarbarianAssault {
         // console.log(this.ticks);
         this.runnersToRemove.length = 0;
 
+        this.cannon.tick(this);
         this.tickPenance();
         this.removePenance();
 
@@ -570,6 +576,7 @@ export class BarbarianAssault {
         for (let i: number = 0; i < this.foodCalls.length; i++) {
             barbarianAssault.foodCalls.push(this.foodCalls[i]);
         }
+        barbarianAssault.cannon = this.cannon.clone();
 
         return barbarianAssault;
     }

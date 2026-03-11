@@ -1,6 +1,8 @@
 import { Position } from "./Position.js";
 import { Direction } from "./Direction.js";
 import { Penance } from "./Penance.js";
+import { EggType } from "./EggType.js";
+import { getCannonPosition } from "./CannonPositions.js";
 /**
  * Represents a Barbarian Assault runner penance.
  */
@@ -15,9 +17,51 @@ export class RunnerPenance extends Penance {
         this.despawnCountdown = null;
         this.isDying = false;
         this.forcedMovementsIndex = 0;
+        this.eggQueue = [];
+        this.blueCounter = -1;
+        this.greenCounter = -1;
+        this.hp = 5;
         this.rng = rng;
         this.id = id;
         this.sniffDistance = sniffDistance;
+    }
+    processEggQueue(barbarianAssault) {
+        for (const egg of this.eggQueue) {
+            if (egg.stalled === 0) {
+                switch (egg.type) {
+                    case EggType.RED:
+                        this.hp -= 3;
+                        break;
+                    case EggType.GREEN:
+                        this.hp -= 1;
+                        this.greenCounter = 24;
+                        break;
+                    case EggType.BLUE:
+                        this.eggQueue.length = 0;
+                        this.blueCounter = 9;
+                        if (this.isDying) {
+                            this.isDying = false;
+                            this.position = getCannonPosition(egg.cannon).clone();
+                            this.despawnCountdown = 3;
+                        }
+                        return;
+                }
+            }
+            egg.stalled--;
+        }
+        this.eggQueue = this.eggQueue.filter(e => e.stalled >= 0);
+        if (this.greenCounter >= 0) {
+            if (this.greenCounter > 0 && this.greenCounter % 5 === 0) {
+                this.hp -= 1;
+            }
+            this.greenCounter--;
+        }
+        if (this.blueCounter >= 0) {
+            this.blueCounter--;
+        }
+        if (this.hp <= 0 && !this.isDying) {
+            this.isDying = true;
+        }
     }
     /**
      * @inheritDoc
@@ -28,6 +72,10 @@ export class RunnerPenance extends Penance {
             this.cycleTick = 1;
         }
         this.ticksStandingStill++;
+        this.processEggQueue(barbarianAssault);
+        if (this.blueCounter >= 0) {
+            return;
+        }
         if (this.despawnCountdown !== null) {
             this.despawnCountdown--;
             if (this.despawnCountdown === 0) {
@@ -422,6 +470,10 @@ export class RunnerPenance extends Penance {
         runnerPenance.id = this.id;
         runnerPenance.forcedMovementsIndex = this.forcedMovementsIndex;
         runnerPenance.sniffDistance = this.sniffDistance;
+        runnerPenance.eggQueue = this.eggQueue.map(e => e.clone());
+        runnerPenance.blueCounter = this.blueCounter;
+        runnerPenance.greenCounter = this.greenCounter;
+        runnerPenance.hp = this.hp;
         return runnerPenance;
     }
 }

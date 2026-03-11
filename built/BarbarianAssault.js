@@ -11,12 +11,13 @@ import { HealerPenance } from "./HealerPenance.js";
 import { MoveCommand } from "./MoveCommand.js";
 import { DefenderActionCommand } from "./DefenderActionCommand.js";
 import { DefenderActionType } from "./DefenderActionType.js";
+import { Cannon } from "./Cannon.js";
 /**
  * Represents a game of Barbarian Assault: holds state information and exposes functions for
  * progressing the game state.
  */
 export class BarbarianAssault {
-    constructor(wave, requireRepairs, requireLogs, infiniteFood, runnerMovements, defenderLevel, mainAttackerCommands, secondAttackerCommands, healerCommands, collectorCommands, defenderCommands, foodCalls) {
+    constructor(wave, requireRepairs, requireLogs, infiniteFood, runnerMovements, defenderLevel, mainAttackerCommands, secondAttackerCommands, healerCommands, collectorCommands, defenderCommands, foodCalls, cannonQueue = []) {
         this.ticks = 0;
         this.eastTrapCharges = 2;
         this.westTrapCharges = 2;
@@ -36,6 +37,7 @@ export class BarbarianAssault {
         this.currentRunnerId = 1;
         this.currentHealerId = 1;
         this.foodCallsIndex = 0;
+        this.cannon = new Cannon();
         this.wave = wave;
         this.requireRepairs = requireRepairs;
         this.requireLogs = requireLogs;
@@ -48,6 +50,7 @@ export class BarbarianAssault {
         this.collectorCommands = collectorCommands;
         this.defenderCommands = defenderCommands;
         this.foodCalls = foodCalls;
+        this.cannon.queue = cannonQueue;
         switch (wave) {
             case 1:
                 this.maxRunnersAlive = 2;
@@ -142,6 +145,7 @@ export class BarbarianAssault {
         this.ticks++;
         // console.log(this.ticks);
         this.runnersToRemove.length = 0;
+        this.cannon.tick(this);
         this.tickPenance();
         this.removePenance();
         if (this.ticks > 1 && this.ticks % 10 === 1) {
@@ -471,6 +475,7 @@ export class BarbarianAssault {
         for (let i = 0; i < this.foodCalls.length; i++) {
             barbarianAssault.foodCalls.push(this.foodCalls[i]);
         }
+        barbarianAssault.cannon = this.cannon.clone();
         return barbarianAssault;
     }
 }

@@ -28,6 +28,9 @@ Runner movements: <input id="runnermovements" type="text"/>
 Food calls: <input id="foodcalls" type="text"/>
 <br>
 
+Cannon queue: <input id="cannonqueue" type="text" size="40"/>
+<br>
+
 Tick duration (milliseconds): <input id="tickduration" type="number" min="100" max="1200" value="600"/>
 <br>
 
@@ -123,6 +126,37 @@ Runners dead by tick: <input id="runnersdeadbytick" type="text"/>
 <canvas id="basimcanvas"></canvas>
 <br>
 
+<table id="runnertable" style="display: none; border-collapse: collapse; margin-bottom: 0.5rem;">
+    <thead>
+        <tr>
+            <th style="border: 1px solid; padding: 2px 6px;">Runner</th>
+            <th style="border: 1px solid; padding: 2px 6px;">Tick</th>
+            <th style="border: 1px solid; padding: 2px 6px;">State</th>
+            <th style="border: 1px solid; padding: 2px 6px;">HP</th>
+            <th style="border: 1px solid; padding: 2px 6px;">Position</th>
+            <th style="border: 1px solid; padding: 2px 6px;">Destination</th>
+            <th style="border: 1px solid; padding: 2px 6px;">Target</th>
+            <th style="border: 1px solid; padding: 2px 6px;">Status</th>
+        </tr>
+    </thead>
+</table>
+
+<table id="healertable" style="display: none; border-collapse: collapse; margin-bottom: 0.5rem;">
+    <thead>
+        <tr>
+            <th style="border: 1px solid; padding: 2px 6px;">Healer</th>
+            <th style="border: 1px solid; padding: 2px 6px;">Target</th>
+            <th style="border: 1px solid; padding: 2px 6px;">Last<br>Target</th>
+            <th style="border: 1px solid; padding: 2px 6px;">Spray<br>Timer</th>
+            <th style="border: 1px solid; padding: 2px 6px;">Poisoned</th>
+            <th style="border: 1px solid; padding: 2px 6px;">HP</th>
+            <th style="border: 1px solid; padding: 2px 6px;">Position</th>
+            <th style="border: 1px solid; padding: 2px 6px;">Destination</th>
+            <th style="border: 1px solid; padding: 2px 6px;">Status</th>
+        </tr>
+    </thead>
+</table>
+
 <b>space</b> starts or stops the wave.<br>
 <b>left-click</b> moves the player.<br>
 <b>t</b> drops tofu.<br>
@@ -196,6 +230,13 @@ for the second and third runner) being random.
 <br>
 <br>
 
+
+<b>Cannon queue:</b> Egg firing commands. Format: <code>wrr,1,51</code> = west cannon, runner target, red egg, 1 egg, start tick 51.<br>
+First char: cannon side (w/e). Second char: penance type (r/h). Third char: egg type (r/g/b).<br>
+Separate multiple commands with <code>-</code>. Shorthand <code>1,51</code> inherits cannon/penance/egg from previous command.<br>
+Egg types: <b>r</b>=red (3 dmg), <b>g</b>=green (1 dmg + poison), <b>b</b>=blue (stun + zombie).<br>
+Example: <code>wrr,2,11-erg,1,21-whb,1,31</code><br>
+<br>
 
 <b>Save/Load:</b><br>
 Save with  <b>s</b>, load with <b>y</b> while sim is running (started). After loading, unpause with <b>p</b>.

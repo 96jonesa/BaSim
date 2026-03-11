@@ -48,6 +48,7 @@ const HTML_TOGGLE_DARK_MODE = "toggledarkmode";
 const HTML_TOGGLE_RENDER_DISTANCE = "togglerenderdistance";
 const HTML_HEALER_CODES = "healercodes";
 const HTML_HEALER_SPAWN_TARGETS = "healerspawntargets";
+const HTML_COPY_CONTROLLED_COMMANDS = "copycontrolledcommands";
 const HTML_EXPORT_MARKERS = "exportmarkers";
 const HTML_IMPORT_MARKERS = "importmarkers";
 const HTML_MARKER_IMPORT_FIELD = "markerimportfield";
@@ -221,6 +222,10 @@ function init() {
     darkModeToggle.onchange = function () {
         document.body.classList.toggle("dark", darkModeToggle.checked);
         localStorage.setItem("darkMode", String(darkModeToggle.checked));
+    };
+    document.getElementById(HTML_COPY_CONTROLLED_COMMANDS).onclick = function () {
+        const text = document.getElementById(HTML_CONTROLLED_COMMANDS).innerText;
+        navigator.clipboard.writeText(text);
     };
     document.getElementById(HTML_EXPORT_MARKERS).onclick = exportMarkers;
     document.getElementById(HTML_IMPORT_MARKERS).onclick = importMarkers;

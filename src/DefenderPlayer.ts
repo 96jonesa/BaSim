@@ -246,6 +246,7 @@ export class DefenderPlayer extends Player {
         defenderPlayer.foodInInventory = {...this.foodInInventory};
         defenderPlayer.codeQueue = this.codeQueue.map(a => a.clone());
         defenderPlayer.codeIndex = this.codeIndex;
+
         defenderPlayer.arriveDelay = this.arriveDelay;
         defenderPlayer.prevPosition = this.prevPosition === null ? null : this.prevPosition.clone();
 

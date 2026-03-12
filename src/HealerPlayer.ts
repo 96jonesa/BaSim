@@ -36,6 +36,7 @@ export class HealerPlayer extends Player {
         healerPlayer.position = this.position === null ? null : this.position.clone();
         healerPlayer.codeQueue = this.codeQueue.map(a => a.clone());
         healerPlayer.codeIndex = this.codeIndex;
+
         healerPlayer.arriveDelay = this.arriveDelay;
         healerPlayer.prevPosition = this.prevPosition === null ? null : this.prevPosition.clone();
 

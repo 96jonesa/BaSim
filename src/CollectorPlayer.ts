@@ -35,6 +35,7 @@ export class CollectorPlayer extends Player {
         collectorPlayer.position = this.position === null ? null : this.position.clone();
         collectorPlayer.codeQueue = this.codeQueue.map(a => a.clone());
         collectorPlayer.codeIndex = this.codeIndex;
+
         collectorPlayer.arriveDelay = this.arriveDelay;
         collectorPlayer.prevPosition = this.prevPosition === null ? null : this.prevPosition.clone();
 

@@ -269,6 +269,7 @@ export class BarbarianAssault {
                     this.mainAttackerPlayer.findPath(this, command.destination.clone());
                 } else if (command instanceof HealerCodeCommand) {
                     this.expandHealerCodeCommand(command, this.mainAttackerPlayer);
+                    this.mainAttackerPlayer.initializeFoodPath(this);
                 }
             });
         }
@@ -280,6 +281,7 @@ export class BarbarianAssault {
                     this.secondAttackerPlayer.findPath(this, command.destination.clone());
                 } else if (command instanceof HealerCodeCommand) {
                     this.expandHealerCodeCommand(command, this.secondAttackerPlayer);
+                    this.secondAttackerPlayer.initializeFoodPath(this);
                 }
             });
         }
@@ -291,6 +293,7 @@ export class BarbarianAssault {
                     this.healerPlayer.findPath(this, command.destination.clone());
                 } else if (command instanceof HealerCodeCommand) {
                     this.expandHealerCodeCommand(command, this.healerPlayer);
+                    this.healerPlayer.initializeFoodPath(this);
                 }
             });
         }
@@ -302,6 +305,7 @@ export class BarbarianAssault {
                     this.collectorPlayer.findPath(this, command.destination.clone());
                 } else if (command instanceof HealerCodeCommand) {
                     this.expandHealerCodeCommand(command, this.collectorPlayer);
+                    this.collectorPlayer.initializeFoodPath(this);
                 }
             });
         }
@@ -313,6 +317,7 @@ export class BarbarianAssault {
                     this.defenderPlayer.findPath(this, command.destination.clone());
                 } else if (command instanceof HealerCodeCommand) {
                     this.expandHealerCodeCommand(command, this.defenderPlayer);
+                    this.defenderPlayer.initializeFoodPath(this);
                 } else if (command instanceof DefenderActionCommand) {
                     this.defenderPlayer.clearCodeQueue();
                     switch (command.type) {

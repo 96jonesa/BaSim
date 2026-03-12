@@ -43,16 +43,53 @@ export class Player extends Character {
             this.codeIndex++;
             return;
         }
-        if (this.isCardinalAdjacentTo(healer)) {
-            healer.eatFood(barbarianAssault);
-            this.codeIndex++;
-            this.arriveDelay = true;
-            this.pathQueueIndex = 0;
+        if (this.pathQueueIndex === 0) {
+            if (this.isCardinalAdjacentTo(healer)) {
+                healer.eatFood(barbarianAssault);
+                this.codeIndex++;
+                this.arriveDelay = true;
+                this.pathQueueIndex = 0;
+            }
+            else {
+                this.recalculateFoodPath(barbarianAssault, healer);
+            }
         }
-        else {
-            const adjacent = this.findBestAdjacentTile(barbarianAssault, healer.position);
-            this.findPath(barbarianAssault, adjacent);
+        else if (this.isNextMovePurelyDiagonal()) {
+            this.recalculateFoodPath(barbarianAssault, healer);
         }
+    }
+    initializeFoodPath(barbarianAssault) {
+        if (this.codeIndex >= this.codeQueue.length) {
+            return;
+        }
+        const action = this.codeQueue[this.codeIndex];
+        if (barbarianAssault.ticks < action.waitUntil) {
+            return;
+        }
+        const healer = this.findHealerById(barbarianAssault, action.healerId);
+        if (healer === null) {
+            return;
+        }
+        this.recalculateFoodPath(barbarianAssault, healer);
+    }
+    recalculateFoodPath(barbarianAssault, healer) {
+        const adjacent = this.findBestAdjacentTile(barbarianAssault, healer.position);
+        this.findPath(barbarianAssault, adjacent);
+    }
+    isNextMovePurelyDiagonal() {
+        if (this.pathQueueIndex <= 0)
+            return false;
+        const step1 = this.pathQueuePositions[this.pathQueueIndex - 1];
+        const dx1 = step1.x - this.position.x;
+        const dy1 = step1.y - this.position.y;
+        if (dx1 === 0 || dy1 === 0)
+            return false;
+        if (this.pathQueueIndex === 1)
+            return true;
+        const step2 = this.pathQueuePositions[this.pathQueueIndex - 2];
+        const dx2 = step2.x - step1.x;
+        const dy2 = step2.y - step1.y;
+        return dx1 === dx2 && dy1 === dy2;
     }
     isCardinalAdjacentTo(healer) {
         // true_drawnTileIsAdj: player current pos adjacent to healer drawn pos

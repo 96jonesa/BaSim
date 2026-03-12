@@ -55,15 +55,59 @@ export abstract class Player extends Character {
             return;
         }
 
-        if (this.isCardinalAdjacentTo(healer)) {
-            healer.eatFood(barbarianAssault);
-            this.codeIndex++;
-            this.arriveDelay = true;
-            this.pathQueueIndex = 0;
-        } else {
-            const adjacent = this.findBestAdjacentTile(barbarianAssault, healer.position);
-            this.findPath(barbarianAssault, adjacent);
+        if (this.pathQueueIndex === 0) {
+            if (this.isCardinalAdjacentTo(healer)) {
+                healer.eatFood(barbarianAssault);
+                this.codeIndex++;
+                this.arriveDelay = true;
+                this.pathQueueIndex = 0;
+            } else {
+                this.recalculateFoodPath(barbarianAssault, healer);
+            }
+        } else if (this.isNextMovePurelyDiagonal()) {
+            this.recalculateFoodPath(barbarianAssault, healer);
         }
+    }
+
+    public initializeFoodPath(barbarianAssault: BarbarianAssault): void {
+        if (this.codeIndex >= this.codeQueue.length) {
+            return;
+        }
+
+        const action = this.codeQueue[this.codeIndex];
+
+        if (barbarianAssault.ticks < action.waitUntil) {
+            return;
+        }
+
+        const healer = this.findHealerById(barbarianAssault, action.healerId);
+        if (healer === null) {
+            return;
+        }
+
+        this.recalculateFoodPath(barbarianAssault, healer);
+    }
+
+    private recalculateFoodPath(barbarianAssault: BarbarianAssault, healer: HealerPenance): void {
+        const adjacent = this.findBestAdjacentTile(barbarianAssault, healer.position);
+        this.findPath(barbarianAssault, adjacent);
+    }
+
+    private isNextMovePurelyDiagonal(): boolean {
+        if (this.pathQueueIndex <= 0) return false;
+
+        const step1 = this.pathQueuePositions[this.pathQueueIndex - 1];
+        const dx1 = step1.x - this.position.x;
+        const dy1 = step1.y - this.position.y;
+
+        if (dx1 === 0 || dy1 === 0) return false;
+
+        if (this.pathQueueIndex === 1) return true;
+
+        const step2 = this.pathQueuePositions[this.pathQueueIndex - 2];
+        const dx2 = step2.x - step1.x;
+        const dy2 = step2.y - step1.y;
+        return dx1 === dx2 && dy1 === dy2;
     }
 
     private isCardinalAdjacentTo(healer: HealerPenance): boolean {

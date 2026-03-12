@@ -53,8 +53,7 @@ export class RunnerPenance extends Penance {
                         this.blueCounter = 9;
                         if (this.isDying) {
                             this.isDying = false;
-                            this.position = getCannonPosition(egg.cannon).clone();
-                            this.despawnCountdown = 3;
+                            this.despawnCountdown = null;
                         }
                         return;
                 }

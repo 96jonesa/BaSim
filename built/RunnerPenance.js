@@ -2,7 +2,6 @@ import { Position } from "./Position.js";
 import { Direction } from "./Direction.js";
 import { Penance } from "./Penance.js";
 import { EggType } from "./EggType.js";
-import { getCannonPosition } from "./CannonPositions.js";
 /**
  * Represents a Barbarian Assault runner penance.
  */
@@ -42,8 +41,7 @@ export class RunnerPenance extends Penance {
                         this.blueCounter = 9;
                         if (this.isDying) {
                             this.isDying = false;
-                            this.position = getCannonPosition(egg.cannon).clone();
-                            this.despawnCountdown = 3;
+                            this.despawnCountdown = null;
                         }
                         return;
                 }

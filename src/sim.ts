@@ -1840,7 +1840,7 @@ function runnersDieOnTimeForMovements(
         barbarianAssaultSim.tick();
     }
 
-    return barbarianAssaultSim.runnersKilled === barbarianAssaultSim.totalRunners;
+    return barbarianAssaultSim.runnersKilled >= barbarianAssaultSim.totalRunners;
 }
 
 function getMovementsRunnersDoNotDieOnTime(foodCalls: Array<FoodType>, runnerMovementsToCheck: Array<string>, runnersDeadByTick: number): Array<Array<string>> {

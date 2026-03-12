@@ -1625,7 +1625,7 @@ function runnersDieOnTimeForMovements(runnerMovements, foodCalls, runnersDeadByT
     for (let i = 0; i < runnersDeadByTick; i++) {
         barbarianAssaultSim.tick();
     }
-    return barbarianAssaultSim.runnersKilled === barbarianAssaultSim.totalRunners;
+    return barbarianAssaultSim.runnersKilled >= barbarianAssaultSim.totalRunners;
 }
 function getMovementsRunnersDoNotDieOnTime(foodCalls, runnerMovementsToCheck, runnersDeadByTick) {
     const movementsRunnersDoNotDieOnTime = [];

@@ -409,7 +409,7 @@ describe("processEggQueue", (): void => {
         expect(runner.eggQueue.length).toBe(0);
     });
 
-    test("blue egg on dying runner resurrects to cannon position", (): void => {
+    test("blue egg on dying runner revives it in place", (): void => {
         const runner = new RunnerPenance(new Position(36, 39), new RunnerPenanceRng(""), 1, 5);
         const ba = new BarbarianAssault(1, true, true, false, [], 5, new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), []);
         runner.isDying = true;
@@ -418,9 +418,10 @@ describe("processEggQueue", (): void => {
         runner.processEggQueue(ba);
 
         expect(runner.isDying).toBe(false);
-        expect(runner.position.x).toBe(40);
-        expect(runner.position.y).toBe(26);
-        expect(runner.despawnCountdown).toBe(3);
+        expect(runner.position.x).toBe(36);
+        expect(runner.position.y).toBe(39);
+        expect(runner.despawnCountdown).toBe(null);
+        expect(ba.runnersKilled).toBe(0);
     });
 
     test("blue stun decrements each tick", (): void => {

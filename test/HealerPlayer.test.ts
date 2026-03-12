@@ -129,6 +129,7 @@ describe("processCodeQueue", (): void => {
         const ba = makeBA();
         ba.ticks = 11;
         const healer = new HealerPenance(new Position(30, 30), 27, 1, 1);
+        healer.drawnPosition = new Position(30, 30);
         ba.healers = [healer];
 
         // Player is south of healer (adjacent)

@@ -24,6 +24,7 @@ export class Player extends Character {
         this.codeQueue = [];
         this.codeIndex = 0;
         this.arriveDelay = false;
+        this.prevPosition = null;
     }
     clearCodeQueue() {
         this.codeQueue = [];
@@ -54,11 +55,15 @@ export class Player extends Character {
         }
     }
     isCardinalAdjacentTo(healer) {
-        const pos = this.position;
-        if (this.isCardinalAdjacentToPosition(pos, healer.position)) {
+        // true_drawnTileIsAdj: player current pos adjacent to healer drawn pos
+        if (healer.drawnPosition !== null && this.isCardinalAdjacentToPosition(this.position, healer.drawnPosition)) {
             return true;
         }
-        if (healer.drawnPosition !== null && this.isCardinalAdjacentToPosition(pos, healer.drawnPosition)) {
+        // drawn_trueTileIsAdj && true_trueTileIsAdj: player prev AND current pos
+        // both adjacent to healer true pos (prevents food use on the arrival tick)
+        if (this.prevPosition !== null
+            && this.isCardinalAdjacentToPosition(this.prevPosition, healer.position)
+            && this.isCardinalAdjacentToPosition(this.position, healer.position)) {
             return true;
         }
         return false;

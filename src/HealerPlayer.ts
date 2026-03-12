@@ -18,6 +18,7 @@ export class HealerPlayer extends Player {
         if (this.codeQueue.length > 0) {
             this.processCodeQueue(barbarianAssault);
         }
+        this.prevPosition = this.position.clone();
         if (this.arriveDelay) {
             this.arriveDelay = false;
         } else {
@@ -36,6 +37,7 @@ export class HealerPlayer extends Player {
         healerPlayer.codeQueue = this.codeQueue.map(a => a.clone());
         healerPlayer.codeIndex = this.codeIndex;
         healerPlayer.arriveDelay = this.arriveDelay;
+        healerPlayer.prevPosition = this.prevPosition === null ? null : this.prevPosition.clone();
 
         return healerPlayer;
     }

@@ -27,6 +27,7 @@ export abstract class Player extends Character {
     public codeQueue: Array<HealerCodeAction> = [];
     public codeIndex: number = 0;
     public arriveDelay: boolean = false;
+    public prevPosition: Position = null;
 
     protected constructor(position: Position) {
         super(position);
@@ -66,13 +67,19 @@ export abstract class Player extends Character {
     }
 
     private isCardinalAdjacentTo(healer: HealerPenance): boolean {
-        const pos = this.position;
-        if (this.isCardinalAdjacentToPosition(pos, healer.position)) {
+        // true_drawnTileIsAdj: player current pos adjacent to healer drawn pos
+        if (healer.drawnPosition !== null && this.isCardinalAdjacentToPosition(this.position, healer.drawnPosition)) {
             return true;
         }
-        if (healer.drawnPosition !== null && this.isCardinalAdjacentToPosition(pos, healer.drawnPosition)) {
+
+        // drawn_trueTileIsAdj && true_trueTileIsAdj: player prev AND current pos
+        // both adjacent to healer true pos (prevents food use on the arrival tick)
+        if (this.prevPosition !== null
+            && this.isCardinalAdjacentToPosition(this.prevPosition, healer.position)
+            && this.isCardinalAdjacentToPosition(this.position, healer.position)) {
             return true;
         }
+
         return false;
     }
 

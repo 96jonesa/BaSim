@@ -17,6 +17,7 @@ export class AttackerPlayer extends Player {
         if (this.codeQueue.length > 0) {
             this.processCodeQueue(barbarianAssault);
         }
+        this.prevPosition = this.position.clone();
         if (this.arriveDelay) {
             this.arriveDelay = false;
         } else {
@@ -35,6 +36,7 @@ export class AttackerPlayer extends Player {
         attackerPlayer.codeQueue = this.codeQueue.map(a => a.clone());
         attackerPlayer.codeIndex = this.codeIndex;
         attackerPlayer.arriveDelay = this.arriveDelay;
+        attackerPlayer.prevPosition = this.prevPosition === null ? null : this.prevPosition.clone();
 
         return attackerPlayer;
     }

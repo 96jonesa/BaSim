@@ -72,6 +72,9 @@ export class HealerPenance extends Penance {
                         if (this.isDying) {
                             this.isDying = false;
                             this.zombieState = true;
+                            if (this.despawnCountdown === 1) {
+                                this.regenTimer--;
+                            }
                             this.despawnCountdown = null;
                             this.destination = getCannonPosition(egg.cannon).clone();
                         }
@@ -201,8 +204,10 @@ export class HealerPenance extends Penance {
 
         if (this.isPoisoned && barbarianAssault.ticks - this.spawnTick >= 5) {
             if (barbarianAssault.ticks - this.lastPoisonTick >= 5) {
-                this.health = Math.max(0, this.health - this.poisonDamage);
-                this.poisonHitsplat = true;
+                if (!this.zombieState) {
+                    this.health = Math.max(0, this.health - this.poisonDamage);
+                    this.poisonHitsplat = true;
+                }
                 this.lastPoisonTick = barbarianAssault.ticks;
                 this.poisonTickCount++;
             }
@@ -225,7 +230,7 @@ export class HealerPenance extends Penance {
      *                          the poison induced by the eaten food is determined
      */
     public eatFood(barbarianAssault: BarbarianAssault): void {
-        if (this.isDying) {
+        if (this.isDying || this.zombieState) {
             return;
         }
 

@@ -3,12 +3,23 @@ const PIXEL_ALPHA = 255 << 24;
  * Utility class for rendering image details.
  */
 export class Renderer {
-    constructor(canvas, width, height, tileSize) {
+    constructor(canvas, width, height, tileSize, tileOffsetX = 0) {
         this.canvas = canvas;
         this.context = canvas.getContext("2d");
         this.tileSize = tileSize;
+        this.tileOffsetX = tileOffsetX;
         this.resizeCanvas(width, height);
         this.setDrawColor(255, 255, 255, 255);
+    }
+    /**
+     * Returns the number of visible tiles in the x direction.
+     */
+    get visibleTilesX() {
+        return this.canvasWidth / this.tileSize;
+    }
+    isTileVisibleX(x) {
+        const px = x - this.tileOffsetX;
+        return px >= 0 && px < this.visibleTilesX;
     }
     /**
      * Draws every pixel in the tile specified by the given tile coordinates, with the current
@@ -18,7 +29,9 @@ export class Renderer {
      * @param y the y coordinate of the tile to draw the pixels of
      */
     fillOpaque(x, y) {
-        this.setFilledRectangle(x * this.tileSize, y * this.tileSize, this.tileSize, this.tileSize);
+        if (!this.isTileVisibleX(x))
+            return;
+        this.setFilledRectangle((x - this.tileOffsetX) * this.tileSize, y * this.tileSize, this.tileSize, this.tileSize);
     }
     /**
      * Draws over every pixel in the tile specified by the given tile coordinates, with the current
@@ -28,7 +41,9 @@ export class Renderer {
      * @param y the y coordinate of the tile to draw over the pixels of
      */
     fill(x, y) {
-        this.drawFilledRectangle(x * this.tileSize, y * this.tileSize, this.tileSize, this.tileSize);
+        if (!this.isTileVisibleX(x))
+            return;
+        this.drawFilledRectangle((x - this.tileOffsetX) * this.tileSize, y * this.tileSize, this.tileSize, this.tileSize);
     }
     /**
      * Draws over every pixel in the perimeter (outline) of the tile specified by the given tile
@@ -39,7 +54,9 @@ export class Renderer {
      * @param y the y coordinate of the tile to draw over the pixels of the perimeter of
      */
     outline(x, y) {
-        this.drawOutlinedRectangle(x * this.tileSize, y * this.tileSize, this.tileSize, this.tileSize);
+        if (!this.isTileVisibleX(x))
+            return;
+        this.drawOutlinedRectangle((x - this.tileOffsetX) * this.tileSize, y * this.tileSize, this.tileSize, this.tileSize);
     }
     /**
      * Draws over every pixel in the perimeter (outline) of the rectangle specified by the given
@@ -56,7 +73,18 @@ export class Renderer {
      *                  perimeter of
      */
     outlineBig(x, y, width, height) {
-        this.drawOutlinedRectangle(x * this.tileSize, y * this.tileSize, this.tileSize * width, this.tileSize * height);
+        let startX = x - this.tileOffsetX;
+        let w = width;
+        if (startX < 0) {
+            w += startX;
+            startX = 0;
+        }
+        if (startX + w > this.visibleTilesX) {
+            w = this.visibleTilesX - startX;
+        }
+        if (w <= 0)
+            return;
+        this.drawOutlinedRectangle(startX * this.tileSize, y * this.tileSize, this.tileSize * w, this.tileSize * height);
     }
     /**
      * Draws over every pixel in the left vertical line of the perimeter (outline) of the tile
@@ -67,7 +95,9 @@ export class Renderer {
      * @param y the y coordinate of the tile to draw over the left vertical line of the perimeter of
      */
     westLine(x, y) {
-        this.drawVerticalLine(x * this.tileSize, y * this.tileSize, this.tileSize);
+        if (!this.isTileVisibleX(x))
+            return;
+        this.drawVerticalLine((x - this.tileOffsetX) * this.tileSize, y * this.tileSize, this.tileSize);
     }
     /**
      * Draws over every pixel in the right vertical line of the perimeter (outline) of the tile
@@ -78,7 +108,9 @@ export class Renderer {
      * @param y the y coordinate of the tile to draw over the right vertical line of the perimeter of
      */
     eastLine(x, y) {
-        this.drawVerticalLine((x + 1) * this.tileSize - 1, y * this.tileSize, this.tileSize);
+        if (!this.isTileVisibleX(x))
+            return;
+        this.drawVerticalLine((x + 1 - this.tileOffsetX) * this.tileSize - 1, y * this.tileSize, this.tileSize);
     }
     /**
      * Draws over every pixel in the right vertical line of the perimeter (outline) of the rectangle
@@ -91,7 +123,9 @@ export class Renderer {
      *          vertical line of the perimeter of
      */
     eastLineBig(x, y, length) {
-        this.drawVerticalLine((x + 1) * this.tileSize - 1, y * this.tileSize, this.tileSize * length);
+        if (!this.isTileVisibleX(x))
+            return;
+        this.drawVerticalLine((x + 1 - this.tileOffsetX) * this.tileSize - 1, y * this.tileSize, this.tileSize * length);
     }
     /**
      * Draws over every pixel in the lower horizontal line of the perimeter (outline) of the tile
@@ -102,7 +136,9 @@ export class Renderer {
      * @param y the y coordinate of the tile to draw over the lower horizontal line of the perimeter of
      */
     southLine(x, y) {
-        this.drawHorizontalLine(x * this.tileSize, y * this.tileSize, this.tileSize);
+        if (!this.isTileVisibleX(x))
+            return;
+        this.drawHorizontalLine((x - this.tileOffsetX) * this.tileSize, y * this.tileSize, this.tileSize);
     }
     /**
      * Draws over every pixel in the upper horizontal line of the perimeter (outline) of the tile
@@ -113,7 +149,9 @@ export class Renderer {
      * @param y the y coordinate of the tile to draw over the upper horizontal line of the perimeter of
      */
     northLine(x, y) {
-        this.drawHorizontalLine(x * this.tileSize, (y + 1) * this.tileSize - 1, this.tileSize);
+        if (!this.isTileVisibleX(x))
+            return;
+        this.drawHorizontalLine((x - this.tileOffsetX) * this.tileSize, (y + 1) * this.tileSize - 1, this.tileSize);
     }
     /**
      * Draws over every pixel in the upper horizontal line of the perimeter (outline) of the rectangle
@@ -126,7 +164,18 @@ export class Renderer {
      *          horizontal line of the perimeter of
      */
     northLineBig(x, y, length) {
-        this.drawHorizontalLine(x * this.tileSize, (y + 1) * this.tileSize - 1, this.tileSize * length);
+        let startX = x - this.tileOffsetX;
+        let len = length;
+        if (startX < 0) {
+            len += startX;
+            startX = 0;
+        }
+        if (startX + len > this.visibleTilesX) {
+            len = this.visibleTilesX - startX;
+        }
+        if (len <= 0)
+            return;
+        this.drawHorizontalLine(startX * this.tileSize, (y + 1) * this.tileSize - 1, this.tileSize * len);
     }
     /**
      * Draws over every pixel in the perimeter of the 2-dimensional cone (isosceles triangle
@@ -141,7 +190,9 @@ export class Renderer {
      *          pixels of the perimeter of
      */
     cone(x, y) {
-        this.drawCone(x * this.tileSize, y * this.tileSize, this.tileSize);
+        if (!this.isTileVisibleX(x))
+            return;
+        this.drawCone((x - this.tileOffsetX) * this.tileSize, y * this.tileSize, this.tileSize);
     }
     /**
      * Draws over every pixel in the half-size center square of the tile specified by the given tile
@@ -152,9 +203,11 @@ export class Renderer {
      * @param y the y coordinate of the tile to draw over the pixels of the half-size center square of
      */
     fillItem(x, y) {
+        if (!this.isTileVisibleX(x))
+            return;
         const padding = this.tileSize >>> 2;
         const size = this.tileSize - 2 * padding;
-        this.drawFilledRectangle(x * this.tileSize + padding, y * this.tileSize + padding, size, size);
+        this.drawFilledRectangle((x - this.tileOffsetX) * this.tileSize + padding, y * this.tileSize + padding, size, size);
     }
     /**
      * Resizes the canvas to have the given width and height.

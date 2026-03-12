@@ -231,7 +231,7 @@ function init(): void {
     tickCountSpan = document.getElementById(HTML_TICK_COUNT);
     currentDefenderFoodSpan = document.getElementById(HTML_CURRENT_DEF_FOOD);
     markerColorInput = document.getElementById(HTML_MARKER_COLOR) as HTMLInputElement;
-    renderer = new Renderer(canvas, 64 * 12, 48 * 12, 12);
+    renderer = new Renderer(canvas, 48 * 12, 48 * 12, 12, 8);
     for (const type of ["r", "g", "b"]) {
         const img = new Image();
         img.src = "static/" + (type === "r" ? "red" : type === "g" ? "green" : "blue") + "_egg.svg";
@@ -787,7 +787,7 @@ function loadState(snapshot: {ba: BarbarianAssault, tickHTML: string, foodHTML: 
  */
 function canvasOnMouseDown(mouseEvent: MouseEvent): void {
     const canvasRect: DOMRect = renderer.canvas.getBoundingClientRect();
-    const xTile: number = Math.trunc((mouseEvent.clientX - canvasRect.left) / renderer.tileSize);
+    const xTile: number = Math.trunc((mouseEvent.clientX - canvasRect.left) / renderer.tileSize) + renderer.tileOffsetX;
     const yTile: number = Math.trunc((canvasRect.bottom - 1 - mouseEvent.clientY) / renderer.tileSize);
 
     if (mouseEvent.button === 0) {
@@ -1178,7 +1178,7 @@ function drawEggIcons(): void {
 
                 const dx = egg.type === EggType.RED ? -10 : egg.type === EggType.GREEN ? -4 : 3;
                 const dy = -8;
-                const drawX = cannonPos.x * ts + dx - 1;
+                const drawX = (cannonPos.x - renderer.tileOffsetX) * ts + dx - 1;
                 const drawY = renderer.canvasHeight - (cannonPos.y * ts) - ts + dy;
                 const drawW = ts * 1.2;
                 const drawH = ts * 1.2;

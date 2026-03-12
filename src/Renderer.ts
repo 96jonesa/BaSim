@@ -18,14 +18,28 @@ export class Renderer {
     public drawColor: number;
     public drawColorA: number;
     public tileSize: number;
+    public tileOffsetX: number;
 
-    public constructor(canvas: HTMLCanvasElement, width: number, height: number, tileSize: number) {
+    public constructor(canvas: HTMLCanvasElement, width: number, height: number, tileSize: number, tileOffsetX: number = 0) {
         this.canvas = canvas;
         this.context = canvas.getContext("2d");
         this.tileSize = tileSize;
+        this.tileOffsetX = tileOffsetX;
 
         this.resizeCanvas(width, height);
         this.setDrawColor(255, 255, 255, 255);
+    }
+
+    /**
+     * Returns the number of visible tiles in the x direction.
+     */
+    public get visibleTilesX(): number {
+        return this.canvasWidth / this.tileSize;
+    }
+
+    private isTileVisibleX(x: number): boolean {
+        const px = x - this.tileOffsetX;
+        return px >= 0 && px < this.visibleTilesX;
     }
 
     /**
@@ -36,7 +50,8 @@ export class Renderer {
      * @param y the y coordinate of the tile to draw the pixels of
      */
     public fillOpaque(x: number, y: number): void {
-        this.setFilledRectangle(x * this.tileSize, y * this.tileSize, this.tileSize, this.tileSize);
+        if (!this.isTileVisibleX(x)) return;
+        this.setFilledRectangle((x - this.tileOffsetX) * this.tileSize, y * this.tileSize, this.tileSize, this.tileSize);
     }
 
     /**
@@ -47,7 +62,8 @@ export class Renderer {
      * @param y the y coordinate of the tile to draw over the pixels of
      */
     public fill(x: number, y: number): void {
-        this.drawFilledRectangle(x * this.tileSize, y * this.tileSize, this.tileSize, this.tileSize);
+        if (!this.isTileVisibleX(x)) return;
+        this.drawFilledRectangle((x - this.tileOffsetX) * this.tileSize, y * this.tileSize, this.tileSize, this.tileSize);
     }
 
     /**
@@ -59,7 +75,8 @@ export class Renderer {
      * @param y the y coordinate of the tile to draw over the pixels of the perimeter of
      */
     public outline(x: number, y: number): void {
-        this.drawOutlinedRectangle(x * this.tileSize, y * this.tileSize, this.tileSize, this.tileSize);
+        if (!this.isTileVisibleX(x)) return;
+        this.drawOutlinedRectangle((x - this.tileOffsetX) * this.tileSize, y * this.tileSize, this.tileSize, this.tileSize);
     }
 
     /**
@@ -77,7 +94,17 @@ export class Renderer {
      *                  perimeter of
      */
     public outlineBig(x: number, y: number, width: number, height: number): void {
-        this.drawOutlinedRectangle(x * this.tileSize, y * this.tileSize, this.tileSize * width, this.tileSize * height);
+        let startX = x - this.tileOffsetX;
+        let w = width;
+        if (startX < 0) {
+            w += startX;
+            startX = 0;
+        }
+        if (startX + w > this.visibleTilesX) {
+            w = this.visibleTilesX - startX;
+        }
+        if (w <= 0) return;
+        this.drawOutlinedRectangle(startX * this.tileSize, y * this.tileSize, this.tileSize * w, this.tileSize * height);
     }
 
     /**
@@ -89,7 +116,8 @@ export class Renderer {
      * @param y the y coordinate of the tile to draw over the left vertical line of the perimeter of
      */
     public westLine(x: number, y: number): void {
-        this.drawVerticalLine(x * this.tileSize, y * this.tileSize, this.tileSize);
+        if (!this.isTileVisibleX(x)) return;
+        this.drawVerticalLine((x - this.tileOffsetX) * this.tileSize, y * this.tileSize, this.tileSize);
     }
 
     /**
@@ -101,7 +129,8 @@ export class Renderer {
      * @param y the y coordinate of the tile to draw over the right vertical line of the perimeter of
      */
     public eastLine(x: number, y: number): void {
-        this.drawVerticalLine((x + 1) * this.tileSize - 1, y * this.tileSize, this.tileSize);
+        if (!this.isTileVisibleX(x)) return;
+        this.drawVerticalLine((x + 1 - this.tileOffsetX) * this.tileSize - 1, y * this.tileSize, this.tileSize);
     }
 
     /**
@@ -115,7 +144,8 @@ export class Renderer {
      *          vertical line of the perimeter of
      */
     public eastLineBig(x: number, y: number, length: number): void {
-        this.drawVerticalLine((x + 1) * this.tileSize - 1, y * this.tileSize, this.tileSize * length);
+        if (!this.isTileVisibleX(x)) return;
+        this.drawVerticalLine((x + 1 - this.tileOffsetX) * this.tileSize - 1, y * this.tileSize, this.tileSize * length);
     }
 
     /**
@@ -127,7 +157,8 @@ export class Renderer {
      * @param y the y coordinate of the tile to draw over the lower horizontal line of the perimeter of
      */
     public southLine(x: number, y: number): void {
-        this.drawHorizontalLine(x * this.tileSize, y * this.tileSize, this.tileSize);
+        if (!this.isTileVisibleX(x)) return;
+        this.drawHorizontalLine((x - this.tileOffsetX) * this.tileSize, y * this.tileSize, this.tileSize);
     }
 
     /**
@@ -139,7 +170,8 @@ export class Renderer {
      * @param y the y coordinate of the tile to draw over the upper horizontal line of the perimeter of
      */
     public northLine(x: number, y: number): void {
-        this.drawHorizontalLine(x * this.tileSize, (y + 1) * this.tileSize - 1, this.tileSize);
+        if (!this.isTileVisibleX(x)) return;
+        this.drawHorizontalLine((x - this.tileOffsetX) * this.tileSize, (y + 1) * this.tileSize - 1, this.tileSize);
     }
 
     /**
@@ -153,7 +185,17 @@ export class Renderer {
      *          horizontal line of the perimeter of
      */
     public northLineBig(x: number, y: number, length: number): void {
-        this.drawHorizontalLine(x * this.tileSize, (y + 1) * this.tileSize - 1, this.tileSize * length);
+        let startX = x - this.tileOffsetX;
+        let len = length;
+        if (startX < 0) {
+            len += startX;
+            startX = 0;
+        }
+        if (startX + len > this.visibleTilesX) {
+            len = this.visibleTilesX - startX;
+        }
+        if (len <= 0) return;
+        this.drawHorizontalLine(startX * this.tileSize, (y + 1) * this.tileSize - 1, this.tileSize * len);
     }
 
     /**
@@ -169,7 +211,8 @@ export class Renderer {
      *          pixels of the perimeter of
      */
     public cone(x: number, y: number): void {
-        this.drawCone(x * this.tileSize, y * this.tileSize, this.tileSize);
+        if (!this.isTileVisibleX(x)) return;
+        this.drawCone((x - this.tileOffsetX) * this.tileSize, y * this.tileSize, this.tileSize);
     }
 
     /**
@@ -181,10 +224,11 @@ export class Renderer {
      * @param y the y coordinate of the tile to draw over the pixels of the half-size center square of
      */
     public fillItem(x: number, y: number): void {
+        if (!this.isTileVisibleX(x)) return;
         const padding: number = this.tileSize >>> 2;
         const size: number = this.tileSize - 2 * padding;
 
-        this.drawFilledRectangle(x * this.tileSize + padding, y * this.tileSize + padding, size, size);
+        this.drawFilledRectangle((x - this.tileOffsetX) * this.tileSize + padding, y * this.tileSize + padding, size, size);
     }
 
     /**

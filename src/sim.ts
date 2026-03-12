@@ -73,6 +73,7 @@ const HTML_HEALER_SPAWNS: string = "healerspawns";
 const HTML_COPY_CONTROLLED_COMMANDS: string = "copycontrolledcommands";
 const HTML_EXPORT_MARKERS: string = "exportmarkers";
 const HTML_IMPORT_MARKERS: string = "importmarkers";
+const HTML_CLEAR_MARKERS: string = "clearmarkers";
 const HTML_MARKER_IMPORT_FIELD: string = "markerimportfield";
 const HTML_SETTINGS_EXPORT: string = "settingsexport";
 const HTML_SETTINGS_IMPORT: string = "settingsimport";
@@ -327,6 +328,7 @@ function init(): void {
     };
     (document.getElementById(HTML_EXPORT_MARKERS) as HTMLButtonElement).onclick = exportMarkers;
     (document.getElementById(HTML_IMPORT_MARKERS) as HTMLButtonElement).onclick = importMarkers;
+    (document.getElementById(HTML_CLEAR_MARKERS) as HTMLButtonElement).onclick = clearMarkers;
     (document.getElementById(HTML_SETTINGS_EXPORT) as HTMLButtonElement).onclick = exportSettings;
     (document.getElementById(HTML_SETTINGS_IMPORT) as HTMLButtonElement).onclick = importSettings;
 
@@ -1476,6 +1478,14 @@ function importMarkers(): void {
         }
     } catch (e) {
         alert("Failed to parse RuneLite tile marker JSON.");
+    }
+}
+
+function clearMarkers(): void {
+    markedTiles = [];
+    saveMarkedTiles();
+    if (!isRunning) {
+        draw();
     }
 }
 

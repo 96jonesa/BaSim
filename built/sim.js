@@ -662,11 +662,21 @@ function stepBackward() {
     loadState(stateHistory[stateIndex]);
 }
 function stepForward() {
-    if (stateIndex >= stateHistory.length - 1) {
-        return;
+    if (stateIndex < stateHistory.length - 1) {
+        stateIndex++;
+        loadState(stateHistory[stateIndex]);
     }
-    stateIndex++;
-    loadState(stateHistory[stateIndex]);
+    else {
+        barbarianAssault.tick();
+        if (!simpleFood) {
+            currentDefenderFoodSpan.innerHTML = barbarianAssault.defenderFoodCall.toString();
+        }
+        tickCountSpan.innerHTML = barbarianAssault.ticks.toString() + " (" + ticksToSeconds(barbarianAssault.ticks) + "s)";
+        pushState();
+        draw();
+        updateRunnerTable();
+        updateHealerTable();
+    }
 }
 function loadState(snapshot) {
     barbarianAssault = snapshot.ba.clone();

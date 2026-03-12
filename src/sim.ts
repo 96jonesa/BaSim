@@ -746,11 +746,20 @@ function stepBackward(): void {
 }
 
 function stepForward(): void {
-    if (stateIndex >= stateHistory.length - 1) {
-        return;
+    if (stateIndex < stateHistory.length - 1) {
+        stateIndex++;
+        loadState(stateHistory[stateIndex]);
+    } else {
+        barbarianAssault.tick();
+        if (!simpleFood) {
+            currentDefenderFoodSpan.innerHTML = barbarianAssault.defenderFoodCall.toString();
+        }
+        tickCountSpan.innerHTML = barbarianAssault.ticks.toString() + " (" + ticksToSeconds(barbarianAssault.ticks) + "s)";
+        pushState();
+        draw();
+        updateRunnerTable();
+        updateHealerTable();
     }
-    stateIndex++;
-    loadState(stateHistory[stateIndex]);
 }
 
 function loadState(snapshot: {ba: BarbarianAssault, tickHTML: string, foodHTML: string, commandsHTML: string}): void {

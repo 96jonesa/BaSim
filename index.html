@@ -185,8 +185,9 @@ Tick duration (milliseconds): <input id="tickduration" type="number" min="100" m
 <canvas id="basimcanvas"></canvas>
 </div>
 <div>
-<div style="display: flex; gap: 0.5rem; margin-bottom: 0.5rem;">
-<div class="section">
+<div style="display: flex; gap: 0.5rem;">
+<div>
+<div class="section" style="margin-bottom: 0.5rem;">
 <input type="checkbox" id="toggledarkmode">
 <label for="toggledarkmode">Dark mode</label>
 <br>
@@ -201,7 +202,8 @@ Tick duration (milliseconds): <input id="tickduration" type="number" min="100" m
 <br>
 <input type="checkbox" id="togglerenderdistance">
 <label for="togglerenderdistance">Require render</label> <span title="When enabled, runners outside the 15-tile Chebyshev distance of all players have their target state progression frozen and cannot target food. Tiles outside render range are dimmed." class="info-tip">i</span>
-<br>
+</div>
+<div class="section">
 <input type="checkbox" id="markingtiles">
 <label for="markingtiles">Tile marker mode</label> <span title="Toggle between movement and tile marker mode. While enabled, left-click marks/unmarks tiles. Use the color picker to change marker color." class="info-tip">i</span>
 <br>
@@ -209,13 +211,16 @@ Tick duration (milliseconds): <input id="tickduration" type="number" min="100" m
 <br>
 <button id="clearmarkers">Clear markers</button>
 </div>
-<div class="section">
+</div>
+<div>
+<div class="section" style="margin-bottom: 0.5rem;">
 <b>Tiles</b><br>
 <button id="exportmarkers">Export tiles</button>
 <button id="importmarkers">Import tiles</button>
 <br><br>
 <input id="markerimportfield" type="text" size="30" placeholder="Paste RuneLite JSON here"/>
-<br><br>
+</div>
+<div class="section">
 <b>Settings</b><br>
 <button id="settingsexport">Export settings</button>
 <button id="settingsimport">Import settings</button>
@@ -223,7 +228,8 @@ Tick duration (milliseconds): <input id="tickduration" type="number" min="100" m
 <input id="settingsimportfield" type="text" size="30" placeholder="Paste settings JSON here"/>
 </div>
 </div>
-<div class="section">
+</div>
+<div class="section" style="margin-top: 0.5rem;">
 <button id="simulate">Simulate against runner movements to check</button>
 <br><br>
 Runner movements to check: <input id="runnermovementstocheck" type="text"/> <span title="Like runner movements, but use 'x' for any direction to check all possibilities. Unspecified movements are random. e.g. 'wx-s-e' checks ww-s-e, ws-s-e, and we-s-e." class="info-tip">i</span>
@@ -233,7 +239,7 @@ Runners dead by tick: <input id="runnersdeadbytick" type="text"/> <span title="T
 <b>Runners do not die with movements:</b> <span title="Lists runner movement combinations from the checked movements for which not all runners died by the specified tick." class="info-tip">i</span><br>
 <div id="runnersdonotdiemovements" style="border: 1px solid; height: 4lh; width: 14lh; overflow: auto; resize: both"></div>
 </div>
-<div class="section">
+<div class="section" style="margin-top: 0.5rem;">
 <button id="togglesimplefood">Disable simple food</button>
 <span title="Simple food: 'r' drops good food (tofu), 'w' drops bad food (crackers), 'e' picks up food, 't' repairs trap. Food call is always tofu. Normal mode: 't' drops tofu, 'c' drops crackers, 'w' drops worms, '1/2/3' picks up tofu/crackers/worms, 'l' picks up logs, 'r' repairs trap." class="info-tip">i</span>
 <br><br>

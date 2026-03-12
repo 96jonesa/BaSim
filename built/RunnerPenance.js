@@ -94,7 +94,6 @@ export class RunnerPenance extends Penance {
             this.cycleTick = 1;
         }
         this.ticksStandingStill++;
-        this.processEggQueue(barbarianAssault);
         if (this.despawnCountdown !== null) {
             this.despawnCountdown--;
             if (this.despawnCountdown === 0) {
@@ -152,6 +151,7 @@ export class RunnerPenance extends Penance {
                 }
             }
         }
+        this.processEggQueue(barbarianAssault);
     }
     /**
      * This runner penance takes up to one step (if possible) in its path to its destination.

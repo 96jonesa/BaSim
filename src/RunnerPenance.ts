@@ -112,7 +112,6 @@ export class RunnerPenance extends Penance {
         }
 
         this.ticksStandingStill++;
-        this.processEggQueue(barbarianAssault);
 
         if (this.despawnCountdown !== null) {
             this.despawnCountdown--;
@@ -173,6 +172,7 @@ export class RunnerPenance extends Penance {
                 }
             }
         }
+        this.processEggQueue(barbarianAssault);
     }
 
     /**

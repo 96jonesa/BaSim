@@ -25,6 +25,7 @@ export class Player extends Character {
         this.codeIndex = 0;
         this.arriveDelay = false;
         this.prevPosition = null;
+        this.isRunning = true;
     }
     clearCodeQueue() {
         this.codeQueue = [];
@@ -84,7 +85,7 @@ export class Player extends Character {
         const dy1 = step1.y - this.position.y;
         if (dx1 === 0 || dy1 === 0)
             return false;
-        if (this.pathQueueIndex === 1)
+        if (!this.isRunning || this.pathQueueIndex === 1)
             return true;
         const step2 = this.pathQueuePositions[this.pathQueueIndex - 2];
         const dx2 = step2.x - step1.x;
@@ -322,7 +323,7 @@ export class Player extends Character {
      * @private
      */
     move() {
-        this.takeSteps(2);
+        this.takeSteps(this.isRunning ? 2 : 1);
     }
     /**
      * This player takes up to the given number of steps (as many as possible) in

@@ -33,6 +33,7 @@ export class AttackerPlayer extends Player {
         attackerPlayer.codeIndex = this.codeIndex;
         attackerPlayer.arriveDelay = this.arriveDelay;
         attackerPlayer.prevPosition = this.prevPosition === null ? null : this.prevPosition.clone();
+        attackerPlayer.isRunning = this.isRunning;
         return attackerPlayer;
     }
 }

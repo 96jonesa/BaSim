@@ -16,6 +16,8 @@ import { parseCannonInput, getCannonPosition } from "./Cannon.js";
 import { CannonSide } from "./CannonSide.js";
 import { EggType } from "./EggType.js";
 import { HealerCodeCommand } from "./HealerCodeCommand.js";
+import { WalkRunCommand } from "./WalkRunCommand.js";
+import { ToggleRunCommand } from "./ToggleRunCommand.js";
 const HTML_CANVAS = "basimcanvas";
 const HTML_RUNNER_MOVEMENTS = "runnermovements";
 const HTML_START_BUTTON = "wavestart";
@@ -445,6 +447,16 @@ function parseSpawnsInput(value) {
     spawns.sort((a, b) => a - b);
     return spawns;
 }
+function getControlledPlayerObject() {
+    switch (player) {
+        case "defender": return barbarianAssault.defenderPlayer;
+        case "mainattacker": return barbarianAssault.mainAttackerPlayer;
+        case "secondattacker": return barbarianAssault.secondAttackerPlayer;
+        case "healer": return barbarianAssault.healerPlayer;
+        case "collector": return barbarianAssault.collectorPlayer;
+        default: return null;
+    }
+}
 /**
  * Handles the given keyboard event.
  *
@@ -539,6 +551,15 @@ function windowOnKeyDown(keyboardEvent) {
                     controlledCommands.scrollTop = controlledCommands.scrollHeight;
                 }
                 break;
+            case "m": {
+                const controlledPlayer = getControlledPlayerObject();
+                if (controlledPlayer !== null) {
+                    controlledPlayer.isRunning = !controlledPlayer.isRunning;
+                    controlledCommands.innerHTML += barbarianAssault.ticks + ":m<br>";
+                    controlledCommands.scrollTop = controlledCommands.scrollHeight;
+                }
+                break;
+            }
             case "p":
                 isPaused = !isPaused;
                 pauseResumeButton.innerHTML = isPaused ? "Resume" : "Pause";
@@ -1539,39 +1560,50 @@ function convertCommandsStringToMap(commandsString, player) {
         }
         const commandTokens = tickAndCommand[1].split(",");
         if (commandTokens.length === 1) {
-            if (player !== "defender") {
+            if (commandTokens[0] === "walk") {
+                addToCommandsMap(commandsMap, tick, new WalkRunCommand(false));
+            }
+            else if (commandTokens[0] === "run") {
+                addToCommandsMap(commandsMap, tick, new WalkRunCommand(true));
+            }
+            else if (commandTokens[0] === "m") {
+                addToCommandsMap(commandsMap, tick, new ToggleRunCommand());
+            }
+            else if (player !== "defender") {
                 return null;
             }
-            switch (commandTokens[0]) {
-                case "t":
-                    addToCommandsMap(commandsMap, tick, new DefenderActionCommand(DefenderActionType.DROP_TOFU));
-                    break;
-                case "c":
-                    addToCommandsMap(commandsMap, tick, new DefenderActionCommand(DefenderActionType.DROP_CRACKERS));
-                    break;
-                case "w":
-                    addToCommandsMap(commandsMap, tick, new DefenderActionCommand(DefenderActionType.DROP_WORMS));
-                    break;
-                case "1":
-                    addToCommandsMap(commandsMap, tick, new DefenderActionCommand(DefenderActionType.PICKUP_TOFU));
-                    break;
-                case "2":
-                    addToCommandsMap(commandsMap, tick, new DefenderActionCommand(DefenderActionType.PICKUP_CRACKERS));
-                    break;
-                case "3":
-                    addToCommandsMap(commandsMap, tick, new DefenderActionCommand(DefenderActionType.PICKUP_WORMS));
-                    break;
-                case "e":
-                    addToCommandsMap(commandsMap, tick, new DefenderActionCommand(DefenderActionType.PICKUP_ANY_FOOD));
-                    break;
-                case "l":
-                    addToCommandsMap(commandsMap, tick, new DefenderActionCommand(DefenderActionType.PICKUP_LOGS));
-                    break;
-                case "r":
-                    addToCommandsMap(commandsMap, tick, new DefenderActionCommand(DefenderActionType.REPAIR_TRAP));
-                    break;
-                default:
-                    return null;
+            else {
+                switch (commandTokens[0]) {
+                    case "t":
+                        addToCommandsMap(commandsMap, tick, new DefenderActionCommand(DefenderActionType.DROP_TOFU));
+                        break;
+                    case "c":
+                        addToCommandsMap(commandsMap, tick, new DefenderActionCommand(DefenderActionType.DROP_CRACKERS));
+                        break;
+                    case "w":
+                        addToCommandsMap(commandsMap, tick, new DefenderActionCommand(DefenderActionType.DROP_WORMS));
+                        break;
+                    case "1":
+                        addToCommandsMap(commandsMap, tick, new DefenderActionCommand(DefenderActionType.PICKUP_TOFU));
+                        break;
+                    case "2":
+                        addToCommandsMap(commandsMap, tick, new DefenderActionCommand(DefenderActionType.PICKUP_CRACKERS));
+                        break;
+                    case "3":
+                        addToCommandsMap(commandsMap, tick, new DefenderActionCommand(DefenderActionType.PICKUP_WORMS));
+                        break;
+                    case "e":
+                        addToCommandsMap(commandsMap, tick, new DefenderActionCommand(DefenderActionType.PICKUP_ANY_FOOD));
+                        break;
+                    case "l":
+                        addToCommandsMap(commandsMap, tick, new DefenderActionCommand(DefenderActionType.PICKUP_LOGS));
+                        break;
+                    case "r":
+                        addToCommandsMap(commandsMap, tick, new DefenderActionCommand(DefenderActionType.REPAIR_TRAP));
+                        break;
+                    default:
+                        return null;
+                }
             }
         }
         else if (commandTokens.length === 2) {

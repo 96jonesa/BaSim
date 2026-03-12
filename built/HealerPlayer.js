@@ -33,6 +33,7 @@ export class HealerPlayer extends Player {
         healerPlayer.codeIndex = this.codeIndex;
         healerPlayer.arriveDelay = this.arriveDelay;
         healerPlayer.prevPosition = this.prevPosition === null ? null : this.prevPosition.clone();
+        healerPlayer.isRunning = this.isRunning;
         return healerPlayer;
     }
 }

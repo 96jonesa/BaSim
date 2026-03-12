@@ -249,6 +249,7 @@ export class DefenderPlayer extends Player {
 
         defenderPlayer.arriveDelay = this.arriveDelay;
         defenderPlayer.prevPosition = this.prevPosition === null ? null : this.prevPosition.clone();
+        defenderPlayer.isRunning = this.isRunning;
 
         return defenderPlayer;
     }

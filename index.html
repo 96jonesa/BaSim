@@ -131,7 +131,7 @@ Eggs: <input id="cannonqueue" type="text" size="35"/> <span title="Egg firing co
 Tick duration (milliseconds): <input id="tickduration" type="number" min="100" max="1200" value="600"/>
 </div>
 <table id="teamtable" class="section" style="border-collapse: collapse;">
-    <caption><b>Team Commands</b> <span title="Enter commands as tick:x,y per line to move a player to (x,y) at that tick. e.g. 5:20,21. Multiple commands per tick allowed. For defender only: tick:t/c/w/1/2/3/l/r performs that key action at the specified tick. Healer codes: tick:h<id>,<count> for any player. e.g. 1:h1,3 poisons healer 1 three times starting at its spawn tick. Player auto-pathfinds and uses poison food." class="info-tip">i</span></caption>
+    <caption><b>Team Commands</b> <span title="Enter commands as tick:x,y per line to move a player to (x,y) at that tick. e.g. 5:20,21. Multiple commands per tick allowed.&#x0A;&#x0A;Defender actions: tick:t/c/w/1/2/3/l/r performs that key action at the specified tick.&#x0A;&#x0A;Healer codes: tick:h<id>,<count> for any player. e.g. 1:h1,3 poisons healer 1 three times starting at its spawn tick. Player auto-pathfinds and uses poison food.&#x0A;&#x0A;Walk/run: tick:m toggles, tick:walk/tick:run sets explicitly." class="info-tip">i</span></caption>
     <tr>
         <td name="mainattacker">
             <b>Main Attacker</b>
@@ -301,6 +301,7 @@ Runners dead by tick: <input id="runnersdeadbytick" type="text"/> <span title="T
 <b>e</b> picks up food.<br>
 <b>l</b> picks up logs.<br>
 <b>t</b> repairs a trap.<br></span>
+<b>m</b> toggles walk/run.<br>
 <b>p</b> pauses/unpauses.<br>
 <b>d</b> steps backward one tick (pauses).<br>
 <b>f</b> steps forward one tick (pauses).<br>

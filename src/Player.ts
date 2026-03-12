@@ -28,6 +28,7 @@ export abstract class Player extends Character {
     public codeIndex: number = 0;
     public arriveDelay: boolean = false;
     public prevPosition: Position = null;
+    public isRunning: boolean = true;
 
     protected constructor(position: Position) {
         super(position);
@@ -102,7 +103,7 @@ export abstract class Player extends Character {
 
         if (dx1 === 0 || dy1 === 0) return false;
 
-        if (this.pathQueueIndex === 1) return true;
+        if (!this.isRunning || this.pathQueueIndex === 1) return true;
 
         const step2 = this.pathQueuePositions[this.pathQueueIndex - 2];
         const dx2 = step2.x - step1.x;
@@ -383,7 +384,7 @@ export abstract class Player extends Character {
      * @private
      */
     protected move(): void {
-        this.takeSteps(2);
+        this.takeSteps(this.isRunning ? 2 : 1);
     }
 
     /**

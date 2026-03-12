@@ -38,6 +38,7 @@ export class CollectorPlayer extends Player {
 
         collectorPlayer.arriveDelay = this.arriveDelay;
         collectorPlayer.prevPosition = this.prevPosition === null ? null : this.prevPosition.clone();
+        collectorPlayer.isRunning = this.isRunning;
 
         return collectorPlayer;
     }

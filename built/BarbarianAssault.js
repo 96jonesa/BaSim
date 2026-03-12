@@ -14,6 +14,8 @@ import { DefenderActionType } from "./DefenderActionType.js";
 import { Cannon } from "./Cannon.js";
 import { HealerCodeCommand } from "./HealerCodeCommand.js";
 import { HealerCodeAction } from "./HealerCodeAction.js";
+import { WalkRunCommand } from "./WalkRunCommand.js";
+import { ToggleRunCommand } from "./ToggleRunCommand.js";
 /**
  * Represents a game of Barbarian Assault: holds state information and exposes functions for
  * progressing the game state.
@@ -214,6 +216,12 @@ export class BarbarianAssault {
                     this.expandHealerCodeCommand(command, this.mainAttackerPlayer);
                     this.mainAttackerPlayer.initializeFoodPath(this);
                 }
+                else if (command instanceof WalkRunCommand) {
+                    this.mainAttackerPlayer.isRunning = command.isRunning;
+                }
+                else if (command instanceof ToggleRunCommand) {
+                    this.mainAttackerPlayer.isRunning = !this.mainAttackerPlayer.isRunning;
+                }
             });
         }
         if (this.secondAttackerCommands.has(this.ticks)) {
@@ -225,6 +233,12 @@ export class BarbarianAssault {
                 else if (command instanceof HealerCodeCommand) {
                     this.expandHealerCodeCommand(command, this.secondAttackerPlayer);
                     this.secondAttackerPlayer.initializeFoodPath(this);
+                }
+                else if (command instanceof WalkRunCommand) {
+                    this.secondAttackerPlayer.isRunning = command.isRunning;
+                }
+                else if (command instanceof ToggleRunCommand) {
+                    this.secondAttackerPlayer.isRunning = !this.secondAttackerPlayer.isRunning;
                 }
             });
         }
@@ -238,6 +252,12 @@ export class BarbarianAssault {
                     this.expandHealerCodeCommand(command, this.healerPlayer);
                     this.healerPlayer.initializeFoodPath(this);
                 }
+                else if (command instanceof WalkRunCommand) {
+                    this.healerPlayer.isRunning = command.isRunning;
+                }
+                else if (command instanceof ToggleRunCommand) {
+                    this.healerPlayer.isRunning = !this.healerPlayer.isRunning;
+                }
             });
         }
         if (this.collectorCommands.has(this.ticks)) {
@@ -250,6 +270,12 @@ export class BarbarianAssault {
                     this.expandHealerCodeCommand(command, this.collectorPlayer);
                     this.collectorPlayer.initializeFoodPath(this);
                 }
+                else if (command instanceof WalkRunCommand) {
+                    this.collectorPlayer.isRunning = command.isRunning;
+                }
+                else if (command instanceof ToggleRunCommand) {
+                    this.collectorPlayer.isRunning = !this.collectorPlayer.isRunning;
+                }
             });
         }
         if (this.defenderCommands.has(this.ticks)) {
@@ -261,6 +287,12 @@ export class BarbarianAssault {
                 else if (command instanceof HealerCodeCommand) {
                     this.expandHealerCodeCommand(command, this.defenderPlayer);
                     this.defenderPlayer.initializeFoodPath(this);
+                }
+                else if (command instanceof WalkRunCommand) {
+                    this.defenderPlayer.isRunning = command.isRunning;
+                }
+                else if (command instanceof ToggleRunCommand) {
+                    this.defenderPlayer.isRunning = !this.defenderPlayer.isRunning;
                 }
                 else if (command instanceof DefenderActionCommand) {
                     this.defenderPlayer.clearCodeQueue();

@@ -87,6 +87,35 @@ window.onload = init;
 
 var markingTiles: boolean;
 var markedTiles: Array<TileMarker>;
+
+const TILE_MARKERS_STORAGE_KEY: string = "mclovin-ba-sim-tile-markers";
+
+function saveMarkedTiles(): void {
+    const data = markedTiles.map((t: TileMarker) => ({
+        x: t.position.x,
+        y: t.position.y,
+        r: t.rgbColor.r,
+        g: t.rgbColor.g,
+        b: t.rgbColor.b,
+    }));
+    localStorage.setItem(TILE_MARKERS_STORAGE_KEY, JSON.stringify(data));
+}
+
+function loadMarkedTiles(): Array<TileMarker> {
+    const json = localStorage.getItem(TILE_MARKERS_STORAGE_KEY);
+    if (json === null) {
+        return [];
+    }
+    try {
+        const data = JSON.parse(json);
+        return data.map((t: {x: number, y: number, r: number, g: number, b: number}) =>
+            new TileMarker(new Position(t.x, t.y), new RGBColor(t.r, t.g, t.b))
+        );
+    } catch (e) {
+        return [];
+    }
+}
+
 var canvas: HTMLCanvasElement;
 var movementsInput: HTMLInputElement;
 var tickDurationInput: HTMLInputElement;
@@ -202,7 +231,7 @@ function init(): void {
     toggleMarkingTiles = document.getElementById(HTML_MARKING_TILES) as HTMLInputElement;
     toggleMarkingTiles.onchange = toggleMarkingTilesOnChange;
     markingTiles = toggleMarkingTiles.checked;
-    markedTiles = [];
+    markedTiles = loadMarkedTiles();
     infiniteFood = toggleInfiniteFood.checked;
 
     const toggleSimpleFoodButton = document.getElementById(HTML_TOGGLE_SIMPLE_FOOD) as HTMLButtonElement;
@@ -282,14 +311,14 @@ function init(): void {
     runnersDoNotDieWithMovements = document.getElementById(HTML_RUNNERS_DO_NOT_DIE_WITH_MOVEMENTS);
 
     const darkModeToggle = document.getElementById(HTML_TOGGLE_DARK_MODE) as HTMLInputElement;
-    const savedDarkMode = localStorage.getItem("darkMode");
+    const savedDarkMode = localStorage.getItem("mclovin-ba-sim-dark-mode");
     if (savedDarkMode === "true") {
         document.body.classList.add("dark");
         darkModeToggle.checked = true;
     }
     darkModeToggle.onchange = function (): void {
         document.body.classList.toggle("dark", darkModeToggle.checked);
-        localStorage.setItem("darkMode", String(darkModeToggle.checked));
+        localStorage.setItem("mclovin-ba-sim-dark-mode", String(darkModeToggle.checked));
     };
 
     (document.getElementById(HTML_COPY_CONTROLLED_COMMANDS) as HTMLButtonElement).onclick = function () {
@@ -756,6 +785,8 @@ function canvasOnMouseDown(mouseEvent: MouseEvent): void {
             if (!tileAlreadyMarked) {
                 markedTiles.push(new TileMarker(new Position(xTile, yTile), RGBColor.fromHexColor(markerColor)));
             }
+
+            saveMarkedTiles();
 
             if (!isRunning) {
                 draw();
@@ -1438,6 +1469,7 @@ function importMarkers(): void {
             count++;
         }
         field.value = "";
+        saveMarkedTiles();
         alert("Imported " + count + " tile marker(s).");
         if (!isRunning) {
             draw();

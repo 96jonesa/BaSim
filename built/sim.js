@@ -68,6 +68,30 @@ const HTML_LOAD_STATE = "loadstate";
 window.onload = init;
 var markingTiles;
 var markedTiles;
+const TILE_MARKERS_STORAGE_KEY = "mclovin-ba-sim-tile-markers";
+function saveMarkedTiles() {
+    const data = markedTiles.map((t) => ({
+        x: t.position.x,
+        y: t.position.y,
+        r: t.rgbColor.r,
+        g: t.rgbColor.g,
+        b: t.rgbColor.b,
+    }));
+    localStorage.setItem(TILE_MARKERS_STORAGE_KEY, JSON.stringify(data));
+}
+function loadMarkedTiles() {
+    const json = localStorage.getItem(TILE_MARKERS_STORAGE_KEY);
+    if (json === null) {
+        return [];
+    }
+    try {
+        const data = JSON.parse(json);
+        return data.map((t) => new TileMarker(new Position(t.x, t.y), new RGBColor(t.r, t.g, t.b)));
+    }
+    catch (e) {
+        return [];
+    }
+}
 var canvas;
 var movementsInput;
 var tickDurationInput;
@@ -180,7 +204,7 @@ function init() {
     toggleMarkingTiles = document.getElementById(HTML_MARKING_TILES);
     toggleMarkingTiles.onchange = toggleMarkingTilesOnChange;
     markingTiles = toggleMarkingTiles.checked;
-    markedTiles = [];
+    markedTiles = loadMarkedTiles();
     infiniteFood = toggleInfiniteFood.checked;
     const toggleSimpleFoodButton = document.getElementById(HTML_TOGGLE_SIMPLE_FOOD);
     toggleSimpleFoodButton.onclick = function () {
@@ -257,14 +281,14 @@ function init() {
     simulateButton.onclick = simulateButtonOnClick;
     runnersDoNotDieWithMovements = document.getElementById(HTML_RUNNERS_DO_NOT_DIE_WITH_MOVEMENTS);
     const darkModeToggle = document.getElementById(HTML_TOGGLE_DARK_MODE);
-    const savedDarkMode = localStorage.getItem("darkMode");
+    const savedDarkMode = localStorage.getItem("mclovin-ba-sim-dark-mode");
     if (savedDarkMode === "true") {
         document.body.classList.add("dark");
         darkModeToggle.checked = true;
     }
     darkModeToggle.onchange = function () {
         document.body.classList.toggle("dark", darkModeToggle.checked);
-        localStorage.setItem("darkMode", String(darkModeToggle.checked));
+        localStorage.setItem("mclovin-ba-sim-dark-mode", String(darkModeToggle.checked));
     };
     document.getElementById(HTML_COPY_CONTROLLED_COMMANDS).onclick = function () {
         const text = document.getElementById(HTML_CONTROLLED_COMMANDS).innerText;
@@ -672,6 +696,7 @@ function canvasOnMouseDown(mouseEvent) {
             if (!tileAlreadyMarked) {
                 markedTiles.push(new TileMarker(new Position(xTile, yTile), RGBColor.fromHexColor(markerColor)));
             }
+            saveMarkedTiles();
             if (!isRunning) {
                 draw();
             }
@@ -1270,6 +1295,7 @@ function importMarkers() {
             count++;
         }
         field.value = "";
+        saveMarkedTiles();
         alert("Imported " + count + " tile marker(s).");
         if (!isRunning) {
             draw();

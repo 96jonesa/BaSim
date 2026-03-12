@@ -4,6 +4,18 @@ import {Character} from "./Character.js";
 import {HealerCodeAction} from "./HealerCodeAction.js";
 import {HealerPenance} from "./HealerPenance.js";
 
+const MOVEMENT_PRIORITY: Record<string, number> = {
+    "": 0,
+    "w": 1,
+    "e": 2,
+    "s": 3,
+    "n": 4,
+    "sw": 5,
+    "se": 6,
+    "nw": 7,
+    "ne": 8,
+};
+
 /**
  * Represents a Barbarian Assault player character.
  */
@@ -14,6 +26,7 @@ export abstract class Player extends Character {
     public waypoints: Array<number> = [];
     public codeQueue: Array<HealerCodeAction> = [];
     public codeIndex: number = 0;
+    public arriveDelay: boolean = false;
 
     protected constructor(position: Position) {
         super(position);
@@ -41,23 +54,32 @@ export abstract class Player extends Character {
             return;
         }
 
-        const adjacent = this.position.closestAdjacentPosition(healer.position);
-        if (this.position.equals(adjacent)) {
+        if (this.isCardinalAdjacentTo(healer)) {
             healer.eatFood(barbarianAssault);
             this.codeIndex++;
-            if (this.codeIndex < this.codeQueue.length) {
-                const nextAction = this.codeQueue[this.codeIndex];
-                if (barbarianAssault.ticks >= nextAction.waitUntil) {
-                    const nextHealer = this.findHealerById(barbarianAssault, nextAction.healerId);
-                    if (nextHealer !== null) {
-                        const nextAdj = this.position.closestAdjacentPosition(nextHealer.position);
-                        this.findPath(barbarianAssault, nextAdj);
-                    }
-                }
-            }
+            this.arriveDelay = true;
+            this.pathQueueIndex = 0;
         } else {
+            const adjacent = this.findBestAdjacentTile(barbarianAssault, healer.position);
             this.findPath(barbarianAssault, adjacent);
         }
+    }
+
+    private isCardinalAdjacentTo(healer: HealerPenance): boolean {
+        const pos = this.position;
+        if (this.isCardinalAdjacentToPosition(pos, healer.position)) {
+            return true;
+        }
+        if (healer.drawnPosition !== null && this.isCardinalAdjacentToPosition(pos, healer.drawnPosition)) {
+            return true;
+        }
+        return false;
+    }
+
+    private isCardinalAdjacentToPosition(a: Position, b: Position): boolean {
+        const dx = Math.abs(a.x - b.x);
+        const dy = Math.abs(a.y - b.y);
+        return (dx + dy) === 1;
     }
 
     private findHealerById(barbarianAssault: BarbarianAssault, healerId: number): HealerPenance | null {
@@ -67,6 +89,72 @@ export abstract class Player extends Character {
             }
         }
         return null;
+    }
+
+    public findBestAdjacentTile(barbarianAssault: BarbarianAssault, target: Position): Position {
+        const candidates: Array<{ tile: Position; check: (pos: Position) => boolean }> = [
+            { tile: new Position(target.x - 1, target.y), check: (pos) => barbarianAssault.map.canMoveEast(pos) },
+            { tile: new Position(target.x + 1, target.y), check: (pos) => barbarianAssault.map.canMoveWest(pos) },
+            { tile: new Position(target.x, target.y - 1), check: (pos) => barbarianAssault.map.canMoveNorth(pos) },
+            { tile: new Position(target.x, target.y + 1), check: (pos) => barbarianAssault.map.canMoveSouth(pos) },
+        ];
+
+        let valid: Array<{ tile: Position; distance: number }> = [];
+        let minDistance: number = Infinity;
+
+        for (const candidate of candidates) {
+            if (candidate.check(candidate.tile) && barbarianAssault.map.canMoveToTile(candidate.tile)) {
+                const dist = this.position.distance(candidate.tile);
+                valid.push({ tile: candidate.tile, distance: dist });
+                if (dist < minDistance) {
+                    minDistance = dist;
+                }
+            }
+        }
+
+        valid = valid.filter(v => v.distance <= minDistance);
+
+        if (valid.length === 0) {
+            return this.position.clone();
+        }
+
+        if (valid.length === 1) {
+            return valid[0].tile;
+        }
+
+        const savedPathQueueIndex = this.pathQueueIndex;
+        const savedPathQueuePositions = this.pathQueuePositions.slice();
+        const savedShortestDistances = this.shortestDistances.slice();
+        const savedWaypoints = this.waypoints.slice();
+
+        let bestTile: Position = valid[0].tile;
+        let bestWeight: number = Infinity;
+
+        for (const v of valid) {
+            this.findPath(barbarianAssault, v.tile);
+            const idx = this.pathQueueIndex - 1;
+            if (idx < 0) continue;
+
+            const stepPos = this.pathQueuePositions[idx];
+            let cardinalStr = "";
+            if (stepPos.y < this.position.y) cardinalStr += "s";
+            else if (stepPos.y > this.position.y) cardinalStr += "n";
+            if (stepPos.x < this.position.x) cardinalStr += "w";
+            else if (stepPos.x > this.position.x) cardinalStr += "e";
+
+            const weight = MOVEMENT_PRIORITY[cardinalStr] ?? Infinity;
+            if (weight < bestWeight) {
+                bestWeight = weight;
+                bestTile = v.tile;
+            }
+        }
+
+        this.pathQueueIndex = savedPathQueueIndex;
+        this.pathQueuePositions = savedPathQueuePositions;
+        this.shortestDistances = savedShortestDistances;
+        this.waypoints = savedWaypoints;
+
+        return bestTile;
     }
 
     /**

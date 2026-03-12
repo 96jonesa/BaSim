@@ -13,7 +13,12 @@ export class AttackerPlayer extends Player {
         if (this.codeQueue.length > 0) {
             this.processCodeQueue(barbarianAssault);
         }
-        this.move();
+        if (this.arriveDelay) {
+            this.arriveDelay = false;
+        }
+        else {
+            this.move();
+        }
     }
     /**
      * Creates a deep clone of this object.
@@ -25,6 +30,7 @@ export class AttackerPlayer extends Player {
         attackerPlayer.position = this.position === null ? null : this.position.clone();
         attackerPlayer.codeQueue = this.codeQueue.map(a => a.clone());
         attackerPlayer.codeIndex = this.codeIndex;
+        attackerPlayer.arriveDelay = this.arriveDelay;
         return attackerPlayer;
     }
 }

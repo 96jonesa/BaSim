@@ -82,6 +82,10 @@ export class BarbarianAssaultMap {
         return this.map[position.x + position.y * this.width];
     }
 
+    public canMoveToTile(position: Position): boolean {
+        return (this.getFlag(position) & MOVE_FULL_MASK) === 0;
+    }
+
     /**
      * Determines if a {@link Character} at the given position can move one tile east (i.e. if the
      * tile one east of the Character can be entered from the west).

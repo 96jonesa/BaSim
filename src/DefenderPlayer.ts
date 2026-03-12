@@ -53,7 +53,11 @@ export class DefenderPlayer extends Player {
 
         const position: Position = this.position.clone();
 
-        this.move();
+        if (this.arriveDelay) {
+            this.arriveDelay = false;
+        } else {
+            this.move();
+        }
 
         if (!this.position.equals(position)) {
             this.ticksStandingStill = 0;
@@ -241,6 +245,7 @@ export class DefenderPlayer extends Player {
         defenderPlayer.foodInInventory = {...this.foodInInventory};
         defenderPlayer.codeQueue = this.codeQueue.map(a => a.clone());
         defenderPlayer.codeIndex = this.codeIndex;
+        defenderPlayer.arriveDelay = this.arriveDelay;
 
         return defenderPlayer;
     }

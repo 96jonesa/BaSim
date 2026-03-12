@@ -26,6 +26,7 @@ export class HealerPenance extends Penance {
         this.greenCounter = -1;
         this.zombieState = false;
         this.forcedTarget = "";
+        this.drawnPosition = null;
         this.spawnPosition = position.clone();
         this.maxHealth = maxHealth;
         this.health = maxHealth;
@@ -91,6 +92,7 @@ export class HealerPenance extends Penance {
         this.applyPoisonDamage(barbarianAssault);
         this.processDeath(barbarianAssault);
         this.processEggQueue(barbarianAssault);
+        this.drawnPosition = this.position.clone();
         if (this.isDying) {
             return;
         }
@@ -419,6 +421,7 @@ export class HealerPenance extends Penance {
         healerPenance.zombieState = this.zombieState;
         healerPenance.destination = this.destination === null ? null : this.destination.clone();
         healerPenance.forcedTarget = this.forcedTarget;
+        healerPenance.drawnPosition = this.drawnPosition === null ? null : this.drawnPosition.clone();
         return healerPenance;
     }
 }

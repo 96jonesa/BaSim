@@ -30,6 +30,7 @@ import {HealerTargetType} from "./HealerTargetType.js";
 import {parseCannonInput, getCannonPosition} from "./Cannon.js";
 import {CannonCommand} from "./CannonCommand.js";
 import {CannonSide} from "./CannonSide.js";
+import {EggType} from "./EggType.js";
 import {HealerCodeCommand} from "./HealerCodeCommand.js";
 
 const HTML_CANVAS: string = "basimcanvas";
@@ -116,6 +117,8 @@ function loadMarkedTiles(): Array<TileMarker> {
         return [];
     }
 }
+
+var eggImages: Record<string, HTMLImageElement> = {};
 
 var canvas: HTMLCanvasElement;
 var movementsInput: HTMLInputElement;
@@ -229,6 +232,11 @@ function init(): void {
     currentDefenderFoodSpan = document.getElementById(HTML_CURRENT_DEF_FOOD);
     markerColorInput = document.getElementById(HTML_MARKER_COLOR) as HTMLInputElement;
     renderer = new Renderer(canvas, 64 * 12, 48 * 12, 12);
+    for (const type of ["r", "g", "b"]) {
+        const img = new Image();
+        img.src = "static/" + (type === "r" ? "red" : type === "g" ? "green" : "blue") + "_egg.svg";
+        eggImages[type] = img;
+    }
     toggleMarkingTiles = document.getElementById(HTML_MARKING_TILES) as HTMLInputElement;
     toggleMarkingTiles.onchange = toggleMarkingTilesOnChange;
     markingTiles = toggleMarkingTiles.checked;
@@ -854,6 +862,7 @@ function draw(): void {
     drawGrid();
     drawOverlays();
     renderer.present();
+    drawEggIcons();
 }
 
 /**
@@ -1149,6 +1158,34 @@ function drawOverlays(): void {
 
     if (toggleRenderDistance.checked) {
         drawRenderDistance();
+    }
+}
+
+function drawEggIcons(): void {
+    const penance = [...barbarianAssault.runners, ...barbarianAssault.healers];
+    const ts = renderer.tileSize;
+    const drawn: Record<string, Set<string>> = { w: new Set(), e: new Set() };
+
+    for (const p of penance) {
+        for (const egg of p.eggQueue) {
+            if (egg.stalled >= 0) {
+                if (drawn[egg.cannon].has(egg.type)) continue;
+                drawn[egg.cannon].add(egg.type);
+
+                const cannonPos = getCannonPosition(egg.cannon === "w" ? CannonSide.WEST : CannonSide.EAST);
+                const img = eggImages[egg.type];
+                if (img === undefined || !img.complete) continue;
+
+                const dx = egg.type === EggType.RED ? -10 : egg.type === EggType.GREEN ? -4 : 3;
+                const dy = -8;
+                const drawX = cannonPos.x * ts + dx - 1;
+                const drawY = renderer.canvasHeight - (cannonPos.y * ts) - ts + dy;
+                const drawW = ts * 1.2;
+                const drawH = ts * 1.2;
+
+                renderer.context.drawImage(img, drawX, drawY, drawW, drawH);
+            }
+        }
     }
 }
 

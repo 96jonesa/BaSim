@@ -429,7 +429,7 @@ describe("processEggQueue", (): void => {
         const ba = new BarbarianAssault(1, true, true, false, [], 5, new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), []);
 
         runner.blueCounter = 5;
-        runner.processEggQueue(ba);
+        runner.tick(ba);
 
         expect(runner.blueCounter).toBe(4);
     });
@@ -469,7 +469,7 @@ describe("processEggQueue", (): void => {
 
         runner.tick(ba);
 
-        expect(runner.cycleTick).toBe(6);
+        expect(runner.cycleTick).toBe(5);
         expect(runner.position.x).toBe(startX);
         expect(runner.position.y).toBe(startY);
     });

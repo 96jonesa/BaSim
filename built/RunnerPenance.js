@@ -38,11 +38,32 @@ export class RunnerPenance extends Penance {
                         break;
                     case EggType.BLUE:
                         this.eggQueue.length = 0;
-                        this.blueCounter = 9;
-                        if (this.isDying) {
-                            this.isDying = false;
-                            this.despawnCountdown = null;
+                        if (this.isDying && this.despawnCountdown === null) {
+                            this.cycleTick--;
+                            if (this.cycleTick < 1) {
+                                this.cycleTick = 10;
+                            }
                         }
+                        else if (this.despawnCountdown === 2) {
+                            this.cycleTick--;
+                            if (this.cycleTick < 1) {
+                                this.cycleTick = 10;
+                            }
+                        }
+                        else if (this.despawnCountdown === 1) {
+                            this.cycleTick--;
+                            if (this.cycleTick < 1) {
+                                this.cycleTick = 10;
+                            }
+                            this.cycleTick--;
+                            if (this.cycleTick < 1) {
+                                this.cycleTick = 10;
+                            }
+                        }
+                        this.foodTarget = null;
+                        this.isDying = false;
+                        this.despawnCountdown = null;
+                        this.blueCounter = 9;
                         return;
                 }
             }
@@ -55,9 +76,6 @@ export class RunnerPenance extends Penance {
             }
             this.greenCounter--;
         }
-        if (this.blueCounter >= 0) {
-            this.blueCounter--;
-        }
         if (this.hp <= 0 && !this.isDying) {
             this.isDying = true;
         }
@@ -67,15 +85,16 @@ export class RunnerPenance extends Penance {
      */
     tick(barbarianAssault) {
         this.chat = "";
+        if (this.blueCounter >= 0) {
+            this.blueCounter--;
+            return;
+        }
         this.cycleTick++;
         if (this.cycleTick > 10) {
             this.cycleTick = 1;
         }
         this.ticksStandingStill++;
         this.processEggQueue(barbarianAssault);
-        if (this.blueCounter >= 0) {
-            return;
-        }
         if (this.despawnCountdown !== null) {
             this.despawnCountdown--;
             if (this.despawnCountdown === 0) {

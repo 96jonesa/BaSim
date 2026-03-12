@@ -4,7 +4,6 @@ import { Player } from "./Player.js";
 import { HealerTargetType } from "./HealerTargetType.js";
 import { RunnerPenance } from "./RunnerPenance.js";
 import { EggType } from "./EggType.js";
-import { getCannonPosition } from "./CannonPositions.js";
 /**
  * Represents a Barbarian Assault healer penance.
  */
@@ -56,8 +55,7 @@ export class HealerPenance extends Penance {
                         if (this.isDying) {
                             this.isDying = false;
                             this.zombieState = true;
-                            this.position = getCannonPosition(egg.cannon).clone();
-                            this.despawnCountdown = 3;
+                            this.despawnCountdown = null;
                         }
                         return;
                 }
@@ -65,38 +63,33 @@ export class HealerPenance extends Penance {
             egg.stalled--;
         }
         this.eggQueue = this.eggQueue.filter(e => e.stalled >= 0);
-        if (this.greenCounter >= 0) {
-            if (!this.zombieState && this.greenCounter > 0 && this.greenCounter % 30 === 0) {
-                this.health -= 1;
-                this.poisonHitsplat = true;
-            }
-            this.greenCounter--;
-        }
-        if (this.blueCounter >= 0) {
-            this.blueCounter--;
-        }
-        if (this.zombieState && this.health > 0) {
-            this.zombieState = false;
-        }
     }
     /**
      * @inheritDoc
      */
     tick(barbarianAssault) {
         this.poisonHitsplat = false;
+        if (this.blueCounter >= 0) {
+            if (this.blueCounter === 0) {
+                this.applyPoisonDamage(barbarianAssault);
+            }
+            this.blueCounter--;
+            return;
+        }
         this.regenTimer++;
         if (this.regenTimer % 100 === 0) {
             if (this.health < this.maxHealth) {
                 this.health++;
             }
+            this.zombieState = false;
         }
-        this.processEggQueue(barbarianAssault);
         this.applyPoisonDamage(barbarianAssault);
         this.processDeath(barbarianAssault);
+        this.processEggQueue(barbarianAssault);
         if (this.isDying) {
             return;
         }
-        if (this.blueCounter >= 0) {
+        if (this.blueCounter >= 0 || this.zombieState) {
             return;
         }
         this.updateTargetAndPursueOrMove(barbarianAssault);
@@ -162,6 +155,13 @@ export class HealerPenance extends Penance {
         if (this.isDying) {
             return;
         }
+        if (this.greenCounter >= 0) {
+            if (!this.zombieState && this.greenCounter > 0 && this.greenCounter % 30 === 0) {
+                this.health -= 1;
+                this.poisonHitsplat = true;
+            }
+            this.greenCounter--;
+        }
         if (this.isPoisoned && barbarianAssault.ticks - this.spawnTick >= 5) {
             if (barbarianAssault.ticks - this.lastPoisonTick >= 5) {
                 this.health = Math.max(0, this.health - this.poisonDamage);
@@ -210,7 +210,7 @@ export class HealerPenance extends Penance {
      * @private
      */
     processDeath(barbarianAssault) {
-        if (this.health > 0) {
+        if (this.health > 0 || this.zombieState) {
             return;
         }
         this.isDying = true;

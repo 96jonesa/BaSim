@@ -39,7 +39,7 @@ describe("processEggQueue", (): void => {
         healer.processEggQueue(ba);
 
         expect(healer.health).toBe(26);
-        expect(healer.greenCounter).toBe(148);
+        expect(healer.greenCounter).toBe(149);
         expect(healer.poisonHitsplat).toBe(true);
     });
 
@@ -53,7 +53,7 @@ describe("processEggQueue", (): void => {
         healer.processEggQueue(ba);
 
         expect(healer.health).toBe(0);
-        expect(healer.greenCounter).toBe(148);
+        expect(healer.greenCounter).toBe(149);
     });
 
     test("green poison ticks damage every 30 ticks", (): void => {
@@ -61,7 +61,7 @@ describe("processEggQueue", (): void => {
         const ba = new BarbarianAssault(1, true, true, false, [], 5, new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), []);
 
         healer.greenCounter = 120;
-        healer.processEggQueue(ba);
+        healer.tick(ba);
 
         expect(healer.health).toBe(26);
         expect(healer.poisonHitsplat).toBe(true);
@@ -73,7 +73,7 @@ describe("processEggQueue", (): void => {
         healer.poisonHitsplat = false;
 
         healer.greenCounter = 25;
-        healer.processEggQueue(ba);
+        healer.tick(ba);
 
         expect(healer.health).toBe(27);
     });
@@ -85,7 +85,7 @@ describe("processEggQueue", (): void => {
         healer.health = 0;
 
         healer.greenCounter = 30;
-        healer.processEggQueue(ba);
+        healer.tick(ba);
 
         expect(healer.health).toBe(0);
     });
@@ -102,7 +102,7 @@ describe("processEggQueue", (): void => {
         expect(healer.eggQueue.length).toBe(0);
     });
 
-    test("blue egg on dying healer creates zombie at cannon position", (): void => {
+    test("blue egg on dying healer creates zombie in place", (): void => {
         const healer = new HealerPenance(new Position(42, 37), 27, 1, 1);
         const ba = new BarbarianAssault(1, true, true, false, [], 5, new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), []);
         healer.isDying = true;
@@ -113,29 +113,31 @@ describe("processEggQueue", (): void => {
 
         expect(healer.isDying).toBe(false);
         expect(healer.zombieState).toBe(true);
-        expect(healer.position.x).toBe(21);
-        expect(healer.position.y).toBe(26);
-        expect(healer.despawnCountdown).toBe(3);
+        expect(healer.position.x).toBe(42);
+        expect(healer.position.y).toBe(37);
+        expect(healer.despawnCountdown).toBe(null);
     });
 
-    test("zombie state clears when health becomes positive", (): void => {
+    test("zombie state clears on regen tick", (): void => {
         const healer = new HealerPenance(new Position(42, 37), 27, 1, 1);
         const ba = new BarbarianAssault(1, true, true, false, [], 5, new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), []);
         healer.zombieState = true;
         healer.health = 1;
+        healer.regenTimer = 99;
 
-        healer.processEggQueue(ba);
+        healer.tick(ba);
 
         expect(healer.zombieState).toBe(false);
     });
 
-    test("zombie state persists when health is 0", (): void => {
+    test("zombie state persists before regen tick", (): void => {
         const healer = new HealerPenance(new Position(42, 37), 27, 1, 1);
         const ba = new BarbarianAssault(1, true, true, false, [], 5, new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), []);
         healer.zombieState = true;
         healer.health = 0;
+        healer.regenTimer = 50;
 
-        healer.processEggQueue(ba);
+        healer.tick(ba);
 
         expect(healer.zombieState).toBe(true);
     });
@@ -162,12 +164,12 @@ describe("processEggQueue", (): void => {
         expect(healer.eggQueue.length).toBe(0);
     });
 
-    test("blue stun decrements each call", (): void => {
+    test("blue stun decrements each tick", (): void => {
         const healer = new HealerPenance(new Position(42, 37), 27, 1, 1);
         const ba = new BarbarianAssault(1, true, true, false, [], 5, new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), []);
 
         healer.blueCounter = 5;
-        healer.processEggQueue(ba);
+        healer.tick(ba);
 
         expect(healer.blueCounter).toBe(4);
     });

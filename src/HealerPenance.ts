@@ -8,6 +8,7 @@ import {RunnerPenance} from "./RunnerPenance.js";
 import {EggQueueItem} from "./EggQueueItem.js";
 import {EggType} from "./EggType.js";
 import {getCannonPosition} from "./CannonPositions.js";
+import {CannonSide} from "./CannonSide.js";
 
 /**
  * Represents a Barbarian Assault healer penance.
@@ -71,6 +72,7 @@ export class HealerPenance extends Penance {
                             this.isDying = false;
                             this.zombieState = true;
                             this.despawnCountdown = null;
+                            this.destination = getCannonPosition(egg.cannon).clone();
                         }
                         return;
                 }
@@ -94,6 +96,10 @@ export class HealerPenance extends Penance {
             }
             this.blueCounter--;
             return;
+        }
+
+        if (this.zombieState) {
+            this.move(barbarianAssault);
         }
 
         this.regenTimer++;
@@ -453,7 +459,7 @@ export class HealerPenance extends Penance {
      * @inheritDoc
      */
     public clone(): HealerPenance {
-        let healerPenance: HealerPenance = new HealerPenance(this.position, this.maxHealth, this.spawnTick, this.id);
+        let healerPenance: HealerPenance = new HealerPenance(this.position.clone(), this.maxHealth, this.spawnTick, this.id);
         healerPenance.spawnPosition = this.spawnPosition === null ? null : this.spawnPosition.clone();
         healerPenance.target = this.target === null ? null : this.target.clone();
         healerPenance.previousTargetType = this.previousTargetType;
@@ -474,6 +480,7 @@ export class HealerPenance extends Penance {
         healerPenance.blueCounter = this.blueCounter;
         healerPenance.greenCounter = this.greenCounter;
         healerPenance.zombieState = this.zombieState;
+        healerPenance.destination = this.destination === null ? null : this.destination.clone();
         healerPenance.forcedTarget = this.forcedTarget;
 
         return healerPenance;

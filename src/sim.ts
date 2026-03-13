@@ -1748,6 +1748,8 @@ function importSettings(): void {
             toggleSecondsButton.innerHTML = secondsMode ? "Express time in ticks" : "Express time in seconds";
             startTickInput.placeholder = secondsMode ? "0" : "1";
             document.getElementById("startticklabel").innerHTML = secondsMode ? "Start time" : "Start tick";
+            runnerSpawnsInput.placeholder = secondsMode ? "6,12,18" : "11,21,31";
+            healerSpawnsInput.placeholder = secondsMode ? "6,12,18" : "11,21,31";
         }
         field.value = "";
         alert("Settings imported.");
@@ -1979,6 +1981,8 @@ function toggleSecondsOnClick(): void {
     toggleSecondsButton.innerHTML = secondsMode ? "Express time in ticks" : "Express time in seconds";
     startTickInput.placeholder = secondsMode ? "0" : "1";
     document.getElementById("startticklabel").innerHTML = secondsMode ? "Start time" : "Start tick";
+    runnerSpawnsInput.placeholder = secondsMode ? "6,12,18" : "11,21,31";
+    healerSpawnsInput.placeholder = secondsMode ? "6,12,18" : "11,21,31";
 }
 
 /**

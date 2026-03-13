@@ -1580,6 +1580,8 @@ function importSettings() {
             toggleSecondsButton.innerHTML = secondsMode ? "Express time in ticks" : "Express time in seconds";
             startTickInput.placeholder = secondsMode ? "0" : "1";
             document.getElementById("startticklabel").innerHTML = secondsMode ? "Start time" : "Start tick";
+            runnerSpawnsInput.placeholder = secondsMode ? "6,12,18" : "11,21,31";
+            healerSpawnsInput.placeholder = secondsMode ? "6,12,18" : "11,21,31";
         }
         field.value = "";
         alert("Settings imported.");
@@ -1810,6 +1812,8 @@ function toggleSecondsOnClick() {
     toggleSecondsButton.innerHTML = secondsMode ? "Express time in ticks" : "Express time in seconds";
     startTickInput.placeholder = secondsMode ? "0" : "1";
     document.getElementById("startticklabel").innerHTML = secondsMode ? "Start time" : "Start tick";
+    runnerSpawnsInput.placeholder = secondsMode ? "6,12,18" : "11,21,31";
+    healerSpawnsInput.placeholder = secondsMode ? "6,12,18" : "11,21,31";
 }
 /**
  * Sets the defender level to the selected defender level value, and stops and resets the simulator.

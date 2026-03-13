@@ -1773,6 +1773,7 @@ function importSettings(): void {
             runnerSpawnsInput.placeholder = secondsMode ? "6,12,18" : "11,21,31";
             healerSpawnsInput.placeholder = secondsMode ? "6,12,18" : "11,21,31";
             document.getElementById("runnersdeadbylabel").innerHTML = secondsMode ? "Runners dead by time" : "Runners dead by tick";
+            runnersDeadByTickInput.placeholder = secondsMode ? "24.6" : "42";
         }
         field.value = "";
         alert("Settings imported.");
@@ -2025,6 +2026,7 @@ function toggleSecondsOnClick(): void {
     runnerSpawnsInput.placeholder = secondsMode ? "6,12,18" : "11,21,31";
     healerSpawnsInput.placeholder = secondsMode ? "6,12,18" : "11,21,31";
     document.getElementById("runnersdeadbylabel").innerHTML = secondsMode ? "Runners dead by time" : "Runners dead by tick";
+    runnersDeadByTickInput.placeholder = secondsMode ? "24.6" : "42";
 }
 
 /**

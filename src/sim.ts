@@ -593,27 +593,27 @@ function windowOnKeyDown(keyboardEvent: KeyboardEvent): void {
             switch (key) {
                 case "r":
                     barbarianAssault.defenderPlayer.dropFood(barbarianAssault, FoodType.TOFU);
-                    controlledCommands.innerHTML += barbarianAssault.ticks + ":t<br>";
+                    controlledCommands.innerHTML += tickToDisplay(barbarianAssault.ticks) + ":t<br>";
                     controlledCommands.scrollTop = controlledCommands.scrollHeight;
                     break;
                 case "w":
                     barbarianAssault.defenderPlayer.dropFood(barbarianAssault, FoodType.CRACKERS);
-                    controlledCommands.innerHTML += barbarianAssault.ticks + ":c<br>";
+                    controlledCommands.innerHTML += tickToDisplay(barbarianAssault.ticks) + ":c<br>";
                     controlledCommands.scrollTop = controlledCommands.scrollHeight;
                     break;
                 case "t":
                     barbarianAssault.defenderPlayer.startRepairing(barbarianAssault);
-                    controlledCommands.innerHTML += barbarianAssault.ticks + ":r<br>";
+                    controlledCommands.innerHTML += tickToDisplay(barbarianAssault.ticks) + ":r<br>";
                     controlledCommands.scrollTop = controlledCommands.scrollHeight;
                     break;
                 case "e":
                     barbarianAssault.defenderPlayer.shouldPickUpAnyFood = true;
-                    controlledCommands.innerHTML += barbarianAssault.ticks + ":e<br>";
+                    controlledCommands.innerHTML += tickToDisplay(barbarianAssault.ticks) + ":e<br>";
                     controlledCommands.scrollTop = controlledCommands.scrollHeight;
                     break;
                 case "l":
                     barbarianAssault.defenderPlayer.isPickingUpLogs = true;
-                    controlledCommands.innerHTML += barbarianAssault.ticks + ":l<br>";
+                    controlledCommands.innerHTML += tickToDisplay(barbarianAssault.ticks) + ":l<br>";
                     controlledCommands.scrollTop = controlledCommands.scrollHeight;
                     break;
             }
@@ -624,7 +624,7 @@ function windowOnKeyDown(keyboardEvent: KeyboardEvent): void {
                 if (!simpleFood && player === "defender") {
                     barbarianAssault.defenderPlayer.dropFood(barbarianAssault, FoodType.TOFU);
 
-                    controlledCommands.innerHTML += barbarianAssault.ticks + ":t<br>";
+                    controlledCommands.innerHTML += tickToDisplay(barbarianAssault.ticks) + ":t<br>";
                     controlledCommands.scrollTop = controlledCommands.scrollHeight;
                 }
                 break;
@@ -632,7 +632,7 @@ function windowOnKeyDown(keyboardEvent: KeyboardEvent): void {
                 if (!simpleFood && player === "defender") {
                     barbarianAssault.defenderPlayer.dropFood(barbarianAssault, FoodType.CRACKERS);
 
-                    controlledCommands.innerHTML += barbarianAssault.ticks + ":c<br>";
+                    controlledCommands.innerHTML += tickToDisplay(barbarianAssault.ticks) + ":c<br>";
                     controlledCommands.scrollTop = controlledCommands.scrollHeight;
                 }
                 break;
@@ -640,7 +640,7 @@ function windowOnKeyDown(keyboardEvent: KeyboardEvent): void {
                 if (!simpleFood && player === "defender") {
                     barbarianAssault.defenderPlayer.dropFood(barbarianAssault, FoodType.WORMS);
 
-                    controlledCommands.innerHTML += barbarianAssault.ticks + ":w<br>";
+                    controlledCommands.innerHTML += tickToDisplay(barbarianAssault.ticks) + ":w<br>";
                     controlledCommands.scrollTop = controlledCommands.scrollHeight;
                 }
                 break;
@@ -648,7 +648,7 @@ function windowOnKeyDown(keyboardEvent: KeyboardEvent): void {
                 if (!simpleFood && player === "defender") {
                     barbarianAssault.defenderPlayer.foodBeingPickedUp = FoodType.TOFU;
 
-                    controlledCommands.innerHTML += barbarianAssault.ticks + ":1<br>";
+                    controlledCommands.innerHTML += tickToDisplay(barbarianAssault.ticks) + ":1<br>";
                     controlledCommands.scrollTop = controlledCommands.scrollHeight;
                 }
                 break;
@@ -656,7 +656,7 @@ function windowOnKeyDown(keyboardEvent: KeyboardEvent): void {
                 if (!simpleFood && player === "defender") {
                     barbarianAssault.defenderPlayer.foodBeingPickedUp = FoodType.CRACKERS;
 
-                    controlledCommands.innerHTML += barbarianAssault.ticks + ":2<br>";
+                    controlledCommands.innerHTML += tickToDisplay(barbarianAssault.ticks) + ":2<br>";
                     controlledCommands.scrollTop = controlledCommands.scrollHeight;
                 }
                 break;
@@ -664,7 +664,7 @@ function windowOnKeyDown(keyboardEvent: KeyboardEvent): void {
                 if (!simpleFood && player === "defender") {
                     barbarianAssault.defenderPlayer.foodBeingPickedUp = FoodType.WORMS;
 
-                    controlledCommands.innerHTML += barbarianAssault.ticks + ":3<br>";
+                    controlledCommands.innerHTML += tickToDisplay(barbarianAssault.ticks) + ":3<br>";
                     controlledCommands.scrollTop = controlledCommands.scrollHeight;
                 }
                 break;
@@ -672,7 +672,7 @@ function windowOnKeyDown(keyboardEvent: KeyboardEvent): void {
                 if (!simpleFood && player === "defender") {
                     barbarianAssault.defenderPlayer.isPickingUpLogs = true;
 
-                    controlledCommands.innerHTML += barbarianAssault.ticks + ":l<br>";
+                    controlledCommands.innerHTML += tickToDisplay(barbarianAssault.ticks) + ":l<br>";
                     controlledCommands.scrollTop = controlledCommands.scrollHeight;
                 }
                 break;
@@ -680,7 +680,7 @@ function windowOnKeyDown(keyboardEvent: KeyboardEvent): void {
                 if (!simpleFood && player === "defender") {
                     barbarianAssault.defenderPlayer.startRepairing(barbarianAssault);
 
-                    controlledCommands.innerHTML += barbarianAssault.ticks + ":r<br>";
+                    controlledCommands.innerHTML += tickToDisplay(barbarianAssault.ticks) + ":r<br>";
                     controlledCommands.scrollTop = controlledCommands.scrollHeight;
                 }
                 break;
@@ -688,7 +688,7 @@ function windowOnKeyDown(keyboardEvent: KeyboardEvent): void {
                 const controlledPlayer = getControlledPlayerObject();
                 if (controlledPlayer !== null) {
                     controlledPlayer.isRunning = !controlledPlayer.isRunning;
-                    controlledCommands.innerHTML += barbarianAssault.ticks + ":m<br>";
+                    controlledCommands.innerHTML += tickToDisplay(barbarianAssault.ticks) + ":m<br>";
                     controlledCommands.scrollTop = controlledCommands.scrollHeight;
                 }
                 break;

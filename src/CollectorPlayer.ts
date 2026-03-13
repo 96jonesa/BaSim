@@ -33,6 +33,13 @@ export class CollectorPlayer extends Player {
     public clone(): CollectorPlayer {
         let collectorPlayer: CollectorPlayer = new CollectorPlayer(this.position);
         collectorPlayer.position = this.position === null ? null : this.position.clone();
+        collectorPlayer.pathQueueIndex = this.pathQueueIndex;
+        collectorPlayer.pathQueuePositions = [];
+        for (let i: number = 0; i < this.pathQueuePositions.length; i++) {
+            collectorPlayer.pathQueuePositions.push(this.pathQueuePositions[i] === null ? null : this.pathQueuePositions[i].clone());
+        }
+        collectorPlayer.shortestDistances = [...this.shortestDistances];
+        collectorPlayer.waypoints = [...this.waypoints];
         collectorPlayer.codeQueue = this.codeQueue.map(a => a.clone());
         collectorPlayer.codeIndex = this.codeIndex;
 

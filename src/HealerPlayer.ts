@@ -34,6 +34,13 @@ export class HealerPlayer extends Player {
     public clone(): HealerPlayer {
         let healerPlayer: HealerPlayer = new HealerPlayer(this.position);
         healerPlayer.position = this.position === null ? null : this.position.clone();
+        healerPlayer.pathQueueIndex = this.pathQueueIndex;
+        healerPlayer.pathQueuePositions = [];
+        for (let i: number = 0; i < this.pathQueuePositions.length; i++) {
+            healerPlayer.pathQueuePositions.push(this.pathQueuePositions[i] === null ? null : this.pathQueuePositions[i].clone());
+        }
+        healerPlayer.shortestDistances = [...this.shortestDistances];
+        healerPlayer.waypoints = [...this.waypoints];
         healerPlayer.codeQueue = this.codeQueue.map(a => a.clone());
         healerPlayer.codeIndex = this.codeIndex;
 

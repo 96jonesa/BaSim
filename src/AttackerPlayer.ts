@@ -33,6 +33,13 @@ export class AttackerPlayer extends Player {
     public clone(): AttackerPlayer {
         let attackerPlayer: AttackerPlayer = new AttackerPlayer(this.position);
         attackerPlayer.position = this.position === null ? null : this.position.clone();
+        attackerPlayer.pathQueueIndex = this.pathQueueIndex;
+        attackerPlayer.pathQueuePositions = [];
+        for (let i: number = 0; i < this.pathQueuePositions.length; i++) {
+            attackerPlayer.pathQueuePositions.push(this.pathQueuePositions[i] === null ? null : this.pathQueuePositions[i].clone());
+        }
+        attackerPlayer.shortestDistances = [...this.shortestDistances];
+        attackerPlayer.waypoints = [...this.waypoints];
         attackerPlayer.codeQueue = this.codeQueue.map(a => a.clone());
         attackerPlayer.codeIndex = this.codeIndex;
 

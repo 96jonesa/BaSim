@@ -44,7 +44,7 @@ export class Player extends Character {
             this.codeIndex++;
             return;
         }
-        if (this.pathQueueIndex === 0) {
+        if (this.pathQueueIndex === 0 || this.shouldRecalculatePath()) {
             if (this.isCardinalAdjacentTo(healer)) {
                 healer.eatFood(barbarianAssault);
                 this.codeIndex++;
@@ -54,9 +54,6 @@ export class Player extends Character {
             else {
                 this.recalculateFoodPath(barbarianAssault, healer);
             }
-        }
-        else if (this.shouldRecalculatePath()) {
-            this.recalculateFoodPath(barbarianAssault, healer);
         }
     }
     initializeFoodPath(barbarianAssault) {

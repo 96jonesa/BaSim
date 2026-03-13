@@ -82,6 +82,7 @@ const HTML_SETTINGS_EXPORT: string = "settingsexport";
 const HTML_SETTINGS_IMPORT: string = "settingsimport";
 const HTML_SETTINGS_IMPORT_FIELD: string = "settingsimportfield";
 const HTML_TOGGLE_SECONDS: string = "toggleseconds";
+const HTML_START_TICK: string = "starttick";
 const HTML_PAUSE_RESUME: string = "pauseresume";
 const HTML_STEP_BACK: string = "stepback";
 const HTML_STEP_FORWARD: string = "stepforward";
@@ -166,6 +167,7 @@ var runnerSpawnsInput: HTMLInputElement;
 var healerSpawnsInput: HTMLInputElement;
 var toggleSecondsButton: HTMLButtonElement;
 var secondsMode: boolean = false;
+var startTickInput: HTMLInputElement;
 var pauseResumeButton: HTMLButtonElement;
 var stepBackButton: HTMLButtonElement;
 var stepForwardButton: HTMLButtonElement;
@@ -263,6 +265,12 @@ function init(): void {
 
     toggleSecondsButton = document.getElementById(HTML_TOGGLE_SECONDS) as HTMLButtonElement;
     toggleSecondsButton.onclick = toggleSecondsOnClick;
+    startTickInput = document.getElementById(HTML_START_TICK) as HTMLInputElement;
+    startTickInput.onkeydown = function (keyboardEvent: KeyboardEvent): void {
+        if (keyboardEvent.key === " ") {
+            keyboardEvent.preventDefault();
+        }
+    };
 
     requireRepairs = toggleRepair.checked;
     requireLogs = toggleLogToRepair.checked;
@@ -1387,6 +1395,48 @@ function startStopButtonOnClick(): void {
         barbarianAssault.healerSpawns = parseSpawnsInput(healerSpawnsInput.value);
         barbarianAssault.renderDistanceEnabled = toggleRenderDistance.checked;
 
+        // Parse start tick and rapidly simulate to it
+        let startTick = 1;
+        const startTickValue = startTickInput.value.trim();
+        if (startTickValue.length > 0) {
+            if (useSeconds()) {
+                const sec = parseFloat(startTickValue);
+                if (isNaN(sec)) {
+                    alert("Invalid start tick value.");
+                    reset();
+                    return;
+                }
+                const t = secondsToTick(sec);
+                if (t === null) {
+                    alert("Invalid start tick: " + startTickValue + " is not a valid time");
+                    reset();
+                    return;
+                }
+                startTick = t;
+            } else {
+                startTick = parseInt(startTickValue);
+                if (isNaN(startTick) || startTick < 1) {
+                    alert("Invalid start tick value.");
+                    reset();
+                    return;
+                }
+            }
+        }
+
+        if (startTick > 1) {
+            for (let i = 1; i < startTick; i++) {
+                barbarianAssault.tick();
+                if (!simpleFood) {
+                    currentDefenderFoodSpan.innerHTML = barbarianAssault.defenderFoodCall.toString();
+                }
+                tickCountSpan.innerHTML = barbarianAssault.ticks.toString() + " (" + ticksToSeconds(barbarianAssault.ticks) + "s)";
+                pushState();
+            }
+            draw();
+            updateRunnerTable();
+            updateHealerTable();
+        }
+
         console.log("Wave " + wave + " started!");
         tick();
         tickTimerId = setInterval(tick, Number(tickDurationInput.value));
@@ -1649,6 +1699,7 @@ function exportSettings(): void {
         defender: (document.getElementById(HTML_DEFENDER_COMMANDS) as HTMLTextAreaElement).value,
         playerToControl: playerSelect.value,
         secondsMode: secondsMode,
+        startTick: startTickInput.value,
     };
     const json = JSON.stringify(settings);
     navigator.clipboard.writeText(json);
@@ -1691,9 +1742,12 @@ function importSettings(): void {
             playerSelect.value = s.playerToControl;
             player = playerSelect.value;
         }
+        if (s.startTick !== undefined) startTickInput.value = s.startTick;
         if (s.secondsMode !== undefined) {
             secondsMode = !!s.secondsMode;
             toggleSecondsButton.innerHTML = secondsMode ? "Express time in ticks" : "Express time in seconds";
+            startTickInput.placeholder = secondsMode ? "0" : "1";
+            document.getElementById("startticklabel").innerHTML = secondsMode ? "Start time" : "Start tick";
         }
         field.value = "";
         alert("Settings imported.");
@@ -1777,6 +1831,24 @@ function convertDefenderCommands(toSimple: boolean): void {
 
 function toggleSecondsOnClick(): void {
     const toSeconds = !secondsMode;
+
+    // Convert start tick input
+    const startTickTrimmed = startTickInput.value.trim();
+    if (startTickTrimmed.length > 0) {
+        const num = parseFloat(startTickTrimmed);
+        if (!isNaN(num)) {
+            if (toSeconds) {
+                startTickInput.value = ((num - 1) * 0.6).toFixed(1).replace(/\.0$/, "");
+            } else {
+                const tick = secondsToTick(num);
+                if (tick === null) {
+                    alert("Cannot convert to ticks: " + num + " is not a valid time");
+                    return;
+                }
+                startTickInput.value = String(tick);
+            }
+        }
+    }
 
     // Convert spawns inputs
     for (const input of [runnerSpawnsInput, healerSpawnsInput]) {
@@ -1905,6 +1977,8 @@ function toggleSecondsOnClick(): void {
 
     secondsMode = toSeconds;
     toggleSecondsButton.innerHTML = secondsMode ? "Express time in ticks" : "Express time in seconds";
+    startTickInput.placeholder = secondsMode ? "0" : "1";
+    document.getElementById("startticklabel").innerHTML = secondsMode ? "Start time" : "Start tick";
 }
 
 /**

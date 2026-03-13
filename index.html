@@ -131,6 +131,8 @@ Healer spawns: <input id="healerspawns" type="text" size="23" placeholder="11,21
 <br>
 Eggs: <input id="cannonqueue" type="text" size="35"/> <span title="Egg firing commands. Format: wrr,1,51 = west cannon, runner target, red egg, 1 egg, start tick 51. First char: cannon side (w/e). Second: penance type (r/h). Third: egg type (r/g/b). Separate with -. Shorthand: 1,51 inherits from previous. Egg types: r=red (3 dmg), g=green (1 dmg + poison), b=blue (stun + zombie)." class="info-tip">i</span>
 <br>
+<span id="startticklabel">Start tick</span>: <input id="starttick" type="text" size="5" placeholder="1"/> <span title="Skip ahead to this tick by rapidly simulating all prior ticks without rendering. Leave empty or set to 1 to start from the beginning." class="info-tip">i</span>
+<br>
 Tick duration (milliseconds): <input id="tickduration" type="number" min="100" max="1200" value="600"/>
 </div>
 <table id="teamtable" class="section" style="border-collapse: collapse;">

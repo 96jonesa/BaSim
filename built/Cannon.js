@@ -141,7 +141,7 @@ export class Cannon {
         return cannon;
     }
 }
-export function parseCannonInput(input) {
+export function parseCannonInput(input, secondsMode = false) {
     if (input.trim() === "")
         return [];
     const commands = [];
@@ -161,11 +161,24 @@ export function parseCannonInput(input) {
             // So token[0] = "wrr", token[1] = "1", token[2] = "51"
             // That's only 3 tokens when split by comma. Let me fix this.
         }
+        function parseTick(value) {
+            if (secondsMode) {
+                const seconds = parseFloat(value.trim());
+                if (isNaN(seconds))
+                    return NaN;
+                const t = seconds / 0.6;
+                const rounded = Math.round(t);
+                if (Math.abs(t - rounded) > 0.001 || rounded < 0)
+                    return NaN;
+                return rounded;
+            }
+            return parseInt(value.trim());
+        }
         if (tokens.length === 3) {
             // Full format: "wrr,1,51"
             const descriptor = tokens[0].trim();
             const numEggs = parseInt(tokens[1].trim());
-            const tick = parseInt(tokens[2].trim());
+            const tick = parseTick(tokens[2]);
             if (descriptor.length === 3) {
                 const cannonChar = descriptor[0];
                 const penanceChar = descriptor[1];
@@ -181,7 +194,7 @@ export function parseCannonInput(input) {
         else if (tokens.length === 2) {
             // Shorthand: "1,51" - inherit cannon/penance/eggType from last
             const numEggs = parseInt(tokens[0].trim());
-            const tick = parseInt(tokens[1].trim());
+            const tick = parseTick(tokens[1]);
             if (isNaN(numEggs) || isNaN(tick))
                 return null;
             commands.push(new CannonCommand(id++, lastCannon, lastPenance, lastEggType, numEggs, tick));

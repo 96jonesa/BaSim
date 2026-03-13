@@ -81,6 +81,7 @@ const HTML_MARKER_IMPORT_FIELD: string = "markerimportfield";
 const HTML_SETTINGS_EXPORT: string = "settingsexport";
 const HTML_SETTINGS_IMPORT: string = "settingsimport";
 const HTML_SETTINGS_IMPORT_FIELD: string = "settingsimportfield";
+const HTML_TOGGLE_SECONDS: string = "toggleseconds";
 const HTML_PAUSE_RESUME: string = "pauseresume";
 const HTML_STEP_BACK: string = "stepback";
 const HTML_STEP_FORWARD: string = "stepforward";
@@ -163,6 +164,8 @@ var cannonQueueInput: HTMLInputElement;
 var healerSpawnTargetsInput: HTMLInputElement;
 var runnerSpawnsInput: HTMLInputElement;
 var healerSpawnsInput: HTMLInputElement;
+var toggleSecondsButton: HTMLButtonElement;
+var secondsMode: boolean = false;
 var pauseResumeButton: HTMLButtonElement;
 var stepBackButton: HTMLButtonElement;
 var stepForwardButton: HTMLButtonElement;
@@ -256,6 +259,9 @@ function init(): void {
         document.getElementById("hotkeylegend-normal").style.display = display;
         document.getElementById("hotkeylegend-simple").style.display = simpleFood ? "" : "none";
     };
+
+    toggleSecondsButton = document.getElementById(HTML_TOGGLE_SECONDS) as HTMLButtonElement;
+    toggleSecondsButton.onclick = toggleSecondsOnClick;
 
     requireRepairs = toggleRepair.checked;
     requireLogs = toggleLogToRepair.checked;
@@ -499,9 +505,63 @@ function parseSpawnsInput(value: string): Array<number> {
     const parts = trimmed.split(/[,\-]/);
     const spawns: Array<number> = [];
     for (const part of parts) {
-        const tick = parseInt(part.trim(), 10);
-        if (isNaN(tick) || tick < 1) {
-            return [];
+        if (useSeconds()) {
+            const seconds = parseFloat(part.trim());
+            if (isNaN(seconds)) {
+                return [];
+            }
+            const tick = secondsToTick(seconds);
+            if (tick === null || tick < 1) {
+                return [];
+            }
+            spawns.push(tick);
+        } else {
+            const tick = parseInt(part.trim(), 10);
+            if (isNaN(tick) || tick < 1) {
+                return [];
+            }
+            spawns.push(tick);
+        }
+    }
+    spawns.sort((a, b) => a - b);
+    return spawns;
+}
+
+function useSeconds(): boolean {
+    return secondsMode;
+}
+
+function tickToDisplay(tick: number): string {
+    if (useSeconds()) {
+        return (tick * 0.6).toFixed(1).replace(/\.0$/, "");
+    }
+    return String(tick);
+}
+
+function secondsToTick(seconds: number): number | null {
+    const tick = seconds / 0.6;
+    const rounded = Math.round(tick);
+    if (Math.abs(tick - rounded) > 0.001 || rounded < 0) {
+        return null;
+    }
+    return rounded;
+}
+
+function convertSpawnsInputToTicks(value: string): Array<number> | null {
+    const trimmed = value.trim();
+    if (trimmed.length === 0) {
+        return [];
+    }
+    const parts = trimmed.split(/[,\-]/);
+    const spawns: Array<number> = [];
+    for (const part of parts) {
+        const seconds = parseFloat(part.trim());
+        if (isNaN(seconds)) {
+            return null;
+        }
+        const tick = secondsToTick(seconds);
+        if (tick === null || tick < 1) {
+            return null;
         }
         spawns.push(tick);
     }
@@ -854,7 +914,7 @@ function canvasOnMouseDown(mouseEvent: MouseEvent): void {
             }
 
             drawYellowClick(mouseEvent);
-            controlledCommands.innerHTML += barbarianAssault.ticks + ":" + xTile + "," + yTile + "<br>";
+            controlledCommands.innerHTML += tickToDisplay(barbarianAssault.ticks) + ":" + xTile + "," + yTile + "<br>";
             controlledCommands.scrollTop = controlledCommands.scrollHeight;
         }
     }
@@ -1272,7 +1332,7 @@ function startStopButtonOnClick(): void {
             return;
         }
 
-        const cannonQueue: Array<CannonCommand> = parseCannonInput(cannonQueueInput.value);
+        const cannonQueue: Array<CannonCommand> = parseCannonInput(cannonQueueInput.value, useSeconds());
 
         if (cannonQueue === null) {
             alert("Invalid cannon queue. Example: wrr,1,51-erg,1,21");
@@ -1579,6 +1639,7 @@ function exportSettings(): void {
         collector: (document.getElementById(HTML_COLLECTOR_COMMANDS) as HTMLTextAreaElement).value,
         defender: (document.getElementById(HTML_DEFENDER_COMMANDS) as HTMLTextAreaElement).value,
         playerToControl: playerSelect.value,
+        secondsMode: secondsMode,
     };
     const json = JSON.stringify(settings);
     navigator.clipboard.writeText(json);
@@ -1621,6 +1682,9 @@ function importSettings(): void {
             playerSelect.value = s.playerToControl;
             player = playerSelect.value;
         }
+        if (s.secondsMode !== undefined && s.secondsMode !== secondsMode) {
+            toggleSecondsButton.click();
+        }
         field.value = "";
         alert("Settings imported.");
     } catch (e) {
@@ -1643,6 +1707,138 @@ function waveSelectOnChange(): void {
 function playerSelectOnChange(): void {
     player = playerSelect.value;
     reset();
+}
+
+function toggleSecondsOnClick(): void {
+    const toSeconds = !secondsMode;
+
+    // Convert spawns inputs
+    for (const input of [runnerSpawnsInput, healerSpawnsInput]) {
+        const trimmed = input.value.trim();
+        if (trimmed.length === 0) continue;
+        const separator = trimmed.includes("-") ? "-" : ",";
+        const parts = trimmed.split(/[,\-]/);
+        const converted: Array<string> = [];
+        for (const part of parts) {
+            const num = parseFloat(part.trim());
+            if (isNaN(num)) return;
+            if (toSeconds) {
+                converted.push((num * 0.6).toFixed(1).replace(/\.0$/, ""));
+            } else {
+                const tick = secondsToTick(num);
+                if (tick === null) {
+                    alert("Cannot convert to ticks: " + num + " is not a non-negative multiple of 0.6");
+                    return;
+                }
+                converted.push(String(tick));
+            }
+        }
+        input.value = converted.join(separator);
+    }
+
+    // Convert cannon queue
+    const cannonTrimmed = cannonQueueInput.value.trim();
+    if (cannonTrimmed.length > 0) {
+        const cannonParts = cannonTrimmed.split("-");
+        const convertedParts: Array<string> = [];
+        for (const part of cannonParts) {
+            const tokens = part.trim().split(",");
+            const lastIdx = tokens.length - 1;
+            const num = parseFloat(tokens[lastIdx].trim());
+            if (isNaN(num)) return;
+            if (toSeconds) {
+                tokens[lastIdx] = (num * 0.6).toFixed(1).replace(/\.0$/, "");
+            } else {
+                const tick = secondsToTick(num);
+                if (tick === null) {
+                    alert("Cannot convert to ticks: " + num + " is not a non-negative multiple of 0.6");
+                    return;
+                }
+                tokens[lastIdx] = String(tick);
+            }
+            convertedParts.push(tokens.join(","));
+        }
+        cannonQueueInput.value = convertedParts.join("-");
+    }
+
+    // Convert team commands
+    const commandInputIds = [
+        HTML_MAIN_ATTACKER_COMMANDS,
+        HTML_SECOND_ATTACKER_COMMANDS,
+        HTML_HEALER_COMMANDS,
+        HTML_COLLECTOR_COMMANDS,
+        HTML_DEFENDER_COMMANDS,
+    ];
+    for (const id of commandInputIds) {
+        const textarea = document.getElementById(id) as HTMLTextAreaElement;
+        const lines = textarea.value.split("\n");
+        const convertedLines: Array<string> = [];
+        for (const line of lines) {
+            if (line.trim().length === 0) {
+                convertedLines.push(line);
+                continue;
+            }
+            const colonIdx = line.indexOf(":");
+            if (colonIdx === -1) {
+                convertedLines.push(line);
+                continue;
+            }
+            const num = parseFloat(line.substring(0, colonIdx));
+            if (isNaN(num)) {
+                convertedLines.push(line);
+                continue;
+            }
+            const rest = line.substring(colonIdx);
+            if (toSeconds) {
+                convertedLines.push((num * 0.6).toFixed(1).replace(/\.0$/, "") + rest);
+            } else {
+                const tick = secondsToTick(num);
+                if (tick === null) {
+                    alert("Cannot convert to ticks: " + num + " is not a non-negative multiple of 0.6");
+                    return;
+                }
+                convertedLines.push(tick + rest);
+            }
+        }
+        textarea.value = convertedLines.join("\n");
+    }
+
+    // Convert controlled commands output
+    const commandsDiv = controlledCommands;
+    const html = commandsDiv.innerHTML;
+    if (html.trim().length > 0) {
+        const entries = html.split("<br>");
+        const convertedEntries: Array<string> = [];
+        for (const entry of entries) {
+            const trimmedEntry = entry.trim();
+            if (trimmedEntry.length === 0) continue;
+            const colonIdx = trimmedEntry.indexOf(":");
+            if (colonIdx === -1) {
+                convertedEntries.push(trimmedEntry);
+                continue;
+            }
+            const num = parseFloat(trimmedEntry.substring(0, colonIdx));
+            if (isNaN(num)) {
+                convertedEntries.push(trimmedEntry);
+                continue;
+            }
+            const rest = trimmedEntry.substring(colonIdx);
+            if (toSeconds) {
+                convertedEntries.push((num * 0.6).toFixed(1).replace(/\.0$/, "") + rest);
+            } else {
+                const tick = secondsToTick(num);
+                if (tick === null) {
+                    convertedEntries.push(trimmedEntry);
+                    continue;
+                }
+                convertedEntries.push(tick + rest);
+            }
+        }
+        commandsDiv.innerHTML = convertedEntries.map(e => e + "<br>").join("");
+    }
+
+    secondsMode = toSeconds;
+    toggleSecondsButton.innerHTML = secondsMode ? "Express time in ticks" : "Express time in seconds";
 }
 
 /**
@@ -1737,10 +1933,21 @@ function convertCommandsStringToMap(commandsString: string, player: string): Map
             return null;
         }
 
-        const tick: number = Number(tickAndCommand[0]);
-
-        if (!Number.isInteger(tick) || tick < 1 || tick < previousCommandTick) {
-            return null;
+        let tick: number;
+        if (useSeconds()) {
+            const seconds = parseFloat(tickAndCommand[0]);
+            if (isNaN(seconds)) {
+                return null;
+            }
+            tick = secondsToTick(seconds);
+            if (tick === null || tick < 1 || tick < previousCommandTick) {
+                return null;
+            }
+        } else {
+            tick = Number(tickAndCommand[0]);
+            if (!Number.isInteger(tick) || tick < 1 || tick < previousCommandTick) {
+                return null;
+            }
         }
 
         const commandTokens: Array<string> = tickAndCommand[1].split(",");
@@ -1843,7 +2050,7 @@ function runnersDieOnTimeForMovements(
     collectorCommands: Map<number, Array<Command>>,
     defenderCommands: Map<number, Array<Command>>
 ): boolean {
-    const cannonQueue: Array<CannonCommand> = parseCannonInput(cannonQueueInput.value);
+    const cannonQueue: Array<CannonCommand> = parseCannonInput(cannonQueueInput.value, useSeconds());
 
     const barbarianAssaultSim: BarbarianAssault = new BarbarianAssault(
         wave,

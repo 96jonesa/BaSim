@@ -1682,8 +1682,9 @@ function importSettings(): void {
             playerSelect.value = s.playerToControl;
             player = playerSelect.value;
         }
-        if (s.secondsMode !== undefined && s.secondsMode !== secondsMode) {
-            toggleSecondsButton.click();
+        if (s.secondsMode !== undefined) {
+            secondsMode = !!s.secondsMode;
+            toggleSecondsButton.innerHTML = secondsMode ? "Express time in ticks" : "Express time in seconds";
         }
         field.value = "";
         alert("Settings imported.");

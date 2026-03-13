@@ -1312,9 +1312,14 @@ function simulateButtonOnClick() {
     simulateButton.disabled = true;
     const movementsRunnersDoNotDieOnTime = getMovementsRunnersDoNotDieOnTime(foodCalls, runnerMovementsToCheck, runnersDeadByTick);
     let runnersDoNotDieWithMovementsInnerHTML = "";
-    for (let i = 0; i < movementsRunnersDoNotDieOnTime.length; i++) {
-        const movement = movementsRunnersDoNotDieOnTime[i];
-        runnersDoNotDieWithMovementsInnerHTML += getMovementsStringFromArray(movement) + "<br>";
+    if (movementsRunnersDoNotDieOnTime.length === 0) {
+        runnersDoNotDieWithMovementsInnerHTML = "None!";
+    }
+    else {
+        for (let i = 0; i < movementsRunnersDoNotDieOnTime.length; i++) {
+            const movement = movementsRunnersDoNotDieOnTime[i];
+            runnersDoNotDieWithMovementsInnerHTML += getMovementsStringFromArray(movement) + "<br>";
+        }
     }
     runnersDoNotDieWithMovements.innerHTML = runnersDoNotDieWithMovementsInnerHTML;
     startStopButton.disabled = false;

@@ -1486,10 +1486,14 @@ function simulateButtonOnClick(): void {
 
     let runnersDoNotDieWithMovementsInnerHTML: string = "";
 
-    for (let i: number = 0; i < movementsRunnersDoNotDieOnTime.length; i++) {
-        const movement: Array<string> = movementsRunnersDoNotDieOnTime[i];
+    if (movementsRunnersDoNotDieOnTime.length === 0) {
+        runnersDoNotDieWithMovementsInnerHTML = "None!";
+    } else {
+        for (let i: number = 0; i < movementsRunnersDoNotDieOnTime.length; i++) {
+            const movement: Array<string> = movementsRunnersDoNotDieOnTime[i];
 
-        runnersDoNotDieWithMovementsInnerHTML += getMovementsStringFromArray(movement) + "<br>";
+            runnersDoNotDieWithMovementsInnerHTML += getMovementsStringFromArray(movement) + "<br>";
+        }
     }
 
    runnersDoNotDieWithMovements.innerHTML = runnersDoNotDieWithMovementsInnerHTML;

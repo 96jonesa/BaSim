@@ -1463,11 +1463,25 @@ function simulateButtonOnClick(): void {
         return;
     }
 
-    const runnersDeadByTick: number = Number(runnersDeadByTickInput.value);
-
-    if (!Number.isInteger(runnersDeadByTick) || runnersDeadByTick < 1) {
-        alert("Invalid runners dead by tick. Example: 12");
-        return;
+    let runnersDeadByTick: number;
+    if (useSeconds()) {
+        const sec = parseFloat(runnersDeadByTickInput.value);
+        if (isNaN(sec)) {
+            alert("Invalid runners dead by time.");
+            return;
+        }
+        const t = secondsToTick(sec);
+        if (t === null) {
+            alert("Invalid runners dead by time: " + runnersDeadByTickInput.value + " is not a valid time");
+            return;
+        }
+        runnersDeadByTick = t;
+    } else {
+        runnersDeadByTick = Number(runnersDeadByTickInput.value);
+        if (!Number.isInteger(runnersDeadByTick) || runnersDeadByTick < 1) {
+            alert("Invalid runners dead by tick. Example: 12");
+            return;
+        }
     }
 
     runnersDoNotDieWithMovements.innerHTML = "";
@@ -1758,6 +1772,7 @@ function importSettings(): void {
             document.getElementById("startticklabel").innerHTML = secondsMode ? "Start time" : "Start tick";
             runnerSpawnsInput.placeholder = secondsMode ? "6,12,18" : "11,21,31";
             healerSpawnsInput.placeholder = secondsMode ? "6,12,18" : "11,21,31";
+            document.getElementById("runnersdeadbylabel").innerHTML = secondsMode ? "Runners dead by time" : "Runners dead by tick";
         }
         field.value = "";
         alert("Settings imported.");
@@ -1856,6 +1871,24 @@ function toggleSecondsOnClick(): void {
                     return;
                 }
                 startTickInput.value = String(tick);
+            }
+        }
+    }
+
+    // Convert runners dead by tick input
+    const deadByTrimmed = runnersDeadByTickInput.value.trim();
+    if (deadByTrimmed.length > 0) {
+        const num = parseFloat(deadByTrimmed);
+        if (!isNaN(num)) {
+            if (toSeconds) {
+                runnersDeadByTickInput.value = ((num - 1) * 0.6).toFixed(1).replace(/\.0$/, "");
+            } else {
+                const tick = secondsToTick(num);
+                if (tick === null) {
+                    alert("Cannot convert to ticks: " + num + " is not a valid time");
+                    return;
+                }
+                runnersDeadByTickInput.value = String(tick);
             }
         }
     }
@@ -1991,6 +2024,7 @@ function toggleSecondsOnClick(): void {
     document.getElementById("startticklabel").innerHTML = secondsMode ? "Start time" : "Start tick";
     runnerSpawnsInput.placeholder = secondsMode ? "6,12,18" : "11,21,31";
     healerSpawnsInput.placeholder = secondsMode ? "6,12,18" : "11,21,31";
+    document.getElementById("runnersdeadbylabel").innerHTML = secondsMode ? "Runners dead by time" : "Runners dead by tick";
 }
 
 /**

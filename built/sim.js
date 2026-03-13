@@ -229,6 +229,7 @@ function init() {
         document.getElementById(HTML_CURRENT_FOOD_ROW).style.display = display;
         document.getElementById("hotkeylegend-normal").style.display = display;
         document.getElementById("hotkeylegend-simple").style.display = simpleFood ? "" : "none";
+        convertDefenderCommands(simpleFood);
     };
     toggleSecondsButton = document.getElementById(HTML_TOGGLE_SECONDS);
     toggleSecondsButton.onclick = toggleSecondsOnClick;
@@ -525,17 +526,17 @@ function windowOnKeyDown(keyboardEvent) {
             switch (key) {
                 case "r":
                     barbarianAssault.defenderPlayer.dropFood(barbarianAssault, FoodType.TOFU);
-                    controlledCommands.innerHTML += tickToDisplay(barbarianAssault.ticks) + ":t<br>";
+                    controlledCommands.innerHTML += tickToDisplay(barbarianAssault.ticks) + ":r<br>";
                     controlledCommands.scrollTop = controlledCommands.scrollHeight;
                     break;
                 case "w":
                     barbarianAssault.defenderPlayer.dropFood(barbarianAssault, FoodType.CRACKERS);
-                    controlledCommands.innerHTML += tickToDisplay(barbarianAssault.ticks) + ":c<br>";
+                    controlledCommands.innerHTML += tickToDisplay(barbarianAssault.ticks) + ":w<br>";
                     controlledCommands.scrollTop = controlledCommands.scrollHeight;
                     break;
                 case "t":
                     barbarianAssault.defenderPlayer.startRepairing(barbarianAssault);
-                    controlledCommands.innerHTML += tickToDisplay(barbarianAssault.ticks) + ":r<br>";
+                    controlledCommands.innerHTML += tickToDisplay(barbarianAssault.ticks) + ":t<br>";
                     controlledCommands.scrollTop = controlledCommands.scrollHeight;
                     break;
                 case "e":
@@ -590,6 +591,13 @@ function windowOnKeyDown(keyboardEvent) {
                 if (!simpleFood && player === "defender") {
                     barbarianAssault.defenderPlayer.foodBeingPickedUp = FoodType.WORMS;
                     controlledCommands.innerHTML += tickToDisplay(barbarianAssault.ticks) + ":3<br>";
+                    controlledCommands.scrollTop = controlledCommands.scrollHeight;
+                }
+                break;
+            case "e":
+                if (!simpleFood && player === "defender") {
+                    barbarianAssault.defenderPlayer.shouldPickUpAnyFood = true;
+                    controlledCommands.innerHTML += tickToDisplay(barbarianAssault.ticks) + ":e<br>";
                     controlledCommands.scrollTop = controlledCommands.scrollHeight;
                 }
                 break;
@@ -1540,6 +1548,61 @@ function playerSelectOnChange() {
     player = playerSelect.value;
     reset();
 }
+function convertDefenderCommands(toSimple) {
+    const normalToSimple = { "t": "r", "c": "w", "r": "t" };
+    const simpleToNormal = { "r": "t", "w": "c", "t": "r" };
+    const map = toSimple ? normalToSimple : simpleToNormal;
+    function convertCommandText(text) {
+        const lines = text.split("\n");
+        const converted = [];
+        for (const line of lines) {
+            if (line.trim().length === 0) {
+                converted.push(line);
+                continue;
+            }
+            const colonIdx = line.indexOf(":");
+            if (colonIdx === -1) {
+                converted.push(line);
+                continue;
+            }
+            const cmd = line.substring(colonIdx + 1);
+            if (cmd in map) {
+                converted.push(line.substring(0, colonIdx + 1) + map[cmd]);
+            }
+            else {
+                converted.push(line);
+            }
+        }
+        return converted.join("\n");
+    }
+    // Convert defender team commands
+    const defenderTextarea = document.getElementById(HTML_DEFENDER_COMMANDS);
+    defenderTextarea.value = convertCommandText(defenderTextarea.value);
+    // Convert controlled commands (if defender is controlled)
+    const html = controlledCommands.innerHTML;
+    if (html.trim().length > 0) {
+        const entries = html.split("<br>");
+        const converted = [];
+        for (const entry of entries) {
+            const trimmed = entry.trim();
+            if (trimmed.length === 0)
+                continue;
+            const colonIdx = trimmed.indexOf(":");
+            if (colonIdx === -1) {
+                converted.push(trimmed);
+                continue;
+            }
+            const cmd = trimmed.substring(colonIdx + 1);
+            if (cmd in map) {
+                converted.push(trimmed.substring(0, colonIdx + 1) + map[cmd]);
+            }
+            else {
+                converted.push(trimmed);
+            }
+        }
+        controlledCommands.innerHTML = converted.map(e => e + "<br>").join("");
+    }
+}
 function toggleSecondsOnClick() {
     const toSeconds = !secondsMode;
     // Convert spawns inputs
@@ -1779,6 +1842,27 @@ function convertCommandsStringToMap(commandsString, player) {
             }
             else if (player !== "defender") {
                 return null;
+            }
+            else if (simpleFood) {
+                switch (commandTokens[0]) {
+                    case "r":
+                        addToCommandsMap(commandsMap, tick, new DefenderActionCommand(DefenderActionType.DROP_TOFU));
+                        break;
+                    case "w":
+                        addToCommandsMap(commandsMap, tick, new DefenderActionCommand(DefenderActionType.DROP_CRACKERS));
+                        break;
+                    case "t":
+                        addToCommandsMap(commandsMap, tick, new DefenderActionCommand(DefenderActionType.REPAIR_TRAP));
+                        break;
+                    case "e":
+                        addToCommandsMap(commandsMap, tick, new DefenderActionCommand(DefenderActionType.PICKUP_ANY_FOOD));
+                        break;
+                    case "l":
+                        addToCommandsMap(commandsMap, tick, new DefenderActionCommand(DefenderActionType.PICKUP_LOGS));
+                        break;
+                    default:
+                        return null;
+                }
             }
             else {
                 switch (commandTokens[0]) {

@@ -1704,6 +1704,8 @@ function exportSettings(): void {
         playerToControl: playerSelect.value,
         secondsMode: secondsMode,
         startTick: startTickInput.value,
+        runnerMovementsToCheck: runnerMovementsToCheckInput.value,
+        runnersDeadByTick: runnersDeadByTickInput.value,
     };
     const json = JSON.stringify(settings);
     navigator.clipboard.writeText(json);
@@ -1747,6 +1749,8 @@ function importSettings(): void {
             player = playerSelect.value;
         }
         if (s.startTick !== undefined) startTickInput.value = s.startTick;
+        if (s.runnerMovementsToCheck !== undefined) runnerMovementsToCheckInput.value = s.runnerMovementsToCheck;
+        if (s.runnersDeadByTick !== undefined) runnersDeadByTickInput.value = s.runnersDeadByTick;
         if (s.secondsMode !== undefined) {
             secondsMode = !!s.secondsMode;
             toggleSecondsButton.innerHTML = secondsMode ? "Express time in ticks" : "Express time in seconds";

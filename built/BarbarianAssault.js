@@ -156,6 +156,7 @@ export class BarbarianAssault {
         this.ticks++;
         // console.log(this.ticks);
         this.runnersToRemove.length = 0;
+        this.healersToRemove.length = 0;
         this.tickPenance();
         this.removePenance();
         this.cannon.tick(this);

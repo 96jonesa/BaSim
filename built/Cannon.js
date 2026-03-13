@@ -166,9 +166,9 @@ export function parseCannonInput(input, secondsMode = false) {
                 const seconds = parseFloat(value.trim());
                 if (isNaN(seconds))
                     return NaN;
-                const t = seconds / 0.6;
+                const t = seconds / 0.6 + 1;
                 const rounded = Math.round(t);
-                if (Math.abs(t - rounded) > 0.001 || rounded < 0)
+                if (Math.abs(t - rounded) > 0.001 || rounded < 1)
                     return NaN;
                 return rounded;
             }

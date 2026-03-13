@@ -533,15 +533,15 @@ function useSeconds(): boolean {
 
 function tickToDisplay(tick: number): string {
     if (useSeconds()) {
-        return (tick * 0.6).toFixed(1).replace(/\.0$/, "");
+        return ((tick - 1) * 0.6).toFixed(1).replace(/\.0$/, "");
     }
     return String(tick);
 }
 
 function secondsToTick(seconds: number): number | null {
-    const tick = seconds / 0.6;
+    const tick = seconds / 0.6 + 1;
     const rounded = Math.round(tick);
-    if (Math.abs(tick - rounded) > 0.001 || rounded < 0) {
+    if (Math.abs(tick - rounded) > 0.001 || rounded < 1) {
         return null;
     }
     return rounded;
@@ -1723,11 +1723,11 @@ function toggleSecondsOnClick(): void {
             const num = parseFloat(part.trim());
             if (isNaN(num)) return;
             if (toSeconds) {
-                converted.push((num * 0.6).toFixed(1).replace(/\.0$/, ""));
+                converted.push(((num - 1) * 0.6).toFixed(1).replace(/\.0$/, ""));
             } else {
                 const tick = secondsToTick(num);
                 if (tick === null) {
-                    alert("Cannot convert to ticks: " + num + " is not a non-negative multiple of 0.6");
+                    alert("Cannot convert to ticks: " + num + " is not a valid time");
                     return;
                 }
                 converted.push(String(tick));
@@ -1747,11 +1747,11 @@ function toggleSecondsOnClick(): void {
             const num = parseFloat(tokens[lastIdx].trim());
             if (isNaN(num)) return;
             if (toSeconds) {
-                tokens[lastIdx] = (num * 0.6).toFixed(1).replace(/\.0$/, "");
+                tokens[lastIdx] = ((num - 1) * 0.6).toFixed(1).replace(/\.0$/, "");
             } else {
                 const tick = secondsToTick(num);
                 if (tick === null) {
-                    alert("Cannot convert to ticks: " + num + " is not a non-negative multiple of 0.6");
+                    alert("Cannot convert to ticks: " + num + " is not a valid time");
                     return;
                 }
                 tokens[lastIdx] = String(tick);
@@ -1790,11 +1790,11 @@ function toggleSecondsOnClick(): void {
             }
             const rest = line.substring(colonIdx);
             if (toSeconds) {
-                convertedLines.push((num * 0.6).toFixed(1).replace(/\.0$/, "") + rest);
+                convertedLines.push(((num - 1) * 0.6).toFixed(1).replace(/\.0$/, "") + rest);
             } else {
                 const tick = secondsToTick(num);
                 if (tick === null) {
-                    alert("Cannot convert to ticks: " + num + " is not a non-negative multiple of 0.6");
+                    alert("Cannot convert to ticks: " + num + " is not a valid time");
                     return;
                 }
                 convertedLines.push(tick + rest);
@@ -1824,7 +1824,7 @@ function toggleSecondsOnClick(): void {
             }
             const rest = trimmedEntry.substring(colonIdx);
             if (toSeconds) {
-                convertedEntries.push((num * 0.6).toFixed(1).replace(/\.0$/, "") + rest);
+                convertedEntries.push(((num - 1) * 0.6).toFixed(1).replace(/\.0$/, "") + rest);
             } else {
                 const tick = secondsToTick(num);
                 if (tick === null) {

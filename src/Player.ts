@@ -65,7 +65,7 @@ export abstract class Player extends Character {
             } else {
                 this.recalculateFoodPath(barbarianAssault, healer);
             }
-        } else if (this.isNextMovePurelyDiagonal()) {
+        } else if (this.shouldRecalculatePath()) {
             this.recalculateFoodPath(barbarianAssault, healer);
         }
     }
@@ -94,21 +94,21 @@ export abstract class Player extends Character {
         this.findPath(barbarianAssault, adjacent);
     }
 
-    private isNextMovePurelyDiagonal(): boolean {
+    private shouldRecalculatePath(): boolean {
         if (this.pathQueueIndex <= 0) return false;
 
         const step1 = this.pathQueuePositions[this.pathQueueIndex - 1];
-        const dx1 = step1.x - this.position.x;
-        const dy1 = step1.y - this.position.y;
+        const dx = step1.x - this.position.x;
+        const dy = step1.y - this.position.y;
 
-        if (dx1 === 0 || dy1 === 0) return false;
+        let prevPos = step1;
+        for (let i = this.pathQueueIndex - 2; i >= 0; i--) {
+            const step = this.pathQueuePositions[i];
+            if (step.x - prevPos.x !== dx || step.y - prevPos.y !== dy) return false;
+            prevPos = step;
+        }
 
-        if (!this.isRunning || this.pathQueueIndex === 1) return true;
-
-        const step2 = this.pathQueuePositions[this.pathQueueIndex - 2];
-        const dx2 = step2.x - step1.x;
-        const dy2 = step2.y - step1.y;
-        return dx1 === dx2 && dy1 === dy2;
+        return true;
     }
 
     private isCardinalAdjacentTo(healer: HealerPenance): boolean {

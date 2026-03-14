@@ -136,7 +136,7 @@ Eggs: <input id="cannonqueue" type="text" size="35"/> <span title="Egg firing co
 Tick duration (milliseconds): <input id="tickduration" type="number" min="100" max="1200" value="600"/>
 </div>
 <table id="teamtable" class="section" style="border-collapse: collapse;">
-    <caption><b>Team Commands</b> <span title="Enter commands as tick:x,y per line to move a player to (x,y) at that tick. e.g. 5:20,21. Multiple commands per tick allowed.&#x0A;&#x0A;Defender actions: tick:t/c/w/1/2/3/l/r performs that key action at the specified tick.&#x0A;&#x0A;Healer codes: tick:h<id>,<count> for any player. e.g. 1:h1,3 poisons healer 1 three times starting at its spawn tick. Player auto-pathfinds and uses poison food.&#x0A;&#x0A;Walk/run: tick:m toggles, tick:walk/tick:run sets explicitly." class="info-tip">i</span></caption>
+    <caption><b>Team Commands</b> <span id="teamcommandstip" title="Enter commands as tick:x,y per line to move a player to (x,y) at that tick. e.g. 5:20,21. Multiple commands per tick allowed.&#x0A;&#x0A;Defender actions: tick:r/w/e/l/t performs that key action at the specified tick.&#x0A;&#x0A;Healer codes: tick:h<id>,<count> for any player. e.g. 1:h1,3 poisons healer 1 three times starting at its spawn tick. Player auto-pathfinds and uses poison food.&#x0A;&#x0A;Walk/run: tick:m toggles, tick:walk/tick:run sets explicitly." class="info-tip">i</span></caption>
     <tr>
         <td name="mainattacker">
             <b>Main Attacker</b>
@@ -250,7 +250,7 @@ Runner movements to check: <input id="runnermovementstocheck" type="text"/> <spa
 </div>
 <div class="section" style="margin-top: 0.5rem;">
 <button id="togglesimplefood">Disable simple food</button>
-<span title="Simple food: 'r' drops good food (tofu), 'w' drops bad food (crackers), 'e' picks up food, 't' repairs trap. Food call is always tofu. Normal mode: 't' drops tofu, 'c' drops crackers, 'w' drops worms, '1/2/3' picks up tofu/crackers/worms, 'l' picks up logs, 'r' repairs trap." class="info-tip">i</span>
+<span title="Simple food: 'r' drops good food (tofu), 'w' drops bad food (crackers), 'e' picks up food, 't' repairs trap. Food call is always tofu. Normal mode: 't' drops tofu, 'c' drops crackers, 'w' drops worms, 'u/i/o' picks up tofu/crackers/worms, 'l' picks up logs, 'r' repairs trap." class="info-tip">i</span>
 <br><br>
 <span id="infinitefoodrow" style="display: none;"><input type="checkbox" id="toggleinfinitefood" checked><label for="toggleinfinitefood">Infinite food</label><br></span>
 <span id="foodcallsrow" style="display: none;">Food calls: <input id="foodcalls" type="text" size="12"/> <span title="Comma-separated food calls: t=tofu, c=crackers, w=worms. e.g. t,w,c,t. If fewer calls than cycles, the last call repeats." class="info-tip">i</span><br></span>
@@ -299,9 +299,10 @@ Runner movements to check: <input id="runnermovementstocheck" type="text"/> <spa
 <span id="hotkeylegend-normal" style="display: none;"><b>t</b> drops tofu.<br>
 <b>c</b> drops crackers.<br>
 <b>w</b> drops worms.<br>
-<b>1</b> picks up tofu.<br>
-<b>2</b> picks up crackers.<br>
-<b>3</b> picks up worms.<br>
+<b>u</b> picks up tofu.<br>
+<b>i</b> picks up crackers.<br>
+<b>o</b> picks up worms.<br>
+<b>e</b> picks up any food.<br>
 <b>l</b> picks up logs.<br>
 <b>r</b> repairs a trap.<br></span>
 <span id="hotkeylegend-simple"><b>r</b> drops good food.<br>

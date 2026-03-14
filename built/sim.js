@@ -236,6 +236,14 @@ function init() {
         document.getElementById(HTML_CURRENT_FOOD_ROW).style.display = display;
         document.getElementById("hotkeylegend-normal").style.display = display;
         document.getElementById("hotkeylegend-simple").style.display = simpleFood ? "" : "none";
+        const tip = document.getElementById("teamcommandstip");
+        const baseTip = "Enter commands as tick:x,y per line to move a player to (x,y) at that tick. e.g. 5:20,21. Multiple commands per tick allowed.\n\n";
+        const defTip = simpleFood
+            ? "Defender actions: tick:r/w/e/l/t performs that key action at the specified tick.\n\n"
+            : "Defender actions: tick:t/c/w/u/i/o/e/l/r performs that key action at the specified tick.\n\n";
+        const healerTip = "Healer codes: tick:h<id>,<count> for any player. e.g. 1:h1,3 poisons healer 1 three times starting at its spawn tick. Player auto-pathfinds and uses poison food.\n\n";
+        const walkTip = "Walk/run: tick:m toggles, tick:walk/tick:run sets explicitly.";
+        tip.title = baseTip + defTip + healerTip + walkTip;
         convertDefenderCommands(simpleFood);
     };
     toggleSecondsButton = document.getElementById(HTML_TOGGLE_SECONDS);
@@ -591,24 +599,24 @@ function windowOnKeyDown(keyboardEvent) {
                     controlledCommands.scrollTop = controlledCommands.scrollHeight;
                 }
                 break;
-            case "1":
+            case "u":
                 if (!seedBlocked && !simpleFood && player === "defender") {
                     barbarianAssault.defenderPlayer.foodBeingPickedUp = FoodType.TOFU;
-                    controlledCommands.innerHTML += tickToDisplay(barbarianAssault.ticks) + ":1<br>";
+                    controlledCommands.innerHTML += tickToDisplay(barbarianAssault.ticks) + ":u<br>";
                     controlledCommands.scrollTop = controlledCommands.scrollHeight;
                 }
                 break;
-            case "2":
+            case "i":
                 if (!seedBlocked && !simpleFood && player === "defender") {
                     barbarianAssault.defenderPlayer.foodBeingPickedUp = FoodType.CRACKERS;
-                    controlledCommands.innerHTML += tickToDisplay(barbarianAssault.ticks) + ":2<br>";
+                    controlledCommands.innerHTML += tickToDisplay(barbarianAssault.ticks) + ":i<br>";
                     controlledCommands.scrollTop = controlledCommands.scrollHeight;
                 }
                 break;
-            case "3":
+            case "o":
                 if (!seedBlocked && !simpleFood && player === "defender") {
                     barbarianAssault.defenderPlayer.foodBeingPickedUp = FoodType.WORMS;
-                    controlledCommands.innerHTML += tickToDisplay(barbarianAssault.ticks) + ":3<br>";
+                    controlledCommands.innerHTML += tickToDisplay(barbarianAssault.ticks) + ":o<br>";
                     controlledCommands.scrollTop = controlledCommands.scrollHeight;
                 }
                 break;
@@ -2066,13 +2074,13 @@ function convertCommandsStringToMap(commandsString, player) {
                     case "w":
                         addToCommandsMap(commandsMap, tick, new DefenderActionCommand(DefenderActionType.DROP_WORMS));
                         break;
-                    case "1":
+                    case "u":
                         addToCommandsMap(commandsMap, tick, new DefenderActionCommand(DefenderActionType.PICKUP_TOFU));
                         break;
-                    case "2":
+                    case "i":
                         addToCommandsMap(commandsMap, tick, new DefenderActionCommand(DefenderActionType.PICKUP_CRACKERS));
                         break;
-                    case "3":
+                    case "o":
                         addToCommandsMap(commandsMap, tick, new DefenderActionCommand(DefenderActionType.PICKUP_WORMS));
                         break;
                     case "e":

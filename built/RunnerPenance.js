@@ -256,18 +256,7 @@ export class RunnerPenance extends Penance {
     tryEatAndCheckTarget(barbarianAssault) {
         if (this.foodTarget !== null) {
             const foodZone = barbarianAssault.map.getFoodZone(this.foodTarget.position.x >>> 3, this.foodTarget.position.y >>> 3);
-            let foodIndex = foodZone.foodList.indexOf(this.foodTarget);
-            // After clone/load, foodTarget is a different object — find by position and type
-            if (foodIndex === -1) {
-                for (let i = 0; i < foodZone.foodList.length; i++) {
-                    const f = foodZone.foodList[i];
-                    if (f.position.x === this.foodTarget.position.x && f.position.y === this.foodTarget.position.y && f.type === this.foodTarget.type && f.isGood === this.foodTarget.isGood) {
-                        this.foodTarget = f;
-                        foodIndex = i;
-                        break;
-                    }
-                }
-            }
+            const foodIndex = foodZone.foodList.indexOf(this.foodTarget);
             if (foodIndex === -1) {
                 this.foodTarget = null;
                 this.targetState = 0;

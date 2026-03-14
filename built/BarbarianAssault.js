@@ -653,6 +653,19 @@ export class BarbarianAssault {
         for (let i = 0; i < this.runners.length; i++) {
             barbarianAssault.runners.push(this.runners[i] === null ? null : this.runners[i].clone());
         }
+        // Re-link runner foodTargets to the cloned map's food objects
+        for (const runner of barbarianAssault.runners) {
+            if (runner !== null && runner.foodTarget !== null) {
+                const ft = runner.foodTarget;
+                const foodZone = barbarianAssault.map.getFoodZone(ft.position.x >>> 3, ft.position.y >>> 3);
+                for (const food of foodZone.foodList) {
+                    if (food.position.x === ft.position.x && food.position.y === ft.position.y && food.type === ft.type && food.isGood === ft.isGood) {
+                        runner.foodTarget = food;
+                        break;
+                    }
+                }
+            }
+        }
         barbarianAssault.runnerMovements = [...this.runnerMovements];
         barbarianAssault.runnerMovementsIndex = this.runnerMovementsIndex;
         barbarianAssault.currentRunnerId = this.currentRunnerId;

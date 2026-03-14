@@ -353,11 +353,17 @@ export class Player extends Character {
             const target = this.checkpointIndex < this.checkpoints.length
                 ? this.checkpoints[this.checkpointIndex]
                 : this.pathDestination;
-            if (this.position.equals(target) && target === this.pathDestination)
+            if (this.position.equals(target) && target === this.pathDestination) {
+                this.pathDestination = null;
                 break;
+            }
             this.stepToward(barbarianAssault, target);
             if (this.checkpointIndex < this.checkpoints.length && this.position.equals(this.checkpoints[this.checkpointIndex])) {
                 this.checkpointIndex++;
+            }
+            if (this.checkpointIndex >= this.checkpoints.length && this.position.equals(this.pathDestination)) {
+                this.pathDestination = null;
+                break;
             }
         }
     }

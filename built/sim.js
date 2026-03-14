@@ -531,7 +531,9 @@ function getControlledPlayerObject() {
 function windowOnKeyDown(keyboardEvent) {
     const key = keyboardEvent.key;
     if (isRunning) {
-        if (simpleFood && player === "defender") {
+        const seedCheckPlayer = getControlledPlayerObject();
+        const seedBlocked = seedCheckPlayer !== null && seedCheckPlayer.seedMovedThisTick;
+        if (!seedBlocked && simpleFood && player === "defender") {
             switch (key) {
                 case "r":
                     barbarianAssault.defenderPlayer.dropFood(barbarianAssault, FoodType.TOFU);
@@ -562,63 +564,63 @@ function windowOnKeyDown(keyboardEvent) {
         }
         switch (key) {
             case "t":
-                if (!simpleFood && player === "defender") {
+                if (!seedBlocked && !simpleFood && player === "defender") {
                     barbarianAssault.defenderPlayer.dropFood(barbarianAssault, FoodType.TOFU);
                     controlledCommands.innerHTML += tickToDisplay(barbarianAssault.ticks) + ":t<br>";
                     controlledCommands.scrollTop = controlledCommands.scrollHeight;
                 }
                 break;
             case "c":
-                if (!simpleFood && player === "defender") {
+                if (!seedBlocked && !simpleFood && player === "defender") {
                     barbarianAssault.defenderPlayer.dropFood(barbarianAssault, FoodType.CRACKERS);
                     controlledCommands.innerHTML += tickToDisplay(barbarianAssault.ticks) + ":c<br>";
                     controlledCommands.scrollTop = controlledCommands.scrollHeight;
                 }
                 break;
             case "w":
-                if (!simpleFood && player === "defender") {
+                if (!seedBlocked && !simpleFood && player === "defender") {
                     barbarianAssault.defenderPlayer.dropFood(barbarianAssault, FoodType.WORMS);
                     controlledCommands.innerHTML += tickToDisplay(barbarianAssault.ticks) + ":w<br>";
                     controlledCommands.scrollTop = controlledCommands.scrollHeight;
                 }
                 break;
             case "1":
-                if (!simpleFood && player === "defender") {
+                if (!seedBlocked && !simpleFood && player === "defender") {
                     barbarianAssault.defenderPlayer.foodBeingPickedUp = FoodType.TOFU;
                     controlledCommands.innerHTML += tickToDisplay(barbarianAssault.ticks) + ":1<br>";
                     controlledCommands.scrollTop = controlledCommands.scrollHeight;
                 }
                 break;
             case "2":
-                if (!simpleFood && player === "defender") {
+                if (!seedBlocked && !simpleFood && player === "defender") {
                     barbarianAssault.defenderPlayer.foodBeingPickedUp = FoodType.CRACKERS;
                     controlledCommands.innerHTML += tickToDisplay(barbarianAssault.ticks) + ":2<br>";
                     controlledCommands.scrollTop = controlledCommands.scrollHeight;
                 }
                 break;
             case "3":
-                if (!simpleFood && player === "defender") {
+                if (!seedBlocked && !simpleFood && player === "defender") {
                     barbarianAssault.defenderPlayer.foodBeingPickedUp = FoodType.WORMS;
                     controlledCommands.innerHTML += tickToDisplay(barbarianAssault.ticks) + ":3<br>";
                     controlledCommands.scrollTop = controlledCommands.scrollHeight;
                 }
                 break;
             case "e":
-                if (!simpleFood && player === "defender") {
+                if (!seedBlocked && !simpleFood && player === "defender") {
                     barbarianAssault.defenderPlayer.shouldPickUpAnyFood = true;
                     controlledCommands.innerHTML += tickToDisplay(barbarianAssault.ticks) + ":e<br>";
                     controlledCommands.scrollTop = controlledCommands.scrollHeight;
                 }
                 break;
             case "l":
-                if (!simpleFood && player === "defender") {
+                if (!seedBlocked && !simpleFood && player === "defender") {
                     barbarianAssault.defenderPlayer.isPickingUpLogs = true;
                     controlledCommands.innerHTML += tickToDisplay(barbarianAssault.ticks) + ":l<br>";
                     controlledCommands.scrollTop = controlledCommands.scrollHeight;
                 }
                 break;
             case "r":
-                if (!simpleFood && player === "defender") {
+                if (!seedBlocked && !simpleFood && player === "defender") {
                     barbarianAssault.defenderPlayer.startRepairing(barbarianAssault);
                     controlledCommands.innerHTML += tickToDisplay(barbarianAssault.ticks) + ":r<br>";
                     controlledCommands.scrollTop = controlledCommands.scrollHeight;
@@ -634,20 +636,24 @@ function windowOnKeyDown(keyboardEvent) {
                 break;
             }
             case ",": {
-                const controlledPlayer = getControlledPlayerObject();
-                if (controlledPlayer !== null) {
-                    controlledPlayer.pendingSeed = "MITHRIL";
-                    controlledCommands.innerHTML += tickToDisplay(barbarianAssault.ticks) + ":,<br>";
-                    controlledCommands.scrollTop = controlledCommands.scrollHeight;
+                if (!seedBlocked) {
+                    const controlledPlayer = getControlledPlayerObject();
+                    if (controlledPlayer !== null) {
+                        controlledPlayer.pendingSeed = "MITHRIL";
+                        controlledCommands.innerHTML += tickToDisplay(barbarianAssault.ticks) + ":,<br>";
+                        controlledCommands.scrollTop = controlledCommands.scrollHeight;
+                    }
                 }
                 break;
             }
             case ".": {
-                const controlledPlayer = getControlledPlayerObject();
-                if (controlledPlayer !== null) {
-                    controlledPlayer.pendingSeed = "ADAMANT";
-                    controlledCommands.innerHTML += tickToDisplay(barbarianAssault.ticks) + ":.<br>";
-                    controlledCommands.scrollTop = controlledCommands.scrollHeight;
+                if (!seedBlocked) {
+                    const controlledPlayer = getControlledPlayerObject();
+                    if (controlledPlayer !== null) {
+                        controlledPlayer.pendingSeed = "ADAMANT";
+                        controlledCommands.innerHTML += tickToDisplay(barbarianAssault.ticks) + ":.<br>";
+                        controlledCommands.scrollTop = controlledCommands.scrollHeight;
+                    }
                 }
                 break;
             }
@@ -833,6 +839,10 @@ function canvasOnMouseDown(mouseEvent) {
             }
         }
         else {
+            const controlledPlayer = getControlledPlayerObject();
+            if (controlledPlayer !== null && controlledPlayer.seedMovedThisTick) {
+                return;
+            }
             switch (player) {
                 case "defender":
                     barbarianAssault.defenderPlayer.findPath(barbarianAssault, new Position(xTile, yTile));

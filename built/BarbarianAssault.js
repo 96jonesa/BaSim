@@ -291,6 +291,8 @@ export class BarbarianAssault {
     executePlayerCommands() {
         if (this.mainAttackerCommands.has(this.ticks)) {
             this.mainAttackerCommands.get(this.ticks).forEach((command) => {
+                if (this.mainAttackerPlayer.seedMovedThisTick && !(command instanceof WalkRunCommand) && !(command instanceof ToggleRunCommand))
+                    return;
                 if (command instanceof MoveCommand) {
                     this.mainAttackerPlayer.clearCodeQueue();
                     this.mainAttackerPlayer.findPath(this, command.destination.clone());
@@ -312,6 +314,8 @@ export class BarbarianAssault {
         }
         if (this.secondAttackerCommands.has(this.ticks)) {
             this.secondAttackerCommands.get(this.ticks).forEach((command) => {
+                if (this.secondAttackerPlayer.seedMovedThisTick && !(command instanceof WalkRunCommand) && !(command instanceof ToggleRunCommand))
+                    return;
                 if (command instanceof MoveCommand) {
                     this.secondAttackerPlayer.clearCodeQueue();
                     this.secondAttackerPlayer.findPath(this, command.destination.clone());
@@ -333,6 +337,8 @@ export class BarbarianAssault {
         }
         if (this.healerCommands.has(this.ticks)) {
             this.healerCommands.get(this.ticks).forEach((command) => {
+                if (this.healerPlayer.seedMovedThisTick && !(command instanceof WalkRunCommand) && !(command instanceof ToggleRunCommand))
+                    return;
                 if (command instanceof MoveCommand) {
                     this.healerPlayer.clearCodeQueue();
                     this.healerPlayer.findPath(this, command.destination.clone());
@@ -354,6 +360,8 @@ export class BarbarianAssault {
         }
         if (this.collectorCommands.has(this.ticks)) {
             this.collectorCommands.get(this.ticks).forEach((command) => {
+                if (this.collectorPlayer.seedMovedThisTick && !(command instanceof WalkRunCommand) && !(command instanceof ToggleRunCommand))
+                    return;
                 if (command instanceof MoveCommand) {
                     this.collectorPlayer.clearCodeQueue();
                     this.collectorPlayer.findPath(this, command.destination.clone());
@@ -375,6 +383,8 @@ export class BarbarianAssault {
         }
         if (this.defenderCommands.has(this.ticks)) {
             this.defenderCommands.get(this.ticks).forEach((command) => {
+                if (this.defenderPlayer.seedMovedThisTick && !(command instanceof WalkRunCommand) && !(command instanceof ToggleRunCommand))
+                    return;
                 if (command instanceof MoveCommand) {
                     this.defenderPlayer.clearCodeQueue();
                     this.defenderPlayer.findPath(this, command.destination.clone());

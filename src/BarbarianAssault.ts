@@ -19,6 +19,8 @@ import {HealerCodeAction} from "./HealerCodeAction.js";
 import {Player} from "./Player.js";
 import {WalkRunCommand} from "./WalkRunCommand.js";
 import {ToggleRunCommand} from "./ToggleRunCommand.js";
+import {SeedCommand} from "./SeedCommand.js";
+import {SeedType} from "./SeedType.js";
 
 /**
  * Represents a game of Barbarian Assault: holds state information and exposes functions for
@@ -208,6 +210,7 @@ export class BarbarianAssault {
         this.runnersToRemove.length = 0;
         this.healersToRemove.length = 0;
 
+        this.applySeedMovements();
         this.tickPenance();
         this.removePenance();
         this.cannon.tick(this);
@@ -259,6 +262,106 @@ export class BarbarianAssault {
         this.healerPlayer.tick(this);
     }
 
+    private applySeedMovements(): void {
+        this.applySeedForPlayer(this.mainAttackerPlayer);
+        this.applySeedForPlayer(this.secondAttackerPlayer);
+        this.applySeedForPlayer(this.healerPlayer);
+        this.applySeedForPlayer(this.collectorPlayer);
+        this.applySeedForPlayer(this.defenderPlayer);
+    }
+
+    private applySeedForPlayer(player: Player): void {
+        player.seedMovedThisTick = false;
+
+        // Can't use a seed while repairing
+        if (player instanceof DefenderPlayer && player.repairTicksRemaining > 0) {
+            player.pendingSeed = null;
+            player.repeatSeedType = null;
+            player.preSeedPosition = null;
+            player.seedMovedToPosition = null;
+            return;
+        }
+
+        // Check for auto-repeat from previous tick
+        if (player.repeatSeedType !== null) {
+            const seedType = player.repeatSeedType;
+            const preSeedPos = player.preSeedPosition;
+            const blockedTile = player.seedMovedToPosition;
+
+            player.repeatSeedType = null;
+            player.preSeedPosition = null;
+            player.seedMovedToPosition = null;
+
+            // Can't use a seed two ticks in a row
+            player.pendingSeed = null;
+
+            // If player returned to pre-seed position, apply auto-repeat
+            if (preSeedPos !== null && player.position.equals(preSeedPos)) {
+                player.seedMovedThisTick = true;
+                this.applySeedStep(player, seedType, blockedTile);
+
+                if (player.checkpointIndex < player.checkpoints.length &&
+                    player.position.equals(player.checkpoints[player.checkpointIndex])) {
+                    player.checkpointIndex++;
+                }
+                // Do NOT recalculate path
+            }
+
+            return;
+        }
+
+        // Handle regular pending seed
+        if (player.pendingSeed === null) return;
+
+        const seedType = player.pendingSeed;
+        player.pendingSeed = null;
+        player.seedMovedThisTick = true;
+
+        // Save state for repeat detection
+        player.preSeedPosition = player.position.clone();
+
+        this.applySeedStep(player, seedType, null);
+
+        // Save where seed moved player to (blocked on repeat)
+        player.seedMovedToPosition = player.position.clone();
+        player.repeatSeedType = seedType;
+
+        if (player.checkpointIndex < player.checkpoints.length &&
+            player.position.equals(player.checkpoints[player.checkpointIndex])) {
+            player.checkpointIndex++;
+        }
+
+        if (player.pathDestination !== null) {
+            player.findPath(this, player.pathDestination);
+        }
+    }
+
+    private applySeedStep(player: Player, seedType: SeedType, blockedTile: Position): void {
+        const directions = seedType === "MITHRIL"
+            ? [[-1, 0], [1, 0], [0, -1], [0, 1]]   // W, E, S, N
+            : [[1, 0], [-1, 0], [0, -1], [0, 1]];   // E, W, S, N
+
+        for (const [dx, dy] of directions) {
+            const targetX = player.position.x + dx;
+            const targetY = player.position.y + dy;
+
+            if (blockedTile !== null && targetX === blockedTile.x && targetY === blockedTile.y) {
+                continue;
+            }
+
+            const canMove = dx === -1 ? this.map.canMoveWest(player.position)
+                : dx === 1 ? this.map.canMoveEast(player.position)
+                : dy === -1 ? this.map.canMoveSouth(player.position)
+                : this.map.canMoveNorth(player.position);
+
+            if (canMove) {
+                player.position.x += dx;
+                player.position.y += dy;
+                return;
+            }
+        }
+    }
+
     /**
      * Executes player commands for all players for the current tick.
      *
@@ -277,6 +380,8 @@ export class BarbarianAssault {
                     this.mainAttackerPlayer.isRunning = command.isRunning;
                 } else if (command instanceof ToggleRunCommand) {
                     this.mainAttackerPlayer.isRunning = !this.mainAttackerPlayer.isRunning;
+                } else if (command instanceof SeedCommand) {
+                    this.mainAttackerPlayer.pendingSeed = command.seedType;
                 }
             });
         }
@@ -293,6 +398,8 @@ export class BarbarianAssault {
                     this.secondAttackerPlayer.isRunning = command.isRunning;
                 } else if (command instanceof ToggleRunCommand) {
                     this.secondAttackerPlayer.isRunning = !this.secondAttackerPlayer.isRunning;
+                } else if (command instanceof SeedCommand) {
+                    this.secondAttackerPlayer.pendingSeed = command.seedType;
                 }
             });
         }
@@ -309,6 +416,8 @@ export class BarbarianAssault {
                     this.healerPlayer.isRunning = command.isRunning;
                 } else if (command instanceof ToggleRunCommand) {
                     this.healerPlayer.isRunning = !this.healerPlayer.isRunning;
+                } else if (command instanceof SeedCommand) {
+                    this.healerPlayer.pendingSeed = command.seedType;
                 }
             });
         }
@@ -325,6 +434,8 @@ export class BarbarianAssault {
                     this.collectorPlayer.isRunning = command.isRunning;
                 } else if (command instanceof ToggleRunCommand) {
                     this.collectorPlayer.isRunning = !this.collectorPlayer.isRunning;
+                } else if (command instanceof SeedCommand) {
+                    this.collectorPlayer.pendingSeed = command.seedType;
                 }
             });
         }
@@ -341,6 +452,8 @@ export class BarbarianAssault {
                     this.defenderPlayer.isRunning = command.isRunning;
                 } else if (command instanceof ToggleRunCommand) {
                     this.defenderPlayer.isRunning = !this.defenderPlayer.isRunning;
+                } else if (command instanceof SeedCommand) {
+                    this.defenderPlayer.pendingSeed = command.seedType;
                 } else if (command instanceof DefenderActionCommand) {
                     this.defenderPlayer.clearCodeQueue();
                     switch (command.type) {

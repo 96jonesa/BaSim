@@ -3,6 +3,7 @@ import {BarbarianAssault} from "./BarbarianAssault.js";
 import {Character} from "./Character.js";
 import {HealerCodeAction} from "./HealerCodeAction.js";
 import {HealerPenance} from "./HealerPenance.js";
+import {SeedType} from "./SeedType.js";
 
 const MOVEMENT_PRIORITY: Record<string, number> = {
     "": 0,
@@ -28,6 +29,11 @@ export abstract class Player extends Character {
     public arriveDelay: boolean = false;
     public prevPosition: Position = null;
     public isRunning: boolean = true;
+    public pendingSeed: SeedType = null;
+    public seedMovedThisTick: boolean = false;
+    public preSeedPosition: Position = null;
+    public seedMovedToPosition: Position = null;
+    public repeatSeedType: SeedType = null;
 
     // Working arrays for findPath BFS — not meaningful outside findPath
     private pathQueuePositions: Array<Position> = [];
@@ -410,7 +416,7 @@ export abstract class Player extends Character {
      * toward its next checkpoint or destination using healer-penance-style movement.
      */
     protected move(barbarianAssault: BarbarianAssault): void {
-        const steps = this.isRunning ? 2 : 1;
+        const steps = (this.isRunning && !this.seedMovedThisTick) ? 2 : 1;
         for (let s = 0; s < steps; s++) {
             if (this.pathDestination === null) break;
 

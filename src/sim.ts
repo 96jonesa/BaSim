@@ -34,6 +34,7 @@ import {EggType} from "./EggType.js";
 import {HealerCodeCommand} from "./HealerCodeCommand.js";
 import {WalkRunCommand} from "./WalkRunCommand.js";
 import {ToggleRunCommand} from "./ToggleRunCommand.js";
+import {SeedCommand} from "./SeedCommand.js";
 
 const HTML_CANVAS: string = "basimcanvas";
 const HTML_RUNNER_MOVEMENTS: string = "runnermovements";
@@ -706,6 +707,24 @@ function windowOnKeyDown(keyboardEvent: KeyboardEvent): void {
                 if (controlledPlayer !== null) {
                     controlledPlayer.isRunning = !controlledPlayer.isRunning;
                     controlledCommands.innerHTML += tickToDisplay(barbarianAssault.ticks) + ":m<br>";
+                    controlledCommands.scrollTop = controlledCommands.scrollHeight;
+                }
+                break;
+            }
+            case ",": {
+                const controlledPlayer = getControlledPlayerObject();
+                if (controlledPlayer !== null) {
+                    controlledPlayer.pendingSeed = "MITHRIL";
+                    controlledCommands.innerHTML += tickToDisplay(barbarianAssault.ticks) + ":,<br>";
+                    controlledCommands.scrollTop = controlledCommands.scrollHeight;
+                }
+                break;
+            }
+            case ".": {
+                const controlledPlayer = getControlledPlayerObject();
+                if (controlledPlayer !== null) {
+                    controlledPlayer.pendingSeed = "ADAMANT";
+                    controlledCommands.innerHTML += tickToDisplay(barbarianAssault.ticks) + ":.<br>";
                     controlledCommands.scrollTop = controlledCommands.scrollHeight;
                 }
                 break;
@@ -2136,6 +2155,16 @@ function convertCommandsStringToMap(commandsString: string, player: string): Map
             if (!Number.isInteger(tick) || tick < 1 || tick < previousCommandTick) {
                 return null;
             }
+        }
+
+        if (tickAndCommand[1] === ",") {
+            addToCommandsMap(commandsMap, tick, new SeedCommand("MITHRIL"));
+            previousCommandTick = tick;
+            continue;
+        } else if (tickAndCommand[1] === ".") {
+            addToCommandsMap(commandsMap, tick, new SeedCommand("ADAMANT"));
+            previousCommandTick = tick;
+            continue;
         }
 
         const commandTokens: Array<string> = tickAndCommand[1].split(",");

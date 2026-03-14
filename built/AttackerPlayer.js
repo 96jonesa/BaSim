@@ -37,6 +37,11 @@ export class AttackerPlayer extends Player {
         attackerPlayer.arriveDelay = this.arriveDelay;
         attackerPlayer.prevPosition = this.prevPosition === null ? null : this.prevPosition.clone();
         attackerPlayer.isRunning = this.isRunning;
+        attackerPlayer.pendingSeed = this.pendingSeed;
+        attackerPlayer.seedMovedThisTick = this.seedMovedThisTick;
+        attackerPlayer.preSeedPosition = this.preSeedPosition === null ? null : this.preSeedPosition.clone();
+        attackerPlayer.seedMovedToPosition = this.seedMovedToPosition === null ? null : this.seedMovedToPosition.clone();
+        attackerPlayer.repeatSeedType = this.repeatSeedType;
         return attackerPlayer;
     }
 }

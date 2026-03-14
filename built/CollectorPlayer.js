@@ -37,6 +37,11 @@ export class CollectorPlayer extends Player {
         collectorPlayer.arriveDelay = this.arriveDelay;
         collectorPlayer.prevPosition = this.prevPosition === null ? null : this.prevPosition.clone();
         collectorPlayer.isRunning = this.isRunning;
+        collectorPlayer.pendingSeed = this.pendingSeed;
+        collectorPlayer.seedMovedThisTick = this.seedMovedThisTick;
+        collectorPlayer.preSeedPosition = this.preSeedPosition === null ? null : this.preSeedPosition.clone();
+        collectorPlayer.seedMovedToPosition = this.seedMovedToPosition === null ? null : this.seedMovedToPosition.clone();
+        collectorPlayer.repeatSeedType = this.repeatSeedType;
         return collectorPlayer;
     }
 }

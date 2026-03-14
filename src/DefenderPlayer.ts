@@ -242,6 +242,11 @@ export class DefenderPlayer extends Player {
         defenderPlayer.arriveDelay = this.arriveDelay;
         defenderPlayer.prevPosition = this.prevPosition === null ? null : this.prevPosition.clone();
         defenderPlayer.isRunning = this.isRunning;
+        defenderPlayer.pendingSeed = this.pendingSeed;
+        defenderPlayer.seedMovedThisTick = this.seedMovedThisTick;
+        defenderPlayer.preSeedPosition = this.preSeedPosition === null ? null : this.preSeedPosition.clone();
+        defenderPlayer.seedMovedToPosition = this.seedMovedToPosition === null ? null : this.seedMovedToPosition.clone();
+        defenderPlayer.repeatSeedType = this.repeatSeedType;
 
         return defenderPlayer;
     }

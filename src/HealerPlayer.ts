@@ -43,6 +43,11 @@ export class HealerPlayer extends Player {
         healerPlayer.arriveDelay = this.arriveDelay;
         healerPlayer.prevPosition = this.prevPosition === null ? null : this.prevPosition.clone();
         healerPlayer.isRunning = this.isRunning;
+        healerPlayer.pendingSeed = this.pendingSeed;
+        healerPlayer.seedMovedThisTick = this.seedMovedThisTick;
+        healerPlayer.preSeedPosition = this.preSeedPosition === null ? null : this.preSeedPosition.clone();
+        healerPlayer.seedMovedToPosition = this.seedMovedToPosition === null ? null : this.seedMovedToPosition.clone();
+        healerPlayer.repeatSeedType = this.repeatSeedType;
 
         return healerPlayer;
     }

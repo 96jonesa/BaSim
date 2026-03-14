@@ -25,6 +25,11 @@ export class Player extends Character {
         this.arriveDelay = false;
         this.prevPosition = null;
         this.isRunning = true;
+        this.pendingSeed = null;
+        this.seedMovedThisTick = false;
+        this.preSeedPosition = null;
+        this.seedMovedToPosition = null;
+        this.repeatSeedType = null;
         // Working arrays for findPath BFS — not meaningful outside findPath
         this.pathQueuePositions = [];
         this.pathQueueIndex = 0;
@@ -341,7 +346,7 @@ export class Player extends Character {
      * toward its next checkpoint or destination using healer-penance-style movement.
      */
     move(barbarianAssault) {
-        const steps = this.isRunning ? 2 : 1;
+        const steps = (this.isRunning && !this.seedMovedThisTick) ? 2 : 1;
         for (let s = 0; s < steps; s++) {
             if (this.pathDestination === null)
                 break;

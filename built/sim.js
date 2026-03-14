@@ -535,6 +535,9 @@ function getControlledPlayerObject() {
 function windowOnKeyDown(keyboardEvent) {
     const key = keyboardEvent.key;
     if (isRunning) {
+        if (key !== "p" && key !== "s" && key !== "d" && key !== "f") {
+            stateHistory.splice(stateIndex + 1);
+        }
         const seedCheckPlayer = getControlledPlayerObject();
         const seedBlocked = seedCheckPlayer !== null && (seedCheckPlayer.seedMovedThisTick || seedCheckPlayer.pendingSeed !== null);
         if (!seedBlocked && simpleFood && player === "defender") {
@@ -860,6 +863,7 @@ function canvasOnMouseDown(mouseEvent) {
                 return;
             }
             lastClickTick = barbarianAssault.ticks;
+            stateHistory.splice(stateIndex + 1);
             switch (player) {
                 case "defender":
                     barbarianAssault.defenderPlayer.findPath(barbarianAssault, new Position(xTile, yTile));

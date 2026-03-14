@@ -603,6 +603,10 @@ function windowOnKeyDown(keyboardEvent: KeyboardEvent): void {
     const key: string = keyboardEvent.key;
 
     if (isRunning) {
+        if (key !== "p" && key !== "s" && key !== "d" && key !== "f") {
+            stateHistory.splice(stateIndex + 1);
+        }
+
         const seedCheckPlayer = getControlledPlayerObject();
         const seedBlocked = seedCheckPlayer !== null && (seedCheckPlayer.seedMovedThisTick || seedCheckPlayer.pendingSeed !== null);
 
@@ -958,6 +962,7 @@ function canvasOnMouseDown(mouseEvent: MouseEvent): void {
             }
 
             lastClickTick = barbarianAssault.ticks;
+            stateHistory.splice(stateIndex + 1);
 
             switch (player) {
                 case "defender":

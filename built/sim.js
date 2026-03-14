@@ -27,6 +27,7 @@ const HTML_TICK_COUNT = "tickcount";
 const HTML_DEF_LEVEL_SELECT = "deflevelselect";
 const HTML_TOGGLE_REPAIR = 'togglerepair';
 const HTML_TOGGLE_PAUSE_SL = 'togglepausesl';
+const HTML_TOGGLE_SEED_QUEUE_PATH = 'toggleseedqueuepath';
 const HTML_CURRENT_DEF_FOOD = "currdeffood";
 const HTML_TICK_DURATION = "tickduration";
 const HTML_TOGGLE_INFINITE_FOOD = "toggleinfinitefood";
@@ -110,11 +111,13 @@ var toggleRepair;
 var togglePauseSaveLoad;
 var toggleInfiniteFood;
 var toggleLogToRepair;
+var toggleSeedQueuePath;
 var tickCountSpan;
 var currentDefenderFoodSpan;
 var markerColorInput;
 var isRunning = false;
 var barbarianAssault;
+var lastClickTick = -1;
 var infiniteFood;
 var simpleFood = true;
 var isPaused;
@@ -208,6 +211,7 @@ function init() {
     toggleLogToRepair = document.getElementById(HTML_TOGGLE_LOG_TO_REPAIR);
     toggleLogToRepair.onchange = toggleLogToRepairOnChange;
     toggleRenderDistance = document.getElementById(HTML_TOGGLE_RENDER_DISTANCE);
+    toggleSeedQueuePath = document.getElementById(HTML_TOGGLE_SEED_QUEUE_PATH);
     tickCountSpan = document.getElementById(HTML_TICK_COUNT);
     currentDefenderFoodSpan = document.getElementById(HTML_CURRENT_DEF_FOOD);
     markerColorInput = document.getElementById(HTML_MARKER_COLOR);
@@ -532,7 +536,7 @@ function windowOnKeyDown(keyboardEvent) {
     const key = keyboardEvent.key;
     if (isRunning) {
         const seedCheckPlayer = getControlledPlayerObject();
-        const seedBlocked = seedCheckPlayer !== null && seedCheckPlayer.seedMovedThisTick;
+        const seedBlocked = seedCheckPlayer !== null && (seedCheckPlayer.seedMovedThisTick || seedCheckPlayer.pendingSeed !== null);
         if (!seedBlocked && simpleFood && player === "defender") {
             switch (key) {
                 case "r":
@@ -640,6 +644,12 @@ function windowOnKeyDown(keyboardEvent) {
                     const controlledPlayer = getControlledPlayerObject();
                     if (controlledPlayer !== null) {
                         controlledPlayer.pendingSeed = "MITHRIL";
+                        controlledPlayer.clearCodeQueue();
+                        if (!toggleSeedQueuePath.checked && lastClickTick !== barbarianAssault.ticks) {
+                            controlledPlayer.pathDestination = null;
+                            controlledPlayer.checkpoints = [];
+                            controlledPlayer.checkpointIndex = 0;
+                        }
                         controlledCommands.innerHTML += tickToDisplay(barbarianAssault.ticks) + ":,<br>";
                         controlledCommands.scrollTop = controlledCommands.scrollHeight;
                     }
@@ -651,6 +661,12 @@ function windowOnKeyDown(keyboardEvent) {
                     const controlledPlayer = getControlledPlayerObject();
                     if (controlledPlayer !== null) {
                         controlledPlayer.pendingSeed = "ADAMANT";
+                        controlledPlayer.clearCodeQueue();
+                        if (!toggleSeedQueuePath.checked && lastClickTick !== barbarianAssault.ticks) {
+                            controlledPlayer.pathDestination = null;
+                            controlledPlayer.checkpoints = [];
+                            controlledPlayer.checkpointIndex = 0;
+                        }
                         controlledCommands.innerHTML += tickToDisplay(barbarianAssault.ticks) + ":.<br>";
                         controlledCommands.scrollTop = controlledCommands.scrollHeight;
                     }
@@ -840,9 +856,10 @@ function canvasOnMouseDown(mouseEvent) {
         }
         else {
             const controlledPlayer = getControlledPlayerObject();
-            if (controlledPlayer !== null && controlledPlayer.seedMovedThisTick) {
+            if (controlledPlayer !== null && (controlledPlayer.seedMovedThisTick || controlledPlayer.pendingSeed !== null)) {
                 return;
             }
+            lastClickTick = barbarianAssault.ticks;
             switch (player) {
                 case "defender":
                     barbarianAssault.defenderPlayer.findPath(barbarianAssault, new Position(xTile, yTile));
@@ -1263,6 +1280,7 @@ function startStopButtonOnClick() {
         barbarianAssault.runnerSpawns = parseSpawnsInput(runnerSpawnsInput.value);
         barbarianAssault.healerSpawns = parseSpawnsInput(healerSpawnsInput.value);
         barbarianAssault.renderDistanceEnabled = toggleRenderDistance.checked;
+        barbarianAssault.seedQueuePath = toggleSeedQueuePath.checked;
         // Parse start tick and rapidly simulate to it
         let startTick = 1;
         const startTickValue = startTickInput.value.trim();
@@ -1556,6 +1574,7 @@ function exportSettings() {
         requireRepairs: document.getElementById(HTML_TOGGLE_REPAIR).checked,
         requireLogToRepair: document.getElementById(HTML_TOGGLE_LOG_TO_REPAIR).checked,
         renderDistance: document.getElementById(HTML_TOGGLE_RENDER_DISTANCE).checked,
+        seedQueuePath: document.getElementById(HTML_TOGGLE_SEED_QUEUE_PATH).checked,
         simpleFood: simpleFood,
         mainAttacker: document.getElementById(HTML_MAIN_ATTACKER_COMMANDS).value,
         secondAttacker: document.getElementById(HTML_SECOND_ATTACKER_COMMANDS).value,
@@ -1608,6 +1627,8 @@ function importSettings() {
             document.getElementById(HTML_TOGGLE_LOG_TO_REPAIR).checked = s.requireLogToRepair;
         if (s.renderDistance !== undefined)
             document.getElementById(HTML_TOGGLE_RENDER_DISTANCE).checked = s.renderDistance;
+        if (s.seedQueuePath !== undefined)
+            document.getElementById(HTML_TOGGLE_SEED_QUEUE_PATH).checked = s.seedQueuePath;
         if (s.simpleFood !== undefined && s.simpleFood !== simpleFood) {
             document.getElementById(HTML_TOGGLE_SIMPLE_FOOD).click();
         }

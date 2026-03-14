@@ -76,6 +76,7 @@ export class BarbarianAssault {
     public healerSpawnTargets: Array<string> = [];
     public renderDistanceEnabled: boolean = false;
     public simpleFood: boolean = false;
+    public seedQueuePath: boolean = true;
     public runnerSpawns: Array<number> = [];
     public runnerSpawnsIndex: number = 0;
     public healerSpawns: Array<number> = [];
@@ -369,8 +370,12 @@ export class BarbarianAssault {
      */
     private executePlayerCommands(): void {
         if (this.mainAttackerCommands.has(this.ticks)) {
-            this.mainAttackerCommands.get(this.ticks).forEach((command: Command): void => {
+            const commands = this.mainAttackerCommands.get(this.ticks);
+            const hasMoveCommand = commands.some(c => c instanceof MoveCommand);
+            let seedCommandProcessed = false;
+            commands.forEach((command: Command): void => {
                 if (this.mainAttackerPlayer.seedMovedThisTick && !(command instanceof WalkRunCommand) && !(command instanceof ToggleRunCommand)) return;
+                if (seedCommandProcessed && !(command instanceof WalkRunCommand) && !(command instanceof ToggleRunCommand)) return;
                 if (command instanceof MoveCommand) {
                     this.mainAttackerPlayer.clearCodeQueue();
                     this.mainAttackerPlayer.findPath(this, command.destination.clone());
@@ -383,13 +388,24 @@ export class BarbarianAssault {
                     this.mainAttackerPlayer.isRunning = !this.mainAttackerPlayer.isRunning;
                 } else if (command instanceof SeedCommand) {
                     this.mainAttackerPlayer.pendingSeed = command.seedType;
+                    this.mainAttackerPlayer.clearCodeQueue();
+                    if (!this.seedQueuePath && !hasMoveCommand) {
+                        this.mainAttackerPlayer.pathDestination = null;
+                        this.mainAttackerPlayer.checkpoints = [];
+                        this.mainAttackerPlayer.checkpointIndex = 0;
+                    }
+                    seedCommandProcessed = true;
                 }
             });
         }
 
         if (this.secondAttackerCommands.has(this.ticks)) {
-            this.secondAttackerCommands.get(this.ticks).forEach((command: Command): void => {
+            const commands = this.secondAttackerCommands.get(this.ticks);
+            const hasMoveCommand = commands.some(c => c instanceof MoveCommand);
+            let seedCommandProcessed = false;
+            commands.forEach((command: Command): void => {
                 if (this.secondAttackerPlayer.seedMovedThisTick && !(command instanceof WalkRunCommand) && !(command instanceof ToggleRunCommand)) return;
+                if (seedCommandProcessed && !(command instanceof WalkRunCommand) && !(command instanceof ToggleRunCommand)) return;
                 if (command instanceof MoveCommand) {
                     this.secondAttackerPlayer.clearCodeQueue();
                     this.secondAttackerPlayer.findPath(this, command.destination.clone());
@@ -402,13 +418,24 @@ export class BarbarianAssault {
                     this.secondAttackerPlayer.isRunning = !this.secondAttackerPlayer.isRunning;
                 } else if (command instanceof SeedCommand) {
                     this.secondAttackerPlayer.pendingSeed = command.seedType;
+                    this.secondAttackerPlayer.clearCodeQueue();
+                    if (!this.seedQueuePath && !hasMoveCommand) {
+                        this.secondAttackerPlayer.pathDestination = null;
+                        this.secondAttackerPlayer.checkpoints = [];
+                        this.secondAttackerPlayer.checkpointIndex = 0;
+                    }
+                    seedCommandProcessed = true;
                 }
             });
         }
 
         if (this.healerCommands.has(this.ticks)) {
-            this.healerCommands.get(this.ticks).forEach((command: Command): void => {
+            const commands = this.healerCommands.get(this.ticks);
+            const hasMoveCommand = commands.some(c => c instanceof MoveCommand);
+            let seedCommandProcessed = false;
+            commands.forEach((command: Command): void => {
                 if (this.healerPlayer.seedMovedThisTick && !(command instanceof WalkRunCommand) && !(command instanceof ToggleRunCommand)) return;
+                if (seedCommandProcessed && !(command instanceof WalkRunCommand) && !(command instanceof ToggleRunCommand)) return;
                 if (command instanceof MoveCommand) {
                     this.healerPlayer.clearCodeQueue();
                     this.healerPlayer.findPath(this, command.destination.clone());
@@ -421,13 +448,24 @@ export class BarbarianAssault {
                     this.healerPlayer.isRunning = !this.healerPlayer.isRunning;
                 } else if (command instanceof SeedCommand) {
                     this.healerPlayer.pendingSeed = command.seedType;
+                    this.healerPlayer.clearCodeQueue();
+                    if (!this.seedQueuePath && !hasMoveCommand) {
+                        this.healerPlayer.pathDestination = null;
+                        this.healerPlayer.checkpoints = [];
+                        this.healerPlayer.checkpointIndex = 0;
+                    }
+                    seedCommandProcessed = true;
                 }
             });
         }
 
         if (this.collectorCommands.has(this.ticks)) {
-            this.collectorCommands.get(this.ticks).forEach((command: Command): void => {
+            const commands = this.collectorCommands.get(this.ticks);
+            const hasMoveCommand = commands.some(c => c instanceof MoveCommand);
+            let seedCommandProcessed = false;
+            commands.forEach((command: Command): void => {
                 if (this.collectorPlayer.seedMovedThisTick && !(command instanceof WalkRunCommand) && !(command instanceof ToggleRunCommand)) return;
+                if (seedCommandProcessed && !(command instanceof WalkRunCommand) && !(command instanceof ToggleRunCommand)) return;
                 if (command instanceof MoveCommand) {
                     this.collectorPlayer.clearCodeQueue();
                     this.collectorPlayer.findPath(this, command.destination.clone());
@@ -440,13 +478,24 @@ export class BarbarianAssault {
                     this.collectorPlayer.isRunning = !this.collectorPlayer.isRunning;
                 } else if (command instanceof SeedCommand) {
                     this.collectorPlayer.pendingSeed = command.seedType;
+                    this.collectorPlayer.clearCodeQueue();
+                    if (!this.seedQueuePath && !hasMoveCommand) {
+                        this.collectorPlayer.pathDestination = null;
+                        this.collectorPlayer.checkpoints = [];
+                        this.collectorPlayer.checkpointIndex = 0;
+                    }
+                    seedCommandProcessed = true;
                 }
             });
         }
 
         if (this.defenderCommands.has(this.ticks)) {
-            this.defenderCommands.get(this.ticks).forEach((command: Command): void => {
+            const commands = this.defenderCommands.get(this.ticks);
+            const hasMoveCommand = commands.some(c => c instanceof MoveCommand);
+            let seedCommandProcessed = false;
+            commands.forEach((command: Command): void => {
                 if (this.defenderPlayer.seedMovedThisTick && !(command instanceof WalkRunCommand) && !(command instanceof ToggleRunCommand)) return;
+                if (seedCommandProcessed && !(command instanceof WalkRunCommand) && !(command instanceof ToggleRunCommand)) return;
                 if (command instanceof MoveCommand) {
                     this.defenderPlayer.clearCodeQueue();
                     this.defenderPlayer.findPath(this, command.destination.clone());
@@ -459,6 +508,13 @@ export class BarbarianAssault {
                     this.defenderPlayer.isRunning = !this.defenderPlayer.isRunning;
                 } else if (command instanceof SeedCommand) {
                     this.defenderPlayer.pendingSeed = command.seedType;
+                    this.defenderPlayer.clearCodeQueue();
+                    if (!this.seedQueuePath && !hasMoveCommand) {
+                        this.defenderPlayer.pathDestination = null;
+                        this.defenderPlayer.checkpoints = [];
+                        this.defenderPlayer.checkpointIndex = 0;
+                    }
+                    seedCommandProcessed = true;
                 } else if (command instanceof DefenderActionCommand) {
                     this.defenderPlayer.clearCodeQueue();
                     switch (command.type) {
@@ -810,6 +866,7 @@ export class BarbarianAssault {
         barbarianAssault.healerSpawnTargets = [...this.healerSpawnTargets];
         barbarianAssault.renderDistanceEnabled = this.renderDistanceEnabled;
         barbarianAssault.simpleFood = this.simpleFood;
+        barbarianAssault.seedQueuePath = this.seedQueuePath;
         barbarianAssault.runnerSpawns = [...this.runnerSpawns];
         barbarianAssault.runnerSpawnsIndex = this.runnerSpawnsIndex;
         barbarianAssault.healerSpawns = [...this.healerSpawns];

@@ -17,15 +17,19 @@ const MOVEMENT_PRIORITY = {
 export class Player extends Character {
     constructor(position) {
         super(position);
-        this.pathQueueIndex = 0;
-        this.pathQueuePositions = [];
-        this.shortestDistances = [];
-        this.waypoints = [];
+        this.checkpoints = [];
+        this.checkpointIndex = 0;
+        this.pathDestination = null;
         this.codeQueue = [];
         this.codeIndex = 0;
         this.arriveDelay = false;
         this.prevPosition = null;
         this.isRunning = true;
+        // Working arrays for findPath BFS — not meaningful outside findPath
+        this.pathQueuePositions = [];
+        this.pathQueueIndex = 0;
+        this.shortestDistances = [];
+        this.waypoints = [];
     }
     clearCodeQueue() {
         this.codeQueue = [];
@@ -44,12 +48,12 @@ export class Player extends Character {
             this.codeIndex++;
             return;
         }
-        if (this.pathQueueIndex === 0 || this.shouldRecalculatePath()) {
+        if (this.pathDestination === null || this.shouldRecalculatePath()) {
             if (this.isCardinalAdjacentTo(healer)) {
                 healer.eatFood(barbarianAssault);
                 this.codeIndex++;
                 this.arriveDelay = true;
-                this.pathQueueIndex = 0;
+                this.pathDestination = null;
             }
             else {
                 this.recalculateFoodPath(barbarianAssault, healer);
@@ -75,19 +79,7 @@ export class Player extends Character {
         this.findPath(barbarianAssault, adjacent);
     }
     shouldRecalculatePath() {
-        if (this.pathQueueIndex <= 0)
-            return false;
-        const step1 = this.pathQueuePositions[this.pathQueueIndex - 1];
-        const dx = step1.x - this.position.x;
-        const dy = step1.y - this.position.y;
-        let prevPos = step1;
-        for (let i = this.pathQueueIndex - 2; i >= 0; i--) {
-            const step = this.pathQueuePositions[i];
-            if (step.x - prevPos.x !== dx || step.y - prevPos.y !== dy)
-                return false;
-            prevPos = step;
-        }
-        return true;
+        return this.checkpointIndex >= this.checkpoints.length;
     }
     isCardinalAdjacentTo(healer) {
         // true_drawnTileIsAdj: player current pos adjacent to healer drawn pos
@@ -142,26 +134,24 @@ export class Player extends Character {
         if (valid.length === 1) {
             return valid[0].tile;
         }
-        const savedPathQueueIndex = this.pathQueueIndex;
-        const savedPathQueuePositions = this.pathQueuePositions.slice();
-        const savedShortestDistances = this.shortestDistances.slice();
-        const savedWaypoints = this.waypoints.slice();
+        const savedCheckpoints = this.checkpoints.map(p => p.clone());
+        const savedCheckpointIndex = this.checkpointIndex;
+        const savedPathDestination = this.pathDestination === null ? null : this.pathDestination.clone();
         let bestTile = valid[0].tile;
         let bestWeight = Infinity;
         for (const v of valid) {
             this.findPath(barbarianAssault, v.tile);
-            const idx = this.pathQueueIndex - 1;
-            if (idx < 0)
+            const firstTarget = this.checkpoints.length > 0 ? this.checkpoints[0] : this.pathDestination;
+            if (firstTarget === null)
                 continue;
-            const stepPos = this.pathQueuePositions[idx];
             let cardinalStr = "";
-            if (stepPos.y < this.position.y)
+            if (firstTarget.y < this.position.y)
                 cardinalStr += "s";
-            else if (stepPos.y > this.position.y)
+            else if (firstTarget.y > this.position.y)
                 cardinalStr += "n";
-            if (stepPos.x < this.position.x)
+            if (firstTarget.x < this.position.x)
                 cardinalStr += "w";
-            else if (stepPos.x > this.position.x)
+            else if (firstTarget.x > this.position.x)
                 cardinalStr += "e";
             const weight = (_a = MOVEMENT_PRIORITY[cardinalStr]) !== null && _a !== void 0 ? _a : Infinity;
             if (weight < bestWeight) {
@@ -169,16 +159,14 @@ export class Player extends Character {
                 bestTile = v.tile;
             }
         }
-        this.pathQueueIndex = savedPathQueueIndex;
-        this.pathQueuePositions = savedPathQueuePositions;
-        this.shortestDistances = savedShortestDistances;
-        this.waypoints = savedWaypoints;
+        this.checkpoints = savedCheckpoints;
+        this.checkpointIndex = savedCheckpointIndex;
+        this.pathDestination = savedPathDestination;
         return bestTile;
     }
     /**
      * Determines the path this player must take to move to the given destination in the given
-     * BarbarianAssault game, and updates this player's state to move along this path to the given
-     * destination over time.
+     * BarbarianAssault game, and updates this player's checkpoints and destination accordingly.
      *
      * @param barbarianAssault  the BarbarianAssault game to find the path to the given destination in
      * @param destination       the position to find the path to in the given BarbarianAssault game
@@ -290,10 +278,13 @@ export class Player extends Character {
                 }
             }
             if (!foundDestination) {
-                this.pathQueueIndex = 0;
+                this.pathDestination = null;
+                this.checkpoints = [];
+                this.checkpointIndex = 0;
                 return;
             }
         }
+        // Traceback: build path from destination back to player position
         this.pathQueueIndex = 0;
         while (!currentPosition.equals(this.position)) {
             const waypoint = this.waypoints[currentPosition.x + currentPosition.y * barbarianAssault.map.width];
@@ -312,32 +303,84 @@ export class Player extends Character {
                 currentPosition.y--;
             }
         }
-    }
-    /**
-     * This player takes up to two steps (as many as possible) in its path to
-     * its destination.
-     *
-     * @private
-     */
-    move() {
-        this.takeSteps(this.isRunning ? 2 : 1);
-    }
-    /**
-     * This player takes up to the given number of steps (as many as possible) in
-     * its path to its destination.
-     *
-     * @param steps the maximum number of steps for this player to take in
-     *              its path to its destination
-     * @return      the number of steps taken
-     * @private
-     */
-    takeSteps(steps) {
-        let stepsTaken = 0;
-        while (stepsTaken < steps && this.pathQueueIndex > 0) {
-            this.pathQueueIndex--;
-            this.position = this.pathQueuePositions[this.pathQueueIndex];
-            stepsTaken++;
+        // Extract checkpoints from path
+        // Path is in pathQueuePositions[0..pathQueueIndex-1] in reverse order:
+        //   [pathQueueIndex-1] = first step, [0] = destination
+        if (this.pathQueueIndex === 0) {
+            // Already at destination
+            this.pathDestination = destination.clone();
+            this.checkpoints = [];
+            this.checkpointIndex = 0;
+            return;
         }
-        return stepsTaken;
+        this.pathDestination = new Position(this.pathQueuePositions[0].x, this.pathQueuePositions[0].y);
+        this.checkpoints = [];
+        this.checkpointIndex = 0;
+        if (this.pathQueueIndex >= 2) {
+            // Walk path forward: from first step (pathQueueIndex-1) to destination (0)
+            let prevPos = this.position;
+            let prevDx = this.pathQueuePositions[this.pathQueueIndex - 1].x - prevPos.x;
+            let prevDy = this.pathQueuePositions[this.pathQueueIndex - 1].y - prevPos.y;
+            prevPos = this.pathQueuePositions[this.pathQueueIndex - 1];
+            for (let i = this.pathQueueIndex - 2; i >= 0; i--) {
+                const cur = this.pathQueuePositions[i];
+                const dx = cur.x - prevPos.x;
+                const dy = cur.y - prevPos.y;
+                if (dx !== prevDx || dy !== prevDy) {
+                    // Direction changed — prevPos is a checkpoint
+                    this.checkpoints.push(new Position(prevPos.x, prevPos.y));
+                }
+                prevDx = dx;
+                prevDy = dy;
+                prevPos = cur;
+            }
+        }
+    }
+    /**
+     * This player takes up to two steps (running) or one step (walking)
+     * toward its next checkpoint or destination using healer-penance-style movement.
+     */
+    move(barbarianAssault) {
+        const steps = this.isRunning ? 2 : 1;
+        for (let s = 0; s < steps; s++) {
+            if (this.pathDestination === null)
+                break;
+            const target = this.checkpointIndex < this.checkpoints.length
+                ? this.checkpoints[this.checkpointIndex]
+                : this.pathDestination;
+            if (this.position.equals(target) && target === this.pathDestination)
+                break;
+            this.stepToward(barbarianAssault, target);
+            if (this.checkpointIndex < this.checkpoints.length && this.position.equals(this.checkpoints[this.checkpointIndex])) {
+                this.checkpointIndex++;
+            }
+        }
+    }
+    /**
+     * Takes a single step toward the target using healer-penance-style movement
+     * (move X first, then Y), without penance blocking checks.
+     */
+    stepToward(barbarianAssault, target) {
+        const startX = this.position.x;
+        if (target.x > startX) {
+            if (barbarianAssault.map.canMoveEast(new Position(startX, this.position.y))) {
+                this.position.x++;
+            }
+        }
+        else if (target.x < startX) {
+            if (barbarianAssault.map.canMoveWest(new Position(startX, this.position.y))) {
+                this.position.x--;
+            }
+        }
+        if (target.y > this.position.y) {
+            if (barbarianAssault.map.canMoveNorth(new Position(startX, this.position.y)) && barbarianAssault.map.canMoveNorth(new Position(this.position.x, this.position.y))) {
+                this.position.y++;
+            }
+        }
+        else if (target.y < this.position.y) {
+            if (barbarianAssault.map.canMoveSouth(new Position(startX, this.position.y)) && barbarianAssault.map.canMoveSouth(new Position(this.position.x, this.position.y))) {
+                this.position.y--;
+            }
+        }
     }
 }

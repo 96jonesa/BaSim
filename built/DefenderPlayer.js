@@ -11,10 +11,6 @@ export class DefenderPlayer extends Player {
         this.shouldPickUpAnyFood = false;
         this.isPickingUpLogs = false;
         this.repairTicksRemaining = 0;
-        this.pathQueueIndex = 0;
-        this.pathQueuePositions = [];
-        this.shortestDistances = [];
-        this.waypoints = [];
         this.ticksStandingStill = 0;
         this.logsInInventory = 0;
         this.foodInInventory = {
@@ -46,7 +42,7 @@ export class DefenderPlayer extends Player {
             this.arriveDelay = false;
         }
         else {
-            this.move();
+            this.move(barbarianAssault);
         }
         if (!this.position.equals(position)) {
             this.ticksStandingStill = 0;
@@ -95,7 +91,7 @@ export class DefenderPlayer extends Player {
             this.repairTrap(barbarianAssault);
         }
         this.repairTicksRemaining--;
-        this.pathQueueIndex = 0;
+        this.pathDestination = null;
         this.foodBeingPickedUp = null;
         this.shouldPickUpAnyFood = false;
         this.isPickingUpLogs = false;
@@ -153,7 +149,7 @@ export class DefenderPlayer extends Player {
                 }
             }
         }
-        this.pathQueueIndex = 0;
+        this.pathDestination = null;
         this.foodBeingPickedUp = null;
         this.shouldPickUpAnyFood = false;
         this.isPickingUpLogs = false;
@@ -182,7 +178,7 @@ export class DefenderPlayer extends Player {
                 barbarianAssault.southeastLogsArePresent = false;
             }
         }
-        this.pathQueueIndex = 0;
+        this.pathDestination = null;
         this.foodBeingPickedUp = null;
         this.shouldPickUpAnyFood = false;
         this.isPickingUpLogs = false;
@@ -211,13 +207,9 @@ export class DefenderPlayer extends Player {
         defenderPlayer.shouldPickUpAnyFood = this.shouldPickUpAnyFood;
         defenderPlayer.isPickingUpLogs = this.isPickingUpLogs;
         defenderPlayer.repairTicksRemaining = this.repairTicksRemaining;
-        defenderPlayer.pathQueueIndex = this.pathQueueIndex;
-        defenderPlayer.pathQueuePositions = [];
-        for (let i = 0; i < this.pathQueuePositions.length; i++) {
-            defenderPlayer.pathQueuePositions.push(this.pathQueuePositions[i] === null ? null : this.pathQueuePositions[i].clone());
-        }
-        defenderPlayer.shortestDistances = [...this.shortestDistances];
-        defenderPlayer.waypoints = [...this.waypoints];
+        defenderPlayer.checkpoints = this.checkpoints.map(p => p.clone());
+        defenderPlayer.checkpointIndex = this.checkpointIndex;
+        defenderPlayer.pathDestination = this.pathDestination === null ? null : this.pathDestination.clone();
         defenderPlayer.ticksStandingStill = this.ticksStandingStill;
         defenderPlayer.logsInInventory = this.logsInInventory;
         defenderPlayer.foodInInventory = Object.assign({}, this.foodInInventory);

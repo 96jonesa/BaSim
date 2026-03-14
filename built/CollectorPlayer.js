@@ -18,7 +18,7 @@ export class CollectorPlayer extends Player {
             this.arriveDelay = false;
         }
         else {
-            this.move();
+            this.move(barbarianAssault);
         }
     }
     /**
@@ -29,13 +29,9 @@ export class CollectorPlayer extends Player {
     clone() {
         let collectorPlayer = new CollectorPlayer(this.position);
         collectorPlayer.position = this.position === null ? null : this.position.clone();
-        collectorPlayer.pathQueueIndex = this.pathQueueIndex;
-        collectorPlayer.pathQueuePositions = [];
-        for (let i = 0; i < this.pathQueuePositions.length; i++) {
-            collectorPlayer.pathQueuePositions.push(this.pathQueuePositions[i] === null ? null : this.pathQueuePositions[i].clone());
-        }
-        collectorPlayer.shortestDistances = [...this.shortestDistances];
-        collectorPlayer.waypoints = [...this.waypoints];
+        collectorPlayer.checkpoints = this.checkpoints.map(p => p.clone());
+        collectorPlayer.checkpointIndex = this.checkpointIndex;
+        collectorPlayer.pathDestination = this.pathDestination === null ? null : this.pathDestination.clone();
         collectorPlayer.codeQueue = this.codeQueue.map(a => a.clone());
         collectorPlayer.codeIndex = this.codeIndex;
         collectorPlayer.arriveDelay = this.arriveDelay;

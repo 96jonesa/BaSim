@@ -377,6 +377,9 @@ export class HealerPenance extends Penance {
      * @private
      */
     move(barbarianAssault) {
+        if (barbarianAssault.isHealerRedXBlocked(this)) {
+            return;
+        }
         const startX = this.position.x;
         if (this.destination.x > startX) {
             if (!barbarianAssault.tileBlocksPenance(new Position(startX + 1, this.position.y)) && barbarianAssault.map.canMoveEast(new Position(startX, this.position.y))) {

@@ -35,6 +35,8 @@ import {HealerCodeCommand} from "./HealerCodeCommand.js";
 import {WalkRunCommand} from "./WalkRunCommand.js";
 import {ToggleRunCommand} from "./ToggleRunCommand.js";
 import {SeedCommand} from "./SeedCommand.js";
+import {RedXCommand} from "./RedXCommand.js";
+import {RedXMoveCommand} from "./RedXMoveCommand.js";
 
 const HTML_CANVAS: string = "basimcanvas";
 const HTML_RUNNER_MOVEMENTS: string = "runnermovements";
@@ -271,8 +273,9 @@ function init(): void {
             ? "Defender actions: tick:r/w/e/l/t performs that key action at the specified tick.\n\n"
             : "Defender actions: tick:t/c/w/u/i/o/e/l/r performs that key action at the specified tick.\n\n";
         const healerTip = "Healer codes: tick:h<id>,<count> for any player. e.g. 1:h1,3 poisons healer 1 three times starting at its spawn tick. Player auto-pathfinds and uses poison food.\n\n";
+        const redXTip = "Red x: tick:x1-x8 sets red x on healer. tick:>x,y sets red x path.\n\n";
         const walkTip = "Walk/run: tick:m toggles, tick:walk/tick:run sets explicitly.";
-        tip.title = baseTip + defTip + healerTip + walkTip;
+        tip.title = baseTip + defTip + healerTip + redXTip + walkTip;
         convertDefenderCommands(simpleFood);
     };
 
@@ -738,6 +741,7 @@ function windowOnKeyDown(keyboardEvent: KeyboardEvent): void {
                         controlledPlayer.clearCodeQueue();
                         if (!toggleSeedQueuePath.checked && lastClickTick !== barbarianAssault.ticks) {
                             controlledPlayer.pathDestination = null;
+                            controlledPlayer.isRedXPath = false;
                             controlledPlayer.checkpoints = [];
                             controlledPlayer.checkpointIndex = 0;
                         }
@@ -755,10 +759,24 @@ function windowOnKeyDown(keyboardEvent: KeyboardEvent): void {
                         controlledPlayer.clearCodeQueue();
                         if (!toggleSeedQueuePath.checked && lastClickTick !== barbarianAssault.ticks) {
                             controlledPlayer.pathDestination = null;
+                            controlledPlayer.isRedXPath = false;
                             controlledPlayer.checkpoints = [];
                             controlledPlayer.checkpointIndex = 0;
                         }
                         controlledCommands.innerHTML += tickToDisplay(barbarianAssault.ticks) + ":.<br>";
+                        controlledCommands.scrollTop = controlledCommands.scrollHeight;
+                    }
+                }
+                break;
+            }
+            case "1": case "2": case "3": case "4":
+            case "5": case "6": case "7": case "8": {
+                if (!seedBlocked) {
+                    const controlledPlayer = getControlledPlayerObject();
+                    if (controlledPlayer !== null) {
+                        const healerId = Number(key);
+                        controlledPlayer.redXHealerId = healerId;
+                        controlledCommands.innerHTML += tickToDisplay(barbarianAssault.ticks) + ":x" + key + "<br>";
                         controlledCommands.scrollTop = controlledCommands.scrollHeight;
                     }
                 }
@@ -972,6 +990,11 @@ function canvasOnMouseDown(mouseEvent: MouseEvent): void {
             lastClickTick = barbarianAssault.ticks;
             stateHistory.splice(stateIndex + 1);
 
+            const controlledPlayerObj = getControlledPlayerObject();
+            if (controlledPlayerObj !== null) {
+                controlledPlayerObj.isRedXPath = false;
+            }
+
             switch (player) {
                 case "defender":
                     barbarianAssault.defenderPlayer.findPath(barbarianAssault, new Position(xTile, yTile));
@@ -996,6 +1019,21 @@ function canvasOnMouseDown(mouseEvent: MouseEvent): void {
             controlledCommands.innerHTML += tickToDisplay(barbarianAssault.ticks) + ":" + xTile + "," + yTile + "<br>";
             controlledCommands.scrollTop = controlledCommands.scrollHeight;
         }
+    } else if (mouseEvent.button === 2) {
+        if (!isRunning) return;
+        const controlledPlayer = getControlledPlayerObject();
+        if (controlledPlayer === null) return;
+        if (controlledPlayer.seedMovedThisTick || controlledPlayer.pendingSeed !== null) return;
+
+        lastClickTick = barbarianAssault.ticks;
+        stateHistory.splice(stateIndex + 1);
+
+        controlledPlayer.isRedXPath = true;
+        controlledPlayer.findPath(barbarianAssault, new Position(xTile, yTile));
+
+        drawYellowClick(mouseEvent);
+        controlledCommands.innerHTML += tickToDisplay(barbarianAssault.ticks) + ":>" + xTile + "," + yTile + "<br>";
+        controlledCommands.scrollTop = controlledCommands.scrollHeight;
     }
 }
 
@@ -2222,6 +2260,8 @@ function convertCommandsStringToMap(commandsString: string, player: string): Map
                 addToCommandsMap(commandsMap, tick, new WalkRunCommand(true));
             } else if (commandTokens[0] === "m") {
                 addToCommandsMap(commandsMap, tick, new ToggleRunCommand());
+            } else if (/^x[1-8]$/.test(commandTokens[0])) {
+                addToCommandsMap(commandsMap, tick, new RedXCommand(Number(commandTokens[0][1])));
             } else if (player !== "defender") {
                 return null;
             } else if (simpleFood) {
@@ -2286,6 +2326,15 @@ function convertCommandsStringToMap(commandsString: string, player: string): Map
                     return null;
                 }
                 addToCommandsMap(commandsMap, tick, new HealerCodeCommand(healerId, count));
+            } else if (commandTokens[0].startsWith(">")) {
+                const positionX: number = Number(commandTokens[0].substring(1));
+                const positionY: number = Number(commandTokens[1]);
+
+                if (!Number.isInteger(positionX) || !Number.isInteger(positionY)) {
+                    return null;
+                }
+
+                addToCommandsMap(commandsMap, tick, new RedXMoveCommand(new Position(positionX, positionY)));
             } else {
                 const positionX: number = Number(commandTokens[0]);
                 const positionY: number = Number(commandTokens[1]);

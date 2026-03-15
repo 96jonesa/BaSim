@@ -47,6 +47,8 @@ export class CollectorPlayer extends Player {
         collectorPlayer.preSeedPosition = this.preSeedPosition === null ? null : this.preSeedPosition.clone();
         collectorPlayer.seedMovedToPosition = this.seedMovedToPosition === null ? null : this.seedMovedToPosition.clone();
         collectorPlayer.repeatSeedType = this.repeatSeedType;
+        collectorPlayer.redXHealerId = this.redXHealerId;
+        collectorPlayer.isRedXPath = this.isRedXPath;
 
         return collectorPlayer;
     }

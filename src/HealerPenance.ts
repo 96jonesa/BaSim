@@ -440,6 +440,10 @@ export class HealerPenance extends Penance {
      * @private
      */
     private move(barbarianAssault: BarbarianAssault): void {
+        if (barbarianAssault.isHealerRedXBlocked(this)) {
+            return;
+        }
+
         const startX: number = this.position.x;
 
         if (this.destination.x > startX) {

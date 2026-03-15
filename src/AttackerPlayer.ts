@@ -47,6 +47,8 @@ export class AttackerPlayer extends Player {
         attackerPlayer.preSeedPosition = this.preSeedPosition === null ? null : this.preSeedPosition.clone();
         attackerPlayer.seedMovedToPosition = this.seedMovedToPosition === null ? null : this.seedMovedToPosition.clone();
         attackerPlayer.repeatSeedType = this.repeatSeedType;
+        attackerPlayer.redXHealerId = this.redXHealerId;
+        attackerPlayer.isRedXPath = this.isRedXPath;
 
         return attackerPlayer;
     }

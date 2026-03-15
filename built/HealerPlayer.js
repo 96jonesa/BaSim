@@ -42,6 +42,8 @@ export class HealerPlayer extends Player {
         healerPlayer.preSeedPosition = this.preSeedPosition === null ? null : this.preSeedPosition.clone();
         healerPlayer.seedMovedToPosition = this.seedMovedToPosition === null ? null : this.seedMovedToPosition.clone();
         healerPlayer.repeatSeedType = this.repeatSeedType;
+        healerPlayer.redXHealerId = this.redXHealerId;
+        healerPlayer.isRedXPath = this.isRedXPath;
         return healerPlayer;
     }
 }

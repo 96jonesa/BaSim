@@ -34,6 +34,8 @@ export abstract class Player extends Character {
     public preSeedPosition: Position = null;
     public seedMovedToPosition: Position = null;
     public repeatSeedType: SeedType = null;
+    public redXHealerId: number = null;
+    public isRedXPath: boolean = false;
 
     // Working arrays for findPath BFS — not meaningful outside findPath
     private pathQueuePositions: Array<Position> = [];
@@ -73,6 +75,7 @@ export abstract class Player extends Character {
                 this.codeIndex++;
                 this.arriveDelay = true;
                 this.pathDestination = null;
+                this.isRedXPath = false;
             } else {
                 this.recalculateFoodPath(barbarianAssault, healer);
             }
@@ -344,6 +347,7 @@ export abstract class Player extends Character {
 
             if (!foundDestination) {
                 this.pathDestination = null;
+                this.isRedXPath = false;
                 this.checkpoints = [];
                 this.checkpointIndex = 0;
                 return;
@@ -426,6 +430,7 @@ export abstract class Player extends Character {
 
             if (this.position.equals(target) && target === this.pathDestination) {
                 this.pathDestination = null;
+                this.isRedXPath = false;
                 break;
             }
 
@@ -437,6 +442,7 @@ export abstract class Player extends Character {
 
             if (this.checkpointIndex >= this.checkpoints.length && this.position.equals(this.pathDestination)) {
                 this.pathDestination = null;
+                this.isRedXPath = false;
                 break;
             }
         }

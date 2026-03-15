@@ -21,6 +21,8 @@ import {WalkRunCommand} from "./WalkRunCommand.js";
 import {ToggleRunCommand} from "./ToggleRunCommand.js";
 import {SeedCommand} from "./SeedCommand.js";
 import {SeedType} from "./SeedType.js";
+import {RedXCommand} from "./RedXCommand.js";
+import {RedXMoveCommand} from "./RedXMoveCommand.js";
 
 /**
  * Represents a game of Barbarian Assault: holds state information and exposes functions for
@@ -378,7 +380,14 @@ export class BarbarianAssault {
                 if (seedCommandProcessed && !(command instanceof WalkRunCommand) && !(command instanceof ToggleRunCommand)) return;
                 if (command instanceof MoveCommand) {
                     this.mainAttackerPlayer.clearCodeQueue();
+                    this.mainAttackerPlayer.isRedXPath = false;
                     this.mainAttackerPlayer.findPath(this, command.destination.clone());
+                } else if (command instanceof RedXMoveCommand) {
+                    this.mainAttackerPlayer.clearCodeQueue();
+                    this.mainAttackerPlayer.isRedXPath = true;
+                    this.mainAttackerPlayer.findPath(this, command.destination.clone());
+                } else if (command instanceof RedXCommand) {
+                    this.mainAttackerPlayer.redXHealerId = command.healerId;
                 } else if (command instanceof HealerCodeCommand) {
                     this.expandHealerCodeCommand(command, this.mainAttackerPlayer);
                     this.mainAttackerPlayer.initializeFoodPath(this);
@@ -391,6 +400,7 @@ export class BarbarianAssault {
                     this.mainAttackerPlayer.clearCodeQueue();
                     if (!this.seedQueuePath && !hasMoveCommand) {
                         this.mainAttackerPlayer.pathDestination = null;
+                        this.mainAttackerPlayer.isRedXPath = false;
                         this.mainAttackerPlayer.checkpoints = [];
                         this.mainAttackerPlayer.checkpointIndex = 0;
                     }
@@ -408,7 +418,14 @@ export class BarbarianAssault {
                 if (seedCommandProcessed && !(command instanceof WalkRunCommand) && !(command instanceof ToggleRunCommand)) return;
                 if (command instanceof MoveCommand) {
                     this.secondAttackerPlayer.clearCodeQueue();
+                    this.secondAttackerPlayer.isRedXPath = false;
                     this.secondAttackerPlayer.findPath(this, command.destination.clone());
+                } else if (command instanceof RedXMoveCommand) {
+                    this.secondAttackerPlayer.clearCodeQueue();
+                    this.secondAttackerPlayer.isRedXPath = true;
+                    this.secondAttackerPlayer.findPath(this, command.destination.clone());
+                } else if (command instanceof RedXCommand) {
+                    this.secondAttackerPlayer.redXHealerId = command.healerId;
                 } else if (command instanceof HealerCodeCommand) {
                     this.expandHealerCodeCommand(command, this.secondAttackerPlayer);
                     this.secondAttackerPlayer.initializeFoodPath(this);
@@ -421,6 +438,7 @@ export class BarbarianAssault {
                     this.secondAttackerPlayer.clearCodeQueue();
                     if (!this.seedQueuePath && !hasMoveCommand) {
                         this.secondAttackerPlayer.pathDestination = null;
+                        this.secondAttackerPlayer.isRedXPath = false;
                         this.secondAttackerPlayer.checkpoints = [];
                         this.secondAttackerPlayer.checkpointIndex = 0;
                     }
@@ -438,7 +456,14 @@ export class BarbarianAssault {
                 if (seedCommandProcessed && !(command instanceof WalkRunCommand) && !(command instanceof ToggleRunCommand)) return;
                 if (command instanceof MoveCommand) {
                     this.healerPlayer.clearCodeQueue();
+                    this.healerPlayer.isRedXPath = false;
                     this.healerPlayer.findPath(this, command.destination.clone());
+                } else if (command instanceof RedXMoveCommand) {
+                    this.healerPlayer.clearCodeQueue();
+                    this.healerPlayer.isRedXPath = true;
+                    this.healerPlayer.findPath(this, command.destination.clone());
+                } else if (command instanceof RedXCommand) {
+                    this.healerPlayer.redXHealerId = command.healerId;
                 } else if (command instanceof HealerCodeCommand) {
                     this.expandHealerCodeCommand(command, this.healerPlayer);
                     this.healerPlayer.initializeFoodPath(this);
@@ -451,6 +476,7 @@ export class BarbarianAssault {
                     this.healerPlayer.clearCodeQueue();
                     if (!this.seedQueuePath && !hasMoveCommand) {
                         this.healerPlayer.pathDestination = null;
+                        this.healerPlayer.isRedXPath = false;
                         this.healerPlayer.checkpoints = [];
                         this.healerPlayer.checkpointIndex = 0;
                     }
@@ -468,7 +494,14 @@ export class BarbarianAssault {
                 if (seedCommandProcessed && !(command instanceof WalkRunCommand) && !(command instanceof ToggleRunCommand)) return;
                 if (command instanceof MoveCommand) {
                     this.collectorPlayer.clearCodeQueue();
+                    this.collectorPlayer.isRedXPath = false;
                     this.collectorPlayer.findPath(this, command.destination.clone());
+                } else if (command instanceof RedXMoveCommand) {
+                    this.collectorPlayer.clearCodeQueue();
+                    this.collectorPlayer.isRedXPath = true;
+                    this.collectorPlayer.findPath(this, command.destination.clone());
+                } else if (command instanceof RedXCommand) {
+                    this.collectorPlayer.redXHealerId = command.healerId;
                 } else if (command instanceof HealerCodeCommand) {
                     this.expandHealerCodeCommand(command, this.collectorPlayer);
                     this.collectorPlayer.initializeFoodPath(this);
@@ -481,6 +514,7 @@ export class BarbarianAssault {
                     this.collectorPlayer.clearCodeQueue();
                     if (!this.seedQueuePath && !hasMoveCommand) {
                         this.collectorPlayer.pathDestination = null;
+                        this.collectorPlayer.isRedXPath = false;
                         this.collectorPlayer.checkpoints = [];
                         this.collectorPlayer.checkpointIndex = 0;
                     }
@@ -498,7 +532,14 @@ export class BarbarianAssault {
                 if (seedCommandProcessed && !(command instanceof WalkRunCommand) && !(command instanceof ToggleRunCommand)) return;
                 if (command instanceof MoveCommand) {
                     this.defenderPlayer.clearCodeQueue();
+                    this.defenderPlayer.isRedXPath = false;
                     this.defenderPlayer.findPath(this, command.destination.clone());
+                } else if (command instanceof RedXMoveCommand) {
+                    this.defenderPlayer.clearCodeQueue();
+                    this.defenderPlayer.isRedXPath = true;
+                    this.defenderPlayer.findPath(this, command.destination.clone());
+                } else if (command instanceof RedXCommand) {
+                    this.defenderPlayer.redXHealerId = command.healerId;
                 } else if (command instanceof HealerCodeCommand) {
                     this.expandHealerCodeCommand(command, this.defenderPlayer);
                     this.defenderPlayer.initializeFoodPath(this);
@@ -511,6 +552,7 @@ export class BarbarianAssault {
                     this.defenderPlayer.clearCodeQueue();
                     if (!this.seedQueuePath && !hasMoveCommand) {
                         this.defenderPlayer.pathDestination = null;
+                        this.defenderPlayer.isRedXPath = false;
                         this.defenderPlayer.checkpoints = [];
                         this.defenderPlayer.checkpointIndex = 0;
                     }
@@ -695,6 +737,16 @@ export class BarbarianAssault {
      * @return          true if the tile with the given position blocks Penance movement,
      *                  otherwise false
      */
+    public isHealerRedXBlocked(healer: HealerPenance): boolean {
+        const players = [this.mainAttackerPlayer, this.secondAttackerPlayer, this.healerPlayer, this.collectorPlayer, this.defenderPlayer];
+        for (const player of players) {
+            if (player.redXHealerId === healer.id && player.isRedXPath && player.position.equals(healer.position)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public tileBlocksPenance(position: Position): boolean {
         if (position.equals(this.defenderPlayer.position)) {
             return true;

@@ -136,7 +136,7 @@ export class HealerPenance extends Penance {
             this.pursueTarget(barbarianAssault);
         }
         else if (this.target instanceof RunnerPenance) {
-            if (this.target.despawnCountdown === 0) {
+            if (barbarianAssault.runners.indexOf(this.target) === -1) {
                 console.log(barbarianAssault.ticks + ": retargeting");
                 this.previousTargetType = HealerTargetType.RUNNER;
                 this.sprayTimer = 0;

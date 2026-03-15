@@ -659,12 +659,12 @@ export class BarbarianAssault {
      * @private
      */
     private tickPenance(): void {
-        this.healers.forEach((healer: HealerPenance): void => {
-            healer.tick(this);
-        });
-
         this.runners.forEach((runner: RunnerPenance): void => {
             runner.tick(this);
+        });
+
+        this.healers.forEach((healer: HealerPenance): void => {
+            healer.tick(this);
         });
     }
 
@@ -860,6 +860,28 @@ export class BarbarianAssault {
                 }
             }
         }
+        // Re-link healer targets to cloned players/runners
+        for (let i = 0; i < this.healers.length; i++) {
+            const originalHealer = this.healers[i];
+            const clonedHealer = barbarianAssault.healers[i];
+            if (originalHealer === null || clonedHealer === null || originalHealer.target === null) continue;
+
+            if (originalHealer.target === this.mainAttackerPlayer) {
+                clonedHealer.target = barbarianAssault.mainAttackerPlayer;
+            } else if (originalHealer.target === this.secondAttackerPlayer) {
+                clonedHealer.target = barbarianAssault.secondAttackerPlayer;
+            } else if (originalHealer.target === this.healerPlayer) {
+                clonedHealer.target = barbarianAssault.healerPlayer;
+            } else if (originalHealer.target === this.collectorPlayer) {
+                clonedHealer.target = barbarianAssault.collectorPlayer;
+            } else if (originalHealer.target === this.defenderPlayer) {
+                clonedHealer.target = barbarianAssault.defenderPlayer;
+            } else if (originalHealer.target instanceof RunnerPenance) {
+                const targetId = (originalHealer.target as RunnerPenance).id;
+                clonedHealer.target = barbarianAssault.runners.find(r => r !== null && r.id === targetId) || null;
+            }
+        }
+
         barbarianAssault.runnerMovements = [...this.runnerMovements];
         barbarianAssault.runnerMovementsIndex = this.runnerMovementsIndex;
         barbarianAssault.currentRunnerId = this.currentRunnerId;

@@ -21,6 +21,7 @@ import { ToggleRunCommand } from "./ToggleRunCommand.js";
 import { SeedCommand } from "./SeedCommand.js";
 import { RedXCommand } from "./RedXCommand.js";
 import { RedXMoveCommand } from "./RedXMoveCommand.js";
+import { DefenderPickupAtCommand } from "./DefenderPickupAtCommand.js";
 const HTML_CANVAS = "basimcanvas";
 const HTML_RUNNER_MOVEMENTS = "runnermovements";
 const HTML_START_BUTTON = "wavestart";
@@ -241,8 +242,8 @@ function init() {
         const tip = document.getElementById("teamcommandstip");
         const baseTip = "Enter commands as tick:x,y per line to move a player to (x,y) at that tick. e.g. 5:20,21. Multiple commands per tick allowed.\n\n";
         const defTip = simpleFood
-            ? "Defender actions: tick:r/w/e/l/t performs that key action at the specified tick.\n\n"
-            : "Defender actions: tick:t/c/w/u/i/o/e/l/r performs that key action at the specified tick.\n\n";
+            ? "Defender actions: tick:r/w/e/l/t performs that key action at the specified tick. tick:e,x,y picks up any food at (x,y).\n\n"
+            : "Defender actions: tick:t/c/w/u/i/o/e/l/r performs that key action at the specified tick. tick:e,x,y picks up any food at (x,y).\n\n";
         const healerTip = "Healer codes: tick:h<id>,<count> for any player. e.g. 1:h1,3 poisons healer 1 three times starting at its spawn tick. Player auto-pathfinds and uses poison food.\n\n";
         const redXTip = "Red x: tick:x1-x8 sets red x on healer. tick:>x,y sets red x path.\n\n";
         const walkTip = "Walk/run: tick:m toggles, tick:walk/tick:run sets explicitly.";
@@ -2169,6 +2170,19 @@ function convertCommandsStringToMap(commandsString, player) {
                     return null;
                 }
                 addToCommandsMap(commandsMap, tick, new MoveCommand(new Position(positionX, positionY)));
+            }
+        }
+        else if (commandTokens.length === 3) {
+            if (commandTokens[0] === "e" && player === "defender") {
+                const positionX = Number(commandTokens[1]);
+                const positionY = Number(commandTokens[2]);
+                if (!Number.isInteger(positionX) || !Number.isInteger(positionY)) {
+                    return null;
+                }
+                addToCommandsMap(commandsMap, tick, new DefenderPickupAtCommand(new Position(positionX, positionY)));
+            }
+            else {
+                return null;
             }
         }
         else {

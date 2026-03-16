@@ -9,6 +9,7 @@ export class DefenderPlayer extends Player {
         super(position);
         this.foodBeingPickedUp = null;
         this.shouldPickUpAnyFood = false;
+        this.pickUpFoodAtPosition = null;
         this.isPickingUpLogs = false;
         this.repairTicksRemaining = 0;
         this.ticksStandingStill = 0;
@@ -33,6 +34,10 @@ export class DefenderPlayer extends Player {
         }
         if (this.foodBeingPickedUp !== null || this.shouldPickUpAnyFood) {
             this.pickUpFood(barbarianAssault);
+        }
+        if (this.pickUpFoodAtPosition !== null) {
+            this.pickUpFoodAt(barbarianAssault, this.pickUpFoodAtPosition);
+            this.pickUpFoodAtPosition = null;
         }
         if (this.isPickingUpLogs) {
             this.pickUpLogs(barbarianAssault);
@@ -156,6 +161,17 @@ export class DefenderPlayer extends Player {
         this.shouldPickUpAnyFood = false;
         this.isPickingUpLogs = false;
     }
+    pickUpFoodAt(barbarianAssault, pos) {
+        const foodZone = barbarianAssault.map.getFoodZone(pos.x >>> 3, pos.y >>> 3);
+        for (let i = foodZone.foodList.length - 1; i >= 0; i--) {
+            const food = foodZone.foodList[i];
+            if (pos.x === food.position.x && pos.y === food.position.y) {
+                foodZone.foodList.splice(i, 1);
+                this.foodInInventory[food.type]++;
+                break;
+            }
+        }
+    }
     /**
      * Picks up a log at the same position as this defender player. Then, regardless of whether
      * a log was picked up, places this defender in a post-pickup state (no destination,
@@ -208,6 +224,7 @@ export class DefenderPlayer extends Player {
         defenderPlayer.position = this.position === null ? null : this.position.clone();
         defenderPlayer.foodBeingPickedUp = this.foodBeingPickedUp;
         defenderPlayer.shouldPickUpAnyFood = this.shouldPickUpAnyFood;
+        defenderPlayer.pickUpFoodAtPosition = this.pickUpFoodAtPosition === null ? null : this.pickUpFoodAtPosition.clone();
         defenderPlayer.isPickingUpLogs = this.isPickingUpLogs;
         defenderPlayer.repairTicksRemaining = this.repairTicksRemaining;
         defenderPlayer.checkpoints = this.checkpoints.map(p => p.clone());

@@ -19,6 +19,7 @@ import { ToggleRunCommand } from "./ToggleRunCommand.js";
 import { SeedCommand } from "./SeedCommand.js";
 import { RedXCommand } from "./RedXCommand.js";
 import { RedXMoveCommand } from "./RedXMoveCommand.js";
+import { DefenderPickupAtCommand } from "./DefenderPickupAtCommand.js";
 /**
  * Represents a game of Barbarian Assault: holds state information and exposes functions for
  * progressing the game state.
@@ -548,6 +549,9 @@ export class BarbarianAssault {
                         default:
                             break;
                     }
+                }
+                else if (command instanceof DefenderPickupAtCommand) {
+                    this.defenderPlayer.pickUpFoodAtPosition = command.position.clone();
                 }
             });
         }

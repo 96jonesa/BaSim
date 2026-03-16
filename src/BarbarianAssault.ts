@@ -651,7 +651,7 @@ export class BarbarianAssault {
      * @private
      */
     private spawnHealer(): void {
-        const spawnPos = this.wave === 10 ? new Position(36, 49) : new Position(42, 37);
+        const spawnPos = this.wave === 10 ? new Position(36, 39) : new Position(42, 37);
         const healer = new HealerPenance(spawnPos, this.maxHealerHealth, this.ticks, this.currentHealerId);
 
         const spawnIndex = this.currentHealerId - 1;

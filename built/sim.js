@@ -239,6 +239,8 @@ function init() {
         document.getElementById(HTML_CURRENT_FOOD_ROW).style.display = display;
         document.getElementById("hotkeylegend-normal").style.display = display;
         document.getElementById("hotkeylegend-simple").style.display = simpleFood ? "" : "none";
+        document.getElementById("tclegend-normal").style.display = display;
+        document.getElementById("tclegend-simple").style.display = simpleFood ? "" : "none";
         const tip = document.getElementById("teamcommandstip");
         const baseTip = "Enter commands as tick:x,y per line to move a player to (x,y) at that tick. e.g. 5:20,21. Multiple commands per tick allowed.\n\n";
         const defTip = simpleFood

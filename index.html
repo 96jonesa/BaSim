@@ -294,6 +294,10 @@ Runner movements to check: <input id="runnermovementstocheck" type="text"/> <spa
 </div>
 </div>
 
+<div style="margin: 1em 0;">
+<div style="display: inline-block; vertical-align: top; margin-right: 1em; text-align: center;">
+<b>Hotkeys</b>
+<div style="border: 1px solid #888; padding: 0.5em; text-align: left;">
 <b>space</b> starts or stops the wave.<br>
 <b>left-click</b> moves the player.<br>
 <span id="hotkeylegend-normal" style="display: none;"><b>t</b> drops tofu.<br>
@@ -320,7 +324,39 @@ Runner movements to check: <input id="runnermovementstocheck" type="text"/> <spa
 <b>f</b> steps forward one tick (pauses).<br>
 <b>s</b> saves state (pauses).<br>
 <b>y</b> loads state (must be running) (pauses).<br>
-<br>
+</div>
+</div>
+<div style="display: inline-block; vertical-align: top; text-align: center;">
+<b>Team command formats</b>
+<div style="border: 1px solid #888; padding: 0.5em; text-align: left;">
+<b>tick:x,y</b> moves player to (x,y).<br>
+<b>tick:>x,y</b> red x move to (x,y).<br>
+<b>tick:x1-x8</b> sets red x on healer.<br>
+<b>tick:walk</b> sets walk mode.<br>
+<b>tick:run</b> sets run mode.<br>
+<b>tick:m</b> toggles walk/run.<br>
+<b>tick:h&lt;id&gt;,&lt;count&gt;</b> uses food on healer.<br>
+<b>tick:e,x,y</b> picks up any food at (x,y). (defender only)<br>
+<b>tick:,</b> uses a mithril seed.<br>
+<b>tick:.</b> uses an adamant seed.<br>
+<span id="tclegend-normal" style="display: none;"><b>tick:t</b> drops tofu. (defender only)<br>
+<b>tick:c</b> drops crackers. (defender only)<br>
+<b>tick:w</b> drops worms. (defender only)<br>
+<b>tick:u</b> picks up tofu. (defender only)<br>
+<b>tick:i</b> picks up crackers. (defender only)<br>
+<b>tick:o</b> picks up worms. (defender only)<br>
+<b>tick:e</b> picks up any food. (defender only)<br>
+<b>tick:l</b> picks up logs. (defender only)<br>
+<b>tick:r</b> repairs a trap. (defender only)<br></span>
+<span id="tclegend-simple"><b>tick:r</b> drops good food. (defender only)<br>
+<b>tick:w</b> drops bad food. (defender only)<br>
+<b>tick:e</b> picks up food. (defender only)<br>
+<b>tick:l</b> picks up logs. (defender only)<br>
+<b>tick:t</b> repairs a trap. (defender only)<br></span>
+</div>
+</div>
+</div>
+
 Please let me know if anything is not working correctly. -McLovin1981<br>
 <br>
 <b>Thanks to all contributors!</b>

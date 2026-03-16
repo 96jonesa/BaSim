@@ -80,6 +80,8 @@ export class BarbarianAssault {
     public renderDistanceEnabled: boolean = false;
     public simpleFood: boolean = false;
     public seedQueuePath: boolean = true;
+    public playerTickStartPositions: Map<Player, Position> = new Map();
+    public runnerTickStartPositions: Map<number, Position> = new Map();
     public runnerSpawns: Array<number> = [];
     public runnerSpawnsIndex: number = 0;
     public healerSpawns: Array<number> = [];
@@ -213,6 +215,19 @@ export class BarbarianAssault {
         // console.log(this.ticks);
         this.runnersToRemove.length = 0;
         this.healersToRemove.length = 0;
+
+        this.playerTickStartPositions.set(this.mainAttackerPlayer, this.mainAttackerPlayer.position.clone());
+        this.playerTickStartPositions.set(this.secondAttackerPlayer, this.secondAttackerPlayer.position.clone());
+        this.playerTickStartPositions.set(this.healerPlayer, this.healerPlayer.position.clone());
+        this.playerTickStartPositions.set(this.collectorPlayer, this.collectorPlayer.position.clone());
+        this.playerTickStartPositions.set(this.defenderPlayer, this.defenderPlayer.position.clone());
+
+        this.runnerTickStartPositions.clear();
+        for (const runner of this.runners) {
+            if (runner !== null) {
+                this.runnerTickStartPositions.set(runner.id, runner.position.clone());
+            }
+        }
 
         this.applySeedMovements();
         this.tickPenance();
@@ -944,6 +959,24 @@ export class BarbarianAssault {
         barbarianAssault.renderDistanceEnabled = this.renderDistanceEnabled;
         barbarianAssault.simpleFood = this.simpleFood;
         barbarianAssault.seedQueuePath = this.seedQueuePath;
+        barbarianAssault.playerTickStartPositions = new Map();
+        const playerMapping: Array<[Player, Player]> = [
+            [this.mainAttackerPlayer, barbarianAssault.mainAttackerPlayer],
+            [this.secondAttackerPlayer, barbarianAssault.secondAttackerPlayer],
+            [this.healerPlayer, barbarianAssault.healerPlayer],
+            [this.collectorPlayer, barbarianAssault.collectorPlayer],
+            [this.defenderPlayer, barbarianAssault.defenderPlayer],
+        ];
+        for (const [original, cloned] of playerMapping) {
+            const pos = this.playerTickStartPositions.get(original);
+            if (pos) {
+                barbarianAssault.playerTickStartPositions.set(cloned, pos.clone());
+            }
+        }
+        barbarianAssault.runnerTickStartPositions = new Map();
+        for (const [id, pos] of this.runnerTickStartPositions) {
+            barbarianAssault.runnerTickStartPositions.set(id, pos.clone());
+        }
         barbarianAssault.runnerSpawns = [...this.runnerSpawns];
         barbarianAssault.runnerSpawnsIndex = this.runnerSpawnsIndex;
         barbarianAssault.healerSpawns = [...this.healerSpawns];

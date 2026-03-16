@@ -296,7 +296,10 @@ export class HealerPenance extends Penance {
         ];
 
         let candidates = playerRoles.filter((entry): boolean => {
-            return barbarianAssault.map.hasLineOfSight(this.position, entry.player.position, 15);
+            const startPos = barbarianAssault.playerTickStartPositions.get(entry.player) || entry.player.position;
+            const dx = Math.abs(this.position.x - startPos.x);
+            const dy = Math.abs(this.position.y - startPos.y);
+            return Math.max(dx, dy) <= 15 && barbarianAssault.map.hasLineOfSight(this.position, entry.player.position, 999);
         });
 
         if (this.forcedTarget.length > 0 && this.previousTargetType === null) {
@@ -326,7 +329,10 @@ export class HealerPenance extends Penance {
      */
     private tryToTargetRunner(barbarianAssault: BarbarianAssault): void {
         const candidates: Array<RunnerPenance> = barbarianAssault.runners.filter((runner: RunnerPenance): boolean => {
-            return barbarianAssault.map.hasLineOfSight(this.position, runner.position, 5) && !runner.isDying;
+            const startPos = barbarianAssault.runnerTickStartPositions.get(runner.id) || runner.position;
+            const dx = Math.abs(this.position.x - startPos.x);
+            const dy = Math.abs(this.position.y - startPos.y);
+            return Math.max(dx, dy) <= 5 && barbarianAssault.map.hasLineOfSight(this.position, runner.position, 999) && !runner.isDying;
         });
 
         if (candidates.length > 0) {

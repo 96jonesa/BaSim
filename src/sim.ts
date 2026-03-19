@@ -280,6 +280,7 @@ function init(): void {
         const walkTip = "Walk/run: tick:m toggles, tick:walk/tick:run sets explicitly.";
         tip.title = baseTip + defTip + healerTip + redXTip + walkTip;
         convertDefenderCommands(simpleFood);
+        (document.getElementById("settingsexportsolar") as HTMLButtonElement).disabled = !simpleFood;
     };
 
     toggleSecondsButton = document.getElementById(HTML_TOGGLE_SECONDS) as HTMLButtonElement;
@@ -375,6 +376,7 @@ function init(): void {
     (document.getElementById(HTML_CLEAR_MARKERS) as HTMLButtonElement).onclick = clearMarkers;
     (document.getElementById(HTML_SETTINGS_EXPORT) as HTMLButtonElement).onclick = exportSettings;
     (document.getElementById(HTML_SETTINGS_IMPORT) as HTMLButtonElement).onclick = importSettings;
+    (document.getElementById("settingsimportsolar") as HTMLButtonElement).onclick = importSettingsFromSolar;
 
     pauseResumeButton.onclick = function (): void {
         if (!isRunning) return;
@@ -1889,6 +1891,55 @@ function importSettings(): void {
         alert("Settings imported.");
     } catch (e) {
         alert("Failed to parse settings JSON.");
+    }
+}
+
+import {
+    solarCommandsToMclovin,
+    solarDefenderCommandsToMclovin,
+    solarHealerSpawnsToMclovin,
+} from "./SolarInterop.js";
+
+function importSettingsFromSolar(): void {
+    const field = document.getElementById("solarimportfield") as HTMLInputElement;
+    const input = field.value.trim();
+    if (input.length === 0) {
+        return;
+    }
+    try {
+        const s = JSON.parse(input);
+        if (secondsMode) {
+            toggleSecondsOnClick();
+        }
+        if (!simpleFood) {
+            (document.getElementById(HTML_TOGGLE_SIMPLE_FOOD) as HTMLButtonElement).click();
+        }
+        if (s.wave !== undefined) {
+            waveSelect.value = s.wave;
+            wave = Number(waveSelect.value);
+        }
+        if (s.runnerMovements !== undefined) movementsInput.value = s.runnerMovements;
+        if (s.eggs !== undefined) cannonQueueInput.value = s.eggs;
+        if (s.runnerSpawns !== undefined) runnerSpawnsInput.value = s.runnerSpawns;
+        if (s.healerSpawns !== undefined) {
+            const parsed = solarHealerSpawnsToMclovin(s.healerSpawns);
+            healerSpawnsInput.value = parsed.spawns;
+            healerSpawnTargetsInput.value = parsed.targets;
+        }
+        if (s.toggleRender !== undefined) {
+            toggleRenderDistance.checked = s.toggleRender;
+        }
+        if (s.team !== undefined) {
+            if (s.team.main !== undefined) (document.getElementById(HTML_MAIN_ATTACKER_COMMANDS) as HTMLTextAreaElement).value = solarCommandsToMclovin(s.team.main);
+            if (s.team.second !== undefined) (document.getElementById(HTML_SECOND_ATTACKER_COMMANDS) as HTMLTextAreaElement).value = solarCommandsToMclovin(s.team.second);
+            if (s.team.heal !== undefined) (document.getElementById(HTML_HEALER_COMMANDS) as HTMLTextAreaElement).value = solarCommandsToMclovin(s.team.heal);
+            if (s.team.col !== undefined) (document.getElementById(HTML_COLLECTOR_COMMANDS) as HTMLTextAreaElement).value = solarCommandsToMclovin(s.team.col);
+            if (s.team.def !== undefined) (document.getElementById(HTML_DEFENDER_COMMANDS) as HTMLTextAreaElement).value = solarDefenderCommandsToMclovin(s.team.def);
+        }
+        field.value = "";
+        alert("Settings imported from Solar sim format.");
+    } catch (e) {
+        alert("Failed to parse Solar sim settings JSON.");
     }
 }
 

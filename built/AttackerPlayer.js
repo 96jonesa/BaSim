@@ -44,6 +44,7 @@ export class AttackerPlayer extends Player {
         attackerPlayer.repeatSeedType = this.repeatSeedType;
         attackerPlayer.redXHealerId = this.redXHealerId;
         attackerPlayer.isRedXPath = this.isRedXPath;
+        attackerPlayer.phased = this.phased;
         return attackerPlayer;
     }
 }

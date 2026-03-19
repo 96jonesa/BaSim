@@ -176,6 +176,7 @@ export class BarbarianAssault {
             }
         }
         this.applySeedMovements();
+        this.checkPhasing(this.playerTickStartPositions, (p) => p.seedMovedThisTick);
         this.tickPenance();
         this.removePenance();
         this.cannon.tick(this);
@@ -205,7 +206,12 @@ export class BarbarianAssault {
                 this.healerSpawnsIndex++;
             }
         }
+        const prePathPositions = new Map();
+        for (const player of this.allPlayers()) {
+            prePathPositions.set(player, player.position.clone());
+        }
         this.tickPlayers();
+        this.checkPhasing(prePathPositions, (p) => !p.position.equals(prePathPositions.get(p)));
         this.executePlayerCommands();
     }
     /**
@@ -219,6 +225,33 @@ export class BarbarianAssault {
         this.mainAttackerPlayer.tick(this);
         this.secondAttackerPlayer.tick(this);
         this.healerPlayer.tick(this);
+    }
+    allPlayers() {
+        return [this.mainAttackerPlayer, this.secondAttackerPlayer, this.healerPlayer, this.collectorPlayer, this.defenderPlayer];
+    }
+    /**
+     * Checks for player phasing after a movement window. A player becomes phased if
+     * another player was on the same tile before the window and moved off during it,
+     * unless the player also moved during the window.
+     */
+    checkPhasing(prePositions, didMove) {
+        const players = this.allPlayers();
+        for (const player of players) {
+            if (didMove(player)) {
+                player.phased = false;
+                continue;
+            }
+            const prePosP = prePositions.get(player);
+            for (const other of players) {
+                if (other === player)
+                    continue;
+                const prePosQ = prePositions.get(other);
+                if (prePosQ.equals(prePosP) && didMove(other)) {
+                    player.phased = true;
+                    break;
+                }
+            }
+        }
     }
     applySeedMovements() {
         this.applySeedForPlayer(this.mainAttackerPlayer);
@@ -712,19 +745,19 @@ export class BarbarianAssault {
         return false;
     }
     tileBlocksPenance(position) {
-        if (position.equals(this.defenderPlayer.position)) {
+        if (!this.defenderPlayer.phased && position.equals(this.defenderPlayer.position)) {
             return true;
         }
-        if (position.equals(this.collectorPlayer.position)) {
+        if (!this.collectorPlayer.phased && position.equals(this.collectorPlayer.position)) {
             return true;
         }
-        if (position.equals(this.mainAttackerPlayer.position)) {
+        if (!this.mainAttackerPlayer.phased && position.equals(this.mainAttackerPlayer.position)) {
             return true;
         }
-        if (position.equals(this.secondAttackerPlayer.position)) {
+        if (!this.secondAttackerPlayer.phased && position.equals(this.secondAttackerPlayer.position)) {
             return true;
         }
-        if (position.equals(this.healerPlayer.position)) {
+        if (!this.healerPlayer.phased && position.equals(this.healerPlayer.position)) {
             return true;
         }
         if (position.y === 22) {

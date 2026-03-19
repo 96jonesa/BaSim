@@ -44,6 +44,7 @@ export class CollectorPlayer extends Player {
         collectorPlayer.repeatSeedType = this.repeatSeedType;
         collectorPlayer.redXHealerId = this.redXHealerId;
         collectorPlayer.isRedXPath = this.isRedXPath;
+        collectorPlayer.phased = this.phased;
         return collectorPlayer;
     }
 }

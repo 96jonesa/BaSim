@@ -32,6 +32,7 @@ export class Player extends Character {
         this.repeatSeedType = null;
         this.redXHealerId = null;
         this.isRedXPath = false;
+        this.phased = false;
         // Working arrays for findPath BFS — not meaningful outside findPath
         this.pathQueuePositions = [];
         this.pathQueueIndex = 0;

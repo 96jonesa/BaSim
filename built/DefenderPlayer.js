@@ -245,6 +245,7 @@ export class DefenderPlayer extends Player {
         defenderPlayer.repeatSeedType = this.repeatSeedType;
         defenderPlayer.redXHealerId = this.redXHealerId;
         defenderPlayer.isRedXPath = this.isRedXPath;
+        defenderPlayer.phased = this.phased;
         return defenderPlayer;
     }
 }

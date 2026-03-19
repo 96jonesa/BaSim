@@ -36,6 +36,7 @@ export abstract class Player extends Character {
     public repeatSeedType: SeedType = null;
     public redXHealerId: number = null;
     public isRedXPath: boolean = false;
+    public phased: boolean = false;
 
     // Working arrays for findPath BFS — not meaningful outside findPath
     private pathQueuePositions: Array<Position> = [];

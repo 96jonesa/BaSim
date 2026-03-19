@@ -50,6 +50,7 @@ export class HealerPlayer extends Player {
         healerPlayer.repeatSeedType = this.repeatSeedType;
         healerPlayer.redXHealerId = this.redXHealerId;
         healerPlayer.isRedXPath = this.isRedXPath;
+        healerPlayer.phased = this.phased;
 
         return healerPlayer;
     }

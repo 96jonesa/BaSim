@@ -161,7 +161,6 @@ var defenderLevel: number;
 var markerColor: number;
 var toggleRenderDistance: HTMLInputElement;
 var toggleIgnoreMaxHealers: HTMLInputElement;
-var ignoreMaxHealers: boolean;
 var toggleMarkingTiles: HTMLInputElement;
 var playerSelect: HTMLInputElement;
 var player: string;
@@ -204,7 +203,6 @@ var savedDefenderCommands: string;
 var savedRequireRepairs: boolean;
 var savedInfiniteFood: boolean;
 var savedRequireLogs: boolean;
-var savedIgnoreMaxHealers: boolean;
 var savedFoodCallsString: string;
 var savedCannonQueueString: string;
 var savedHealerSpawnTargetsString: string;
@@ -247,7 +245,6 @@ function init(): void {
     toggleLogToRepair.onchange = toggleLogToRepairOnChange;
     toggleRenderDistance = document.getElementById(HTML_TOGGLE_RENDER_DISTANCE) as HTMLInputElement;
     toggleIgnoreMaxHealers = document.getElementById(HTML_TOGGLE_IGNORE_MAX_HEALERS) as HTMLInputElement;
-    toggleIgnoreMaxHealers.onchange = toggleIgnoreMaxHealersOnChange;
     toggleSeedQueuePath = document.getElementById(HTML_TOGGLE_SEED_QUEUE_PATH) as HTMLInputElement;
     tickCountSpan = document.getElementById(HTML_TICK_COUNT);
     currentDefenderFoodSpan = document.getElementById(HTML_CURRENT_DEF_FOOD);
@@ -300,7 +297,6 @@ function init(): void {
 
     requireRepairs = toggleRepair.checked;
     requireLogs = toggleLogToRepair.checked;
-    ignoreMaxHealers = toggleIgnoreMaxHealers.checked;
     pauseSaveLoad = togglePauseSaveLoad.checked;
     pauseResumeButton = document.getElementById(HTML_PAUSE_RESUME) as HTMLButtonElement;
     stepBackButton = document.getElementById(HTML_STEP_BACK) as HTMLButtonElement;
@@ -463,7 +459,7 @@ function reset(): void {
         player === "defender" ? new Map<number, Array<Command>> : convertCommandsStringToMap((document.getElementById(HTML_DEFENDER_COMMANDS) as HTMLInputElement).value, "defender"),
         []
     );
-    barbarianAssault.ignoreMaxHealers = ignoreMaxHealers;
+    barbarianAssault.ignoreMaxHealers = toggleIgnoreMaxHealers.checked;
 
     draw();
 }
@@ -867,7 +863,6 @@ function save(): void {
     savedRequireRepairs = requireRepairs;
     savedInfiniteFood = infiniteFood;
     savedRequireLogs = requireLogs;
-    savedIgnoreMaxHealers = ignoreMaxHealers;
     savedFoodCallsString = foodCallsInput.value;
     savedCannonQueueString = cannonQueueInput.value;
     savedHealerSpawnTargetsString = healerSpawnTargetsInput.value;
@@ -899,7 +894,6 @@ function load(): void {
     toggleLogToRepair.checked = savedRequireLogs;
     toggleRepair.checked = savedRequireRepairs;
     toggleInfiniteFood.checked = savedInfiniteFood;
-    toggleIgnoreMaxHealers.checked = savedIgnoreMaxHealers;
     foodCallsInput.value = savedFoodCallsString;
     cannonQueueInput.value = savedCannonQueueString;
     healerSpawnTargetsInput.value = savedHealerSpawnTargetsString;
@@ -1510,7 +1504,7 @@ function startStopButtonOnClick(): void {
         barbarianAssault.healerSpawns = parseSpawnsInput(healerSpawnsInput.value);
         barbarianAssault.renderDistanceEnabled = toggleRenderDistance.checked;
         barbarianAssault.seedQueuePath = toggleSeedQueuePath.checked;
-        barbarianAssault.ignoreMaxHealers = ignoreMaxHealers;
+        barbarianAssault.ignoreMaxHealers = toggleIgnoreMaxHealers.checked;
 
         // Parse start tick and rapidly simulate to it
         let startTick = 1;
@@ -2265,11 +2259,6 @@ function toggleLogToRepairOnChange(): void {
     reset();
 }
 
-function toggleIgnoreMaxHealersOnChange(): void {
-    ignoreMaxHealers = toggleIgnoreMaxHealers.checked;
-    reset();
-}
-
 /**
  * Converts the given commands string to a map from tick numbers to positions.
  * If the given commands string is invalid, then null is returned
@@ -2493,7 +2482,7 @@ function runnersDieOnTimeForMovements(
         cannonQueue || []
     );
     barbarianAssaultSim.simpleFood = simpleFood;
-    barbarianAssaultSim.ignoreMaxHealers = ignoreMaxHealers;
+    barbarianAssaultSim.ignoreMaxHealers = toggleIgnoreMaxHealers.checked;
     barbarianAssaultSim.runnerSpawns = parseSpawnsInput(runnerSpawnsInput.value);
     barbarianAssaultSim.healerSpawns = parseSpawnsInput(healerSpawnsInput.value);
 

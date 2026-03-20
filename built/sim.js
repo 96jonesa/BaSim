@@ -600,9 +600,9 @@ function windowOnKeyDown(keyboardEvent) {
                     controlledCommands.innerHTML += tickToDisplay(barbarianAssault.ticks) + ":x" + healerId + "<br>";
                 }
                 else {
+                    controlledPlayer.clearCodeQueue();
                     controlledPlayer.codeQueue.push(new HealerCodeAction(healerId, 0));
-                    controlledPlayer.pathDestination = null;
-                    controlledPlayer.isRedXPath = false;
+                    controlledPlayer.initializeFoodPath(barbarianAssault);
                     controlledCommands.innerHTML += tickToDisplay(barbarianAssault.ticks) + ":h" + healerId + ",1<br>";
                 }
                 controlledCommands.scrollTop = controlledCommands.scrollHeight;

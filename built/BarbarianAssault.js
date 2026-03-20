@@ -632,9 +632,9 @@ export class BarbarianAssault {
         }
     }
     expandHealerCodeCommand(command, player) {
+        player.clearCodeQueue();
         for (let i = 0; i < command.count; i++) {
-            const waitUntil = (i === 0) ? command.healerId * 10 + 1 : 0;
-            player.codeQueue.push(new HealerCodeAction(command.healerId, waitUntil));
+            player.codeQueue.push(new HealerCodeAction(command.healerId, 0));
         }
     }
     /**

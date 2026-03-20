@@ -680,9 +680,9 @@ export class BarbarianAssault {
     }
 
     private expandHealerCodeCommand(command: HealerCodeCommand, player: Player): void {
+        player.clearCodeQueue();
         for (let i: number = 0; i < command.count; i++) {
-            const waitUntil: number = (i === 0) ? command.healerId * 10 + 1 : 0;
-            player.codeQueue.push(new HealerCodeAction(command.healerId, waitUntil));
+            player.codeQueue.push(new HealerCodeAction(command.healerId, 0));
         }
     }
 

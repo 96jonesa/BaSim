@@ -35,6 +35,7 @@ const HTML_CURRENT_DEF_FOOD = "currdeffood";
 const HTML_TICK_DURATION = "tickduration";
 const HTML_TOGGLE_INFINITE_FOOD = "toggleinfinitefood";
 const HTML_TOGGLE_LOG_TO_REPAIR = "togglelogtorepair";
+const HTML_TOGGLE_IGNORE_MAX_HEALERS = "toggleignoremaxhealers";
 const HTML_MARKER_COLOR = "marker";
 const HTML_MARKING_TILES = "markingtiles";
 const HTML_MAIN_ATTACKER_COMMANDS = "mainattackercommands";
@@ -134,6 +135,8 @@ var wave;
 var defenderLevel;
 var markerColor;
 var toggleRenderDistance;
+var toggleIgnoreMaxHealers;
+var ignoreMaxHealers;
 var toggleMarkingTiles;
 var playerSelect;
 var player;
@@ -174,6 +177,7 @@ var savedDefenderCommands;
 var savedRequireRepairs;
 var savedInfiniteFood;
 var savedRequireLogs;
+var savedIgnoreMaxHealers;
 var savedFoodCallsString;
 var savedCannonQueueString;
 var savedHealerSpawnTargetsString;
@@ -214,6 +218,8 @@ function init() {
     toggleLogToRepair = document.getElementById(HTML_TOGGLE_LOG_TO_REPAIR);
     toggleLogToRepair.onchange = toggleLogToRepairOnChange;
     toggleRenderDistance = document.getElementById(HTML_TOGGLE_RENDER_DISTANCE);
+    toggleIgnoreMaxHealers = document.getElementById(HTML_TOGGLE_IGNORE_MAX_HEALERS);
+    toggleIgnoreMaxHealers.onchange = toggleIgnoreMaxHealersOnChange;
     toggleSeedQueuePath = document.getElementById(HTML_TOGGLE_SEED_QUEUE_PATH);
     tickCountSpan = document.getElementById(HTML_TICK_COUNT);
     currentDefenderFoodSpan = document.getElementById(HTML_CURRENT_DEF_FOOD);
@@ -263,6 +269,7 @@ function init() {
     };
     requireRepairs = toggleRepair.checked;
     requireLogs = toggleLogToRepair.checked;
+    ignoreMaxHealers = toggleIgnoreMaxHealers.checked;
     pauseSaveLoad = togglePauseSaveLoad.checked;
     pauseResumeButton = document.getElementById(HTML_PAUSE_RESUME);
     stepBackButton = document.getElementById(HTML_STEP_BACK);
@@ -410,6 +417,7 @@ function reset() {
     stateHistory = [];
     stateIndex = -1;
     barbarianAssault = new BarbarianAssault(wave, requireRepairs, requireLogs, infiniteFood, [], defenderLevel, player === "mainattacker" ? new Map : convertCommandsStringToMap(document.getElementById(HTML_MAIN_ATTACKER_COMMANDS).value, "mainattacker"), player === "secondattacker" ? new Map : convertCommandsStringToMap(document.getElementById(HTML_SECOND_ATTACKER_COMMANDS).value, "secondattacker"), player === "healer" ? new Map : convertCommandsStringToMap(document.getElementById(HTML_HEALER_COMMANDS).value, "healer"), player === "collector" ? new Map : convertCommandsStringToMap(document.getElementById(HTML_COLLECTOR_COMMANDS).value, "collector"), player === "defender" ? new Map : convertCommandsStringToMap(document.getElementById(HTML_DEFENDER_COMMANDS).value, "defender"), []);
+    barbarianAssault.ignoreMaxHealers = ignoreMaxHealers;
     draw();
 }
 /**
@@ -780,6 +788,7 @@ function save() {
     savedRequireRepairs = requireRepairs;
     savedInfiniteFood = infiniteFood;
     savedRequireLogs = requireLogs;
+    savedIgnoreMaxHealers = ignoreMaxHealers;
     savedFoodCallsString = foodCallsInput.value;
     savedCannonQueueString = cannonQueueInput.value;
     savedHealerSpawnTargetsString = healerSpawnTargetsInput.value;
@@ -809,6 +818,7 @@ function load() {
     toggleLogToRepair.checked = savedRequireLogs;
     toggleRepair.checked = savedRequireRepairs;
     toggleInfiniteFood.checked = savedInfiniteFood;
+    toggleIgnoreMaxHealers.checked = savedIgnoreMaxHealers;
     foodCallsInput.value = savedFoodCallsString;
     cannonQueueInput.value = savedCannonQueueString;
     healerSpawnTargetsInput.value = savedHealerSpawnTargetsString;
@@ -1342,6 +1352,7 @@ function startStopButtonOnClick() {
         barbarianAssault.healerSpawns = parseSpawnsInput(healerSpawnsInput.value);
         barbarianAssault.renderDistanceEnabled = toggleRenderDistance.checked;
         barbarianAssault.seedQueuePath = toggleSeedQueuePath.checked;
+        barbarianAssault.ignoreMaxHealers = ignoreMaxHealers;
         // Parse start tick and rapidly simulate to it
         let startTick = 1;
         const startTickValue = startTickInput.value.trim();
@@ -1636,6 +1647,7 @@ function exportSettings() {
         requireLogToRepair: document.getElementById(HTML_TOGGLE_LOG_TO_REPAIR).checked,
         renderDistance: document.getElementById(HTML_TOGGLE_RENDER_DISTANCE).checked,
         seedQueuePath: document.getElementById(HTML_TOGGLE_SEED_QUEUE_PATH).checked,
+        ignoreMaxHealers: document.getElementById(HTML_TOGGLE_IGNORE_MAX_HEALERS).checked,
         simpleFood: simpleFood,
         mainAttacker: document.getElementById(HTML_MAIN_ATTACKER_COMMANDS).value,
         secondAttacker: document.getElementById(HTML_SECOND_ATTACKER_COMMANDS).value,
@@ -1690,6 +1702,8 @@ function importSettings() {
             document.getElementById(HTML_TOGGLE_RENDER_DISTANCE).checked = s.renderDistance;
         if (s.seedQueuePath !== undefined)
             document.getElementById(HTML_TOGGLE_SEED_QUEUE_PATH).checked = s.seedQueuePath;
+        if (s.ignoreMaxHealers !== undefined)
+            document.getElementById(HTML_TOGGLE_IGNORE_MAX_HEALERS).checked = s.ignoreMaxHealers;
         if (s.simpleFood !== undefined && s.simpleFood !== simpleFood) {
             document.getElementById(HTML_TOGGLE_SIMPLE_FOOD).click();
         }
@@ -2084,6 +2098,10 @@ function toggleLogToRepairOnChange() {
     requireLogs = toggleLogToRepair.checked;
     reset();
 }
+function toggleIgnoreMaxHealersOnChange() {
+    ignoreMaxHealers = toggleIgnoreMaxHealers.checked;
+    reset();
+}
 /**
  * Converts the given commands string to a map from tick numbers to positions.
  * If the given commands string is invalid, then null is returned
@@ -2276,6 +2294,7 @@ function runnersDieOnTimeForMovements(runnerMovements, foodCalls, runnersDeadByT
     const cannonQueue = parseCannonInput(cannonQueueInput.value, useSeconds());
     const barbarianAssaultSim = new BarbarianAssault(wave, requireRepairs, requireLogs, infiniteFood, runnerMovements, defenderLevel, mainAttackerCommands, secondAttackerCommands, healerCommands, collectorCommands, defenderCommands, foodCalls, cannonQueue || []);
     barbarianAssaultSim.simpleFood = simpleFood;
+    barbarianAssaultSim.ignoreMaxHealers = ignoreMaxHealers;
     barbarianAssaultSim.runnerSpawns = parseSpawnsInput(runnerSpawnsInput.value);
     barbarianAssaultSim.healerSpawns = parseSpawnsInput(healerSpawnsInput.value);
     for (let i = 0; i < runnersDeadByTick; i++) {

@@ -40,6 +40,7 @@ export class BarbarianAssault {
         this.healers = [];
         this.healersAlive = 0;
         this.healersKilled = 0;
+        this.ignoreMaxHealers = false;
         this.runners = [];
         this.runnerMovementsIndex = 0;
         this.currentRunnerId = 1;
@@ -200,7 +201,7 @@ export class BarbarianAssault {
         const shouldSpawnHealer = this.healerSpawns.length === 0
             ? isDefaultCycle
             : this.healerSpawnsIndex < this.healerSpawns.length && this.healerSpawns[this.healerSpawnsIndex] === this.ticks;
-        if (shouldSpawnHealer && this.healersAlive < this.maxHealersAlive && this.healersKilled + this.healersAlive < this.totalHealers) {
+        if (shouldSpawnHealer && (this.ignoreMaxHealers || this.healersAlive < this.maxHealersAlive) && this.healersKilled + this.healersAlive < this.totalHealers) {
             this.spawnHealer();
             if (this.healerSpawns.length > 0) {
                 this.healerSpawnsIndex++;
@@ -821,6 +822,7 @@ export class BarbarianAssault {
         barbarianAssault.requireRepairs = this.requireRepairs;
         barbarianAssault.requireLogs = this.requireLogs;
         barbarianAssault.infiniteFood = this.infiniteFood;
+        barbarianAssault.ignoreMaxHealers = this.ignoreMaxHealers;
         barbarianAssault.runners = [];
         for (let i = 0; i < this.runners.length; i++) {
             barbarianAssault.runners.push(this.runners[i] === null ? null : this.runners[i].clone());

@@ -903,6 +903,13 @@ function canvasOnMouseDown(mouseEvent) {
             if (controlledPlayer !== null && (controlledPlayer.seedMovedThisTick || controlledPlayer.pendingSeed !== null)) {
                 return;
             }
+            if (mouseEvent.shiftKey && isRunning && player === "defender") {
+                stateHistory.splice(stateIndex + 1);
+                barbarianAssault.defenderPlayer.pickUpFoodAtPosition = new Position(xTile, yTile);
+                controlledCommands.innerHTML += tickToDisplay(barbarianAssault.ticks) + ":e," + xTile + "," + yTile + "<br>";
+                controlledCommands.scrollTop = controlledCommands.scrollHeight;
+                return;
+            }
             lastClickTick = barbarianAssault.ticks;
             stateHistory.splice(stateIndex + 1);
             const controlledPlayerObj = getControlledPlayerObject();

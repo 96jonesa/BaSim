@@ -288,11 +288,6 @@ function init() {
     player = playerSelect.value;
     controlledCommands = document.getElementById(HTML_CONTROLLED_COMMANDS);
     runnerMovementsToCheckInput = document.getElementById(HTML_RUNNER_MOVEMENTS_TO_CHECK);
-    runnerMovementsToCheckInput.onkeydown = function (keyboardEvent) {
-        if (keyboardEvent.key === " ") {
-            keyboardEvent.preventDefault();
-        }
-    };
     runnerMovementsToCheckInput.onchange = runnerMovementsToCheckInputOnChange;
     cannonQueueInput = document.getElementById(HTML_CANNON_QUEUE);
     cannonQueueInput.onkeydown = function (keyboardEvent) {
@@ -437,18 +432,51 @@ function parseMovementsInput() {
     }
     return movements;
 }
+function isValidMovementPattern(pattern) {
+    let i = 0;
+    while (i < pattern.length) {
+        const c = pattern[i];
+        if (c === "[") {
+            i++;
+            if (i >= pattern.length)
+                return false;
+            while (i < pattern.length && pattern[i] !== "]") {
+                if (pattern[i] !== "s" && pattern[i] !== "w" && pattern[i] !== "e")
+                    return false;
+                i++;
+            }
+            if (i >= pattern.length)
+                return false;
+            i++;
+        }
+        else if (c === "s" || c === "w" || c === "e" || c === "x") {
+            i++;
+        }
+        else if (c === "") {
+            i++;
+        }
+        else {
+            return false;
+        }
+    }
+    return true;
+}
 function parseRunnerMovementsToCheck() {
-    const runnerMovements = runnerMovementsToCheckInput.value.split("-");
-    for (let i = 0; i < runnerMovements.length; i++) {
-        const moves = runnerMovements[i];
-        for (let j = 0; j < moves.length; j++) {
-            const move = moves[j];
-            if (move !== "" && move !== "s" && move !== "w" && move !== "e" && move !== "x") {
+    const lines = runnerMovementsToCheckInput.value.split("\n").filter(line => line.trim() !== "");
+    if (lines.length === 0) {
+        return null;
+    }
+    const result = [];
+    for (const line of lines) {
+        const runnerMovements = line.trim().split("-");
+        for (let i = 0; i < runnerMovements.length; i++) {
+            if (!isValidMovementPattern(runnerMovements[i])) {
                 return null;
             }
         }
+        result.push(runnerMovements);
     }
-    return runnerMovements;
+    return result;
 }
 function parseFoodCallsInput() {
     const foodCalls = [];
@@ -1405,9 +1433,9 @@ function simulateButtonOnClick() {
         barbarianAssault.map.reset();
         reset();
     }
-    const runnerMovementsToCheck = parseRunnerMovementsToCheck();
-    if (runnerMovementsToCheck === null) {
-        alert("Invalid runner movements to check. Example: ws-x-ex");
+    const allRunnerMovementsToCheck = parseRunnerMovementsToCheck();
+    if (allRunnerMovementsToCheck === null) {
+        alert("Invalid runner movements to check. Example: ws-x-ex or [sw]e-w-s");
         return;
     }
     const foodCalls = parseFoodCallsInput();
@@ -1446,16 +1474,16 @@ function simulateButtonOnClick() {
     runnerMovementsToCheckInput.disabled = true;
     runnersDeadByTickInput.disabled = true;
     simulateButton.disabled = true;
-    const movementsRunnersDoNotDieOnTime = getMovementsRunnersDoNotDieOnTime(foodCalls, runnerMovementsToCheck, runnersDeadByTick);
     let runnersDoNotDieWithMovementsInnerHTML = "";
-    if (movementsRunnersDoNotDieOnTime.length === 0) {
-        runnersDoNotDieWithMovementsInnerHTML = "None!";
-    }
-    else {
+    for (const runnerMovementsToCheck of allRunnerMovementsToCheck) {
+        const movementsRunnersDoNotDieOnTime = getMovementsRunnersDoNotDieOnTime(foodCalls, runnerMovementsToCheck, runnersDeadByTick);
         for (let i = 0; i < movementsRunnersDoNotDieOnTime.length; i++) {
             const movement = movementsRunnersDoNotDieOnTime[i];
             runnersDoNotDieWithMovementsInnerHTML += getMovementsStringFromArray(movement) + "<br>";
         }
+    }
+    if (runnersDoNotDieWithMovementsInnerHTML === "") {
+        runnersDoNotDieWithMovementsInnerHTML = "None!";
     }
     runnersDoNotDieWithMovements.innerHTML = runnersDoNotDieWithMovementsInnerHTML;
     startStopButton.disabled = false;
@@ -2333,22 +2361,26 @@ function getAllCombinations(candidateMovements, index, partialCombinations) {
 }
 function getAllForcedMovementsForOneRunner(movementPattern) {
     const validDirections = [];
-    for (let i = 0; i < movementPattern.length; i++) {
-        switch (movementPattern.charAt(i)) {
-            case "w":
-                validDirections.push(["w"]);
-                break;
-            case "e":
-                validDirections.push(["e"]);
-                break;
-            case "s":
-                validDirections.push(["s"]);
-                break;
-            case "x":
-                validDirections.push(["s", "e", "w"]);
-                break;
-            default:
-                return [];
+    let i = 0;
+    while (i < movementPattern.length) {
+        const c = movementPattern[i];
+        if (c === "[") {
+            i++;
+            const dirs = [];
+            while (i < movementPattern.length && movementPattern[i] !== "]") {
+                dirs.push(movementPattern[i]);
+                i++;
+            }
+            i++;
+            validDirections.push(dirs);
+        }
+        else if (c === "x") {
+            validDirections.push(["s", "e", "w"]);
+            i++;
+        }
+        else {
+            validDirections.push([c]);
+            i++;
         }
     }
     return getAllValidPermutationsForOneRunner(validDirections, 0, [""]);

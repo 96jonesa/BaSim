@@ -247,15 +247,20 @@ Tick duration (milliseconds): <input id="tickduration" type="number" min="100" m
 </div>
 </div>
 </div>
-<div class="section" style="margin-top: 0.5rem;">
+<div class="section" style="margin-top: 0.5rem; display: flex; gap: 1rem;">
+<div>
 <button id="simulate">Simulate against runner movements to check</button>
 <br><br>
-Runner movements to check: <input id="runnermovementstocheck" type="text"/> <span title="Like runner movements, but use 'x' for any direction to check all possibilities. Unspecified movements are random. e.g. 'wx-s-e' checks ww-s-e, ws-s-e, and we-s-e." class="info-tip">i</span>
+Runner movements to check: <span title="Like runner movements, but use 'x' for any direction to check all possibilities, or [sw] to check only those directions. Unspecified movements are random. e.g. 'wx-s-e' checks ww-s-e, ws-s-e, and we-s-e. '[sw]e-w' checks se-w and we-w. One per line to check multiple." class="info-tip">i</span>
+<br>
+<textarea id="runnermovementstocheck" rows="3" cols="30"></textarea>
 <br><br>
 <span id="runnersdeadbylabel">Runners dead by tick</span>: <input id="runnersdeadbytick" type="text" placeholder="42"/> <span title="The tick by which all runners must be dead in the simulation." class="info-tip">i</span>
-<br><br>
+</div>
+<div>
 <b>Runners do not die with movements:</b> <span title="Lists runner movement combinations from the checked movements for which not all runners died by the specified tick." class="info-tip">i</span><br>
-<div id="runnersdonotdiemovements" style="border: 1px solid; height: 4lh; width: 14lh; overflow: auto; resize: both"></div>
+<div id="runnersdonotdiemovements" style="border: 1px solid; height: 8lh; width: 14lh; overflow: auto; resize: both"></div>
+</div>
 </div>
 <div class="section" style="margin-top: 0.5rem;">
 <button id="togglesimplefood">Disable simple food</button>

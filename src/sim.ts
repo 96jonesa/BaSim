@@ -167,7 +167,7 @@ var playerSelect: HTMLInputElement;
 var player: string;
 var controlledCommands: HTMLElement;
 var foodCallsInput: HTMLInputElement;
-var runnerMovementsToCheckInput: HTMLInputElement;
+var runnerMovementsToCheckInput: HTMLTextAreaElement;
 var runnersDeadByTickInput: HTMLInputElement;
 var simulateButton: HTMLButtonElement;
 var runnersDoNotDieWithMovements: HTMLElement;
@@ -318,12 +318,7 @@ function init(): void {
     playerSelect.onchange = playerSelectOnChange;
     player = playerSelect.value;
     controlledCommands = document.getElementById(HTML_CONTROLLED_COMMANDS);
-    runnerMovementsToCheckInput = document.getElementById(HTML_RUNNER_MOVEMENTS_TO_CHECK) as HTMLInputElement;
-    runnerMovementsToCheckInput.onkeydown = function (keyboardEvent: KeyboardEvent): void {
-        if (keyboardEvent.key === " ") {
-            keyboardEvent.preventDefault();
-        }
-    };
+    runnerMovementsToCheckInput = document.getElementById(HTML_RUNNER_MOVEMENTS_TO_CHECK) as HTMLTextAreaElement;
     runnerMovementsToCheckInput.onchange = runnerMovementsToCheckInputOnChange;
     cannonQueueInput = document.getElementById(HTML_CANNON_QUEUE) as HTMLInputElement;
     cannonQueueInput.onkeydown = function (keyboardEvent: KeyboardEvent): void {
@@ -490,22 +485,52 @@ function parseMovementsInput(): Array<string> {
     return movements;
 }
 
-function parseRunnerMovementsToCheck(): Array<string> {
-    const runnerMovements: Array<string> = runnerMovementsToCheckInput.value.split("-");
+function isValidMovementPattern(pattern: string): boolean {
+    let i: number = 0;
+    while (i < pattern.length) {
+        const c: string = pattern[i];
+        if (c === "[") {
+            i++;
+            if (i >= pattern.length) return false;
+            while (i < pattern.length && pattern[i] !== "]") {
+                if (pattern[i] !== "s" && pattern[i] !== "w" && pattern[i] !== "e") return false;
+                i++;
+            }
+            if (i >= pattern.length) return false;
+            i++;
+        } else if (c === "s" || c === "w" || c === "e" || c === "x") {
+            i++;
+        } else if (c === "") {
+            i++;
+        } else {
+            return false;
+        }
+    }
+    return true;
+}
 
-    for (let i: number = 0; i < runnerMovements.length; i++) {
-        const moves: string = runnerMovements[i];
+function parseRunnerMovementsToCheck(): Array<Array<string>> {
+    const lines: Array<string> = runnerMovementsToCheckInput.value.split("\n").filter(line => line.trim() !== "");
 
-        for (let j: number = 0; j < moves.length; j++) {
-            const move: string = moves[j];
+    if (lines.length === 0) {
+        return null;
+    }
 
-            if (move !== "" && move !== "s" && move !== "w" && move !== "e" && move !== "x") {
+    const result: Array<Array<string>> = [];
+
+    for (const line of lines) {
+        const runnerMovements: Array<string> = line.trim().split("-");
+
+        for (let i: number = 0; i < runnerMovements.length; i++) {
+            if (!isValidMovementPattern(runnerMovements[i])) {
                 return null;
             }
         }
+
+        result.push(runnerMovements);
     }
 
-    return runnerMovements;
+    return result;
 }
 
 function parseFoodCallsInput(): Array<FoodType> {
@@ -1574,10 +1599,10 @@ function simulateButtonOnClick(): void {
         reset();
     }
 
-    const runnerMovementsToCheck: Array<string> = parseRunnerMovementsToCheck();
+    const allRunnerMovementsToCheck: Array<Array<string>> = parseRunnerMovementsToCheck();
 
-    if (runnerMovementsToCheck === null) {
-        alert("Invalid runner movements to check. Example: ws-x-ex");
+    if (allRunnerMovementsToCheck === null) {
+        alert("Invalid runner movements to check. Example: ws-x-ex or [sw]e-w-s");
         return;
     }
 
@@ -1621,18 +1646,19 @@ function simulateButtonOnClick(): void {
     runnersDeadByTickInput.disabled = true;
     simulateButton.disabled = true;
 
-    const movementsRunnersDoNotDieOnTime: Array<Array<string>> = getMovementsRunnersDoNotDieOnTime(foodCalls, runnerMovementsToCheck, runnersDeadByTick);
-
     let runnersDoNotDieWithMovementsInnerHTML: string = "";
 
-    if (movementsRunnersDoNotDieOnTime.length === 0) {
-        runnersDoNotDieWithMovementsInnerHTML = "None!";
-    } else {
+    for (const runnerMovementsToCheck of allRunnerMovementsToCheck) {
+        const movementsRunnersDoNotDieOnTime: Array<Array<string>> = getMovementsRunnersDoNotDieOnTime(foodCalls, runnerMovementsToCheck, runnersDeadByTick);
+
         for (let i: number = 0; i < movementsRunnersDoNotDieOnTime.length; i++) {
             const movement: Array<string> = movementsRunnersDoNotDieOnTime[i];
-
             runnersDoNotDieWithMovementsInnerHTML += getMovementsStringFromArray(movement) + "<br>";
         }
+    }
+
+    if (runnersDoNotDieWithMovementsInnerHTML === "") {
+        runnersDoNotDieWithMovementsInnerHTML = "None!";
     }
 
    runnersDoNotDieWithMovements.innerHTML = runnersDoNotDieWithMovementsInnerHTML;
@@ -2554,22 +2580,24 @@ function getAllCombinations(candidateMovements: Array<Array<string>>, index: num
 function getAllForcedMovementsForOneRunner(movementPattern: string): Array<string> {
     const validDirections: Array<Array<string>> = [];
 
-    for (let i: number = 0; i < movementPattern.length; i++) {
-        switch (movementPattern.charAt(i)) {
-            case "w":
-                validDirections.push(["w"]);
-                break;
-            case "e":
-                validDirections.push(["e"]);
-                break;
-            case "s":
-                validDirections.push(["s"]);
-                break;
-            case "x":
-                validDirections.push(["s", "e", "w"]);
-                break;
-            default:
-                return [];
+    let i: number = 0;
+    while (i < movementPattern.length) {
+        const c: string = movementPattern[i];
+        if (c === "[") {
+            i++;
+            const dirs: Array<string> = [];
+            while (i < movementPattern.length && movementPattern[i] !== "]") {
+                dirs.push(movementPattern[i]);
+                i++;
+            }
+            i++;
+            validDirections.push(dirs);
+        } else if (c === "x") {
+            validDirections.push(["s", "e", "w"]);
+            i++;
+        } else {
+            validDirections.push([c]);
+            i++;
         }
     }
 

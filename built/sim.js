@@ -603,7 +603,7 @@ function windowOnKeyDown(keyboardEvent) {
                     controlledPlayer.codeQueue.push(new HealerCodeAction(healerId, 0));
                     controlledPlayer.pathDestination = null;
                     controlledPlayer.isRedXPath = false;
-                    controlledCommands.innerHTML += tickToDisplay(barbarianAssault.ticks) + ":h" + healerId + "<br>";
+                    controlledCommands.innerHTML += tickToDisplay(barbarianAssault.ticks) + ":h" + healerId + ",1<br>";
                 }
                 controlledCommands.scrollTop = controlledCommands.scrollHeight;
             }

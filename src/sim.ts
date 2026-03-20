@@ -2545,7 +2545,7 @@ function updateAllDeadTimes(): void {
         const t = barbarianAssault.allHealersDeadTick;
         parts.push("Healers dead: " + t + " (" + ticksToSeconds(t) + "s)");
     }
-    allDeadTimesSpan.innerHTML = parts.length > 0 ? "--- <b>" + parts.join(" | ") + "</b>" : "";
+    allDeadTimesSpan.innerHTML = parts.length > 0 ? " --- <b>" + parts.join(" | ") + "</b>" : "";
 }
 
 function runnersDieOnTimeForMovements(

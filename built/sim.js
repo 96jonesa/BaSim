@@ -2366,7 +2366,7 @@ function updateAllDeadTimes() {
         const t = barbarianAssault.allHealersDeadTick;
         parts.push("Healers dead: " + t + " (" + ticksToSeconds(t) + "s)");
     }
-    allDeadTimesSpan.innerHTML = parts.length > 0 ? "--- <b>" + parts.join(" | ") + "</b>" : "";
+    allDeadTimesSpan.innerHTML = parts.length > 0 ? " --- <b>" + parts.join(" | ") + "</b>" : "";
 }
 function runnersDieOnTimeForMovements(runnerMovements, foodCalls, runnersDeadByTick, mainAttackerCommands, secondAttackerCommands, healerCommands, collectorCommands, defenderCommands) {
     const cannonQueue = parseCannonInput(cannonQueueInput.value, useSeconds());

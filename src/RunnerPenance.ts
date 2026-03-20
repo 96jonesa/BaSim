@@ -122,15 +122,18 @@ export class RunnerPenance extends Penance {
                 if (!this.isDying) {
                     barbarianAssault.runnersAlive--;
                 } else {
-                    if (this.isInDeathRange(barbarianAssault.eastTrapPosition)) {
-                        if (barbarianAssault.eastTrapCharges > 0) {
-                            barbarianAssault.eastTrapCharges--;
+                    const blueEggArriving = this.eggQueue.some(e => e.stalled === 0 && e.type === EggType.BLUE);
+                    if (!blueEggArriving) {
+                        if (this.isInDeathRange(barbarianAssault.eastTrapPosition)) {
+                            if (barbarianAssault.eastTrapCharges > 0) {
+                                barbarianAssault.eastTrapCharges--;
+                            }
                         }
-                    }
 
-                    if (this.isInDeathRange(barbarianAssault.westTrapPosition)) {
-                        if (barbarianAssault.westTrapCharges > 0) {
-                            barbarianAssault.westTrapCharges--;
+                        if (this.isInDeathRange(barbarianAssault.westTrapPosition)) {
+                            if (barbarianAssault.westTrapCharges > 0) {
+                                barbarianAssault.westTrapCharges--;
+                            }
                         }
                     }
                 }

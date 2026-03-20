@@ -652,21 +652,33 @@ export class BarbarianAssault {
                             this.defenderPlayer.dropFood(this, FoodType.WORMS);
                             break;
                         case DefenderActionType.PICKUP_TOFU:
+                            this.defenderPlayer.pathDestination = null;
+                            this.defenderPlayer.isRedXPath = false;
                             this.defenderPlayer.foodBeingPickedUp = FoodType.TOFU;
                             break;
                         case DefenderActionType.PICKUP_CRACKERS:
+                            this.defenderPlayer.pathDestination = null;
+                            this.defenderPlayer.isRedXPath = false;
                             this.defenderPlayer.foodBeingPickedUp = FoodType.CRACKERS;
                             break;
                         case DefenderActionType.PICKUP_WORMS:
+                            this.defenderPlayer.pathDestination = null;
+                            this.defenderPlayer.isRedXPath = false;
                             this.defenderPlayer.foodBeingPickedUp = FoodType.WORMS;
                             break;
                         case DefenderActionType.PICKUP_ANY_FOOD:
+                            this.defenderPlayer.pathDestination = null;
+                            this.defenderPlayer.isRedXPath = false;
                             this.defenderPlayer.shouldPickUpAnyFood = true;
                             break;
                         case DefenderActionType.PICKUP_LOGS:
+                            this.defenderPlayer.pathDestination = null;
+                            this.defenderPlayer.isRedXPath = false;
                             this.defenderPlayer.isPickingUpLogs = true;
                             break;
                         case DefenderActionType.REPAIR_TRAP:
+                            this.defenderPlayer.pathDestination = null;
+                            this.defenderPlayer.isRedXPath = false;
                             this.defenderPlayer.startRepairing(this);
                             break;
                         default:

@@ -46,27 +46,32 @@ export function solarDefenderCommandsToMclovin(commands) {
         if (first === "g" || first === "b") {
             const count = tokens.length >= 2 ? parseInt(tokens[1]) || 1 : 1;
             const solarTick = tokens.length >= 3 ? parseInt(tokens[2]) || 0 : 0;
-            const mcTick = solarTick + 1;
+            if (solarTick <= 1)
+                continue;
             const mcKey = first === "g" ? "r" : "w";
             for (let i = 0; i < count; i++) {
-                result.push(mcTick + ":" + mcKey);
+                result.push(solarTick + ":" + mcKey);
             }
         }
         else if (first === "t" || first === "p") {
             const solarTick = tokens.length >= 2 ? parseInt(tokens[1]) || 0 : 0;
-            const mcTick = solarTick + 1;
+            if (solarTick <= 1)
+                continue;
             const mcKey = first === "t" ? "t" : "e";
-            result.push(mcTick + ":" + mcKey);
+            result.push(solarTick + ":" + mcKey);
         }
         else {
             const lastColon = line.lastIndexOf(":");
             if (lastColon === -1) {
-                result.push("0:" + line);
+                continue;
             }
             else {
                 const maybeTick = line.substring(lastColon + 1);
                 if (/^\d+$/.test(maybeTick)) {
-                    result.push(maybeTick + ":" + line.substring(0, lastColon));
+                    const solarTick = parseInt(maybeTick);
+                    if (solarTick <= 1)
+                        continue;
+                    result.push((solarTick - 1) + ":" + line.substring(0, lastColon));
                 }
                 else {
                     result.push("0:" + line);

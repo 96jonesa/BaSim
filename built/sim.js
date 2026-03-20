@@ -16,6 +16,7 @@ import { parseCannonInput, getCannonPosition } from "./Cannon.js";
 import { CannonSide } from "./CannonSide.js";
 import { EggType } from "./EggType.js";
 import { HealerCodeCommand } from "./HealerCodeCommand.js";
+import { HealerCodeAction } from "./HealerCodeAction.js";
 import { WalkRunCommand } from "./WalkRunCommand.js";
 import { ToggleRunCommand } from "./ToggleRunCommand.js";
 import { SeedCommand } from "./SeedCommand.js";
@@ -589,6 +590,24 @@ function windowOnKeyDown(keyboardEvent) {
                     break;
             }
         }
+        const code = keyboardEvent.code;
+        if (code >= "Digit1" && code <= "Digit8" && !seedBlocked) {
+            const controlledPlayer = getControlledPlayerObject();
+            if (controlledPlayer !== null) {
+                const healerId = Number(code[5]);
+                if (keyboardEvent.shiftKey) {
+                    controlledPlayer.redXHealerId = healerId;
+                    controlledCommands.innerHTML += tickToDisplay(barbarianAssault.ticks) + ":x" + healerId + "<br>";
+                }
+                else {
+                    controlledPlayer.codeQueue.push(new HealerCodeAction(healerId, 0));
+                    controlledPlayer.pathDestination = null;
+                    controlledPlayer.isRedXPath = false;
+                    controlledCommands.innerHTML += tickToDisplay(barbarianAssault.ticks) + ":h" + healerId + "<br>";
+                }
+                controlledCommands.scrollTop = controlledCommands.scrollHeight;
+            }
+        }
         switch (key) {
             case "t":
                 if (!seedBlocked && !simpleFood && player === "defender") {
@@ -693,25 +712,6 @@ function windowOnKeyDown(keyboardEvent) {
                             controlledPlayer.checkpointIndex = 0;
                         }
                         controlledCommands.innerHTML += tickToDisplay(barbarianAssault.ticks) + ":.<br>";
-                        controlledCommands.scrollTop = controlledCommands.scrollHeight;
-                    }
-                }
-                break;
-            }
-            case "1":
-            case "2":
-            case "3":
-            case "4":
-            case "5":
-            case "6":
-            case "7":
-            case "8": {
-                if (!seedBlocked) {
-                    const controlledPlayer = getControlledPlayerObject();
-                    if (controlledPlayer !== null) {
-                        const healerId = Number(key);
-                        controlledPlayer.redXHealerId = healerId;
-                        controlledCommands.innerHTML += tickToDisplay(barbarianAssault.ticks) + ":x" + key + "<br>";
                         controlledCommands.scrollTop = controlledCommands.scrollHeight;
                     }
                 }

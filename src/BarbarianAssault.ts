@@ -47,10 +47,12 @@ export class BarbarianAssault {
     public runnersToRemove: Array<RunnerPenance> = [];
     public runnersAlive: number = 0;
     public runnersKilled: number = 0;
+    public allRunnersDeadTick: number = null;
     public healersToRemove: Array<HealerPenance> = [];
     public healers: Array<HealerPenance> = [];
     public healersAlive: number = 0;
     public healersKilled: number = 0;
+    public allHealersDeadTick: number = null;
     public maxHealersAlive: number;
     public ignoreMaxHealers: boolean = false;
     public totalHealers: number;
@@ -919,6 +921,7 @@ export class BarbarianAssault {
         }
         barbarianAssault.runnersAlive = this.runnersAlive;
         barbarianAssault.runnersKilled = this.runnersKilled;
+        barbarianAssault.allRunnersDeadTick = this.allRunnersDeadTick;
         barbarianAssault.healersToRemove = [];
         for (let i: number = 0; i < this.healersToRemove.length; i++) {
             barbarianAssault.healersToRemove.push(this.healersToRemove[i] === null ? null : this.healersToRemove[i].clone());
@@ -929,6 +932,7 @@ export class BarbarianAssault {
         }
         barbarianAssault.healersAlive = this.healersAlive;
         barbarianAssault.healersKilled = this.healersKilled;
+        barbarianAssault.allHealersDeadTick = this.allHealersDeadTick;
         barbarianAssault.currentHealerId = this.currentHealerId;
         barbarianAssault.foodCallsIndex = this.foodCallsIndex;
         barbarianAssault.collectorPlayer = this.collectorPlayer === null ? null : this.collectorPlayer.clone();

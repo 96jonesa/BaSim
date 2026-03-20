@@ -118,6 +118,7 @@ var toggleInfiniteFood;
 var toggleLogToRepair;
 var toggleSeedQueuePath;
 var tickCountSpan;
+var allDeadTimesSpan;
 var currentDefenderFoodSpan;
 var markerColorInput;
 var isRunning = false;
@@ -220,6 +221,7 @@ function init() {
     toggleIgnoreMaxHealers = document.getElementById(HTML_TOGGLE_IGNORE_MAX_HEALERS);
     toggleSeedQueuePath = document.getElementById(HTML_TOGGLE_SEED_QUEUE_PATH);
     tickCountSpan = document.getElementById(HTML_TICK_COUNT);
+    allDeadTimesSpan = document.getElementById("alldeadtimes");
     currentDefenderFoodSpan = document.getElementById(HTML_CURRENT_DEF_FOOD);
     markerColorInput = document.getElementById(HTML_MARKER_COLOR);
     renderer = new Renderer(canvas, 48 * 12, 48 * 12, 12, 8);
@@ -856,6 +858,7 @@ function save() {
 function load() {
     isPaused = true;
     tickCountSpan.innerHTML = savedTickCountSpanInnerHTML;
+    updateAllDeadTimes();
     currentDefenderFoodSpan.innerHTML = savedCurrentDefenderFoodSpanInnerHTML;
     playerSelect.value = savedPlayer;
     player = savedPlayer;
@@ -917,6 +920,7 @@ function stepForward() {
             currentDefenderFoodSpan.innerHTML = barbarianAssault.defenderFoodCall.toString();
         }
         tickCountSpan.innerHTML = barbarianAssault.ticks.toString() + " (" + ticksToSeconds(barbarianAssault.ticks) + "s)";
+        updateAllDeadTimes();
         pushState();
         draw();
         updateRunnerTable();
@@ -926,6 +930,7 @@ function stepForward() {
 function loadState(snapshot) {
     barbarianAssault = snapshot.ba.clone();
     tickCountSpan.innerHTML = snapshot.tickHTML;
+    updateAllDeadTimes();
     currentDefenderFoodSpan.innerHTML = snapshot.foodHTML;
     controlledCommands.innerHTML = snapshot.commandsHTML;
     draw();
@@ -1451,6 +1456,7 @@ function startStopButtonOnClick() {
                     currentDefenderFoodSpan.innerHTML = barbarianAssault.defenderFoodCall.toString();
                 }
                 tickCountSpan.innerHTML = barbarianAssault.ticks.toString() + " (" + ticksToSeconds(barbarianAssault.ticks) + "s)";
+                updateAllDeadTimes();
                 pushState();
             }
             draw();
@@ -1623,6 +1629,7 @@ function tick() {
             currentDefenderFoodSpan.innerHTML = barbarianAssault.defenderFoodCall.toString();
         }
         tickCountSpan.innerHTML = barbarianAssault.ticks.toString() + " (" + ticksToSeconds(barbarianAssault.ticks) + "s)";
+        updateAllDeadTimes();
         pushState();
         draw();
         updateRunnerTable();
@@ -2348,6 +2355,18 @@ function addToCommandsMap(commandsMap, tick, command) {
  */
 function ticksToSeconds(ticks) {
     return (0.6 * Math.max(ticks - 1, 0)).toFixed(1);
+}
+function updateAllDeadTimes() {
+    const parts = [];
+    if (barbarianAssault.allRunnersDeadTick !== null) {
+        const t = barbarianAssault.allRunnersDeadTick;
+        parts.push("Runners dead: " + t + " (" + ticksToSeconds(t) + "s)");
+    }
+    if (barbarianAssault.allHealersDeadTick !== null) {
+        const t = barbarianAssault.allHealersDeadTick;
+        parts.push("Healers dead: " + t + " (" + ticksToSeconds(t) + "s)");
+    }
+    allDeadTimesSpan.innerHTML = parts.length > 0 ? "--- <b>" + parts.join(" | ") + "</b>" : "";
 }
 function runnersDieOnTimeForMovements(runnerMovements, foodCalls, runnersDeadByTick, mainAttackerCommands, secondAttackerCommands, healerCommands, collectorCommands, defenderCommands) {
     const cannonQueue = parseCannonInput(cannonQueueInput.value, useSeconds());

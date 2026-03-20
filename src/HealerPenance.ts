@@ -270,6 +270,9 @@ export class HealerPenance extends Penance {
             this.despawnCountdown = 2;
             barbarianAssault.healersAlive--;
             barbarianAssault.healersKilled++;
+            if (barbarianAssault.healersKilled >= barbarianAssault.totalHealers && barbarianAssault.allHealersDeadTick === null) {
+                barbarianAssault.allHealersDeadTick = barbarianAssault.ticks;
+            }
         } else {
             this.despawnCountdown--;
         }

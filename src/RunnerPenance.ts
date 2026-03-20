@@ -170,6 +170,9 @@ export class RunnerPenance extends Penance {
                 if (this.ticksStandingStill >= 3) {
                     barbarianAssault.runnersKilled++;
                     barbarianAssault.runnersAlive--;
+                    if (barbarianAssault.runnersKilled >= barbarianAssault.totalRunners && barbarianAssault.allRunnersDeadTick === null) {
+                        barbarianAssault.allRunnersDeadTick = barbarianAssault.ticks;
+                    }
                     this.print("Urghhh!", barbarianAssault);
                     this.despawnCountdown = 2;
                 }

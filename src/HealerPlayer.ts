@@ -51,6 +51,7 @@ export class HealerPlayer extends Player {
         healerPlayer.redXHealerId = this.redXHealerId;
         healerPlayer.isRedXPath = this.isRedXPath;
         healerPlayer.phased = this.phased;
+        healerPlayer.pathStepPositions = this.pathStepPositions.map(p => p.clone());
 
         return healerPlayer;
     }

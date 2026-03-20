@@ -273,7 +273,7 @@ export class BarbarianAssault {
         }
 
         this.tickPlayers();
-        this.checkPhasing(prePathPositions, (p) => !p.position.equals(prePathPositions.get(p)));
+        this.checkPathPhasing(prePathPositions);
 
         this.executePlayerCommands();
     }
@@ -293,6 +293,34 @@ export class BarbarianAssault {
 
     private allPlayers(): Array<Player> {
         return [this.mainAttackerPlayer, this.secondAttackerPlayer, this.healerPlayer, this.collectorPlayer, this.defenderPlayer];
+    }
+
+    /**
+     * Checks for player phasing after the path movement window. A player becomes phased if
+     * another player moved onto and then off their tile (including intermediate steps),
+     * or was on the same tile before the window and moved off during it,
+     * unless the player also moved during the window.
+     */
+    private checkPathPhasing(prePositions: Map<Player, Position>): void {
+        const players = this.allPlayers();
+        for (const player of players) {
+            const didMove = !player.position.equals(prePositions.get(player));
+            if (didMove) {
+                player.phased = false;
+                continue;
+            }
+            const playerPos = prePositions.get(player);
+            for (const other of players) {
+                if (other === player) continue;
+                const otherStartedHere = prePositions.get(other).equals(playerPos);
+                const otherSteppedHere = other.pathStepPositions.some(p => p.equals(playerPos));
+                const otherEndedHere = other.position.equals(playerPos);
+                if ((otherStartedHere || otherSteppedHere) && !otherEndedHere) {
+                    player.phased = true;
+                    break;
+                }
+            }
+        }
     }
 
     /**

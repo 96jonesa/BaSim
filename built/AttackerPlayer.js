@@ -45,6 +45,7 @@ export class AttackerPlayer extends Player {
         attackerPlayer.redXHealerId = this.redXHealerId;
         attackerPlayer.isRedXPath = this.isRedXPath;
         attackerPlayer.phased = this.phased;
+        attackerPlayer.pathStepPositions = this.pathStepPositions.map(p => p.clone());
         return attackerPlayer;
     }
 }

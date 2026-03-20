@@ -37,6 +37,7 @@ export abstract class Player extends Character {
     public redXHealerId: number = null;
     public isRedXPath: boolean = false;
     public phased: boolean = false;
+    public pathStepPositions: Array<Position> = [];
 
     // Working arrays for findPath BFS — not meaningful outside findPath
     private pathQueuePositions: Array<Position> = [];
@@ -421,6 +422,7 @@ export abstract class Player extends Character {
      * toward its next checkpoint or destination using healer-penance-style movement.
      */
     protected move(barbarianAssault: BarbarianAssault): void {
+        this.pathStepPositions = [];
         const steps = (this.isRunning && !this.seedMovedThisTick) ? 2 : 1;
         for (let s = 0; s < steps; s++) {
             if (this.pathDestination === null) break;
@@ -436,6 +438,7 @@ export abstract class Player extends Character {
             }
 
             this.stepToward(barbarianAssault, target);
+            this.pathStepPositions.push(this.position.clone());
 
             if (this.checkpointIndex < this.checkpoints.length && this.position.equals(this.checkpoints[this.checkpointIndex])) {
                 this.checkpointIndex++;

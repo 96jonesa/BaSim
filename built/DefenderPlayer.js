@@ -246,6 +246,7 @@ export class DefenderPlayer extends Player {
         defenderPlayer.redXHealerId = this.redXHealerId;
         defenderPlayer.isRedXPath = this.isRedXPath;
         defenderPlayer.phased = this.phased;
+        defenderPlayer.pathStepPositions = this.pathStepPositions.map(p => p.clone());
         return defenderPlayer;
     }
 }

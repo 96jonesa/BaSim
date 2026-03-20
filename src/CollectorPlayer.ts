@@ -50,6 +50,7 @@ export class CollectorPlayer extends Player {
         collectorPlayer.redXHealerId = this.redXHealerId;
         collectorPlayer.isRedXPath = this.isRedXPath;
         collectorPlayer.phased = this.phased;
+        collectorPlayer.pathStepPositions = this.pathStepPositions.map(p => p.clone());
 
         return collectorPlayer;
     }

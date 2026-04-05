@@ -39,8 +39,8 @@ export class HealerPenance extends Penance {
     public forcedTarget: string = "";
     public drawnPosition: Position = null;
 
-    public constructor(position: Position, maxHealth: number, spawnTick: number, id: number) {
-        super(position);
+    public constructor(position: Position, maxHealth: number, spawnTick: number, id: number, penanceId: number) {
+        super(position, penanceId);
         this.spawnPosition = position.clone();
         this.maxHealth = maxHealth;
         this.health = maxHealth;
@@ -480,7 +480,7 @@ export class HealerPenance extends Penance {
      * @inheritDoc
      */
     public clone(): HealerPenance {
-        let healerPenance: HealerPenance = new HealerPenance(this.position.clone(), this.maxHealth, this.spawnTick, this.id);
+        let healerPenance: HealerPenance = new HealerPenance(this.position.clone(), this.maxHealth, this.spawnTick, this.id, this.penanceId);
         healerPenance.spawnPosition = this.spawnPosition === null ? null : this.spawnPosition.clone();
         healerPenance.target = this.target === null ? null : this.target.clone();
         healerPenance.previousTargetType = this.previousTargetType;

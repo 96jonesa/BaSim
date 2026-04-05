@@ -2,6 +2,7 @@ import {FoodType} from "./FoodType.js";
 import {Position} from "./Position.js";
 import {BarbarianAssaultMap} from "./BarbarianAssaultMap.js";
 import {RunnerPenance} from "./RunnerPenance.js";
+import {Penance} from "./Penance.js";
 import {DefenderPlayer} from "./DefenderPlayer.js";
 import {RunnerPenanceRng} from "./RunnerPenanceRng.js";
 import {CollectorPlayer} from "./CollectorPlayer.js";
@@ -70,6 +71,7 @@ export class BarbarianAssault {
     public runnerMovementsIndex: number = 0;
     public currentRunnerId: number = 1;
     public currentHealerId: number = 1;
+    public currentPenanceId: number = 1;
     public defenderLevel: number;
     public mainAttackerCommands: Map<number, Array<Command>>;
     public secondAttackerCommands: Map<number, Array<Command>>;
@@ -249,15 +251,6 @@ export class BarbarianAssault {
         }
 
         const isDefaultCycle: boolean = this.ticks > 1 && this.ticks % 10 === 1;
-        const shouldSpawnRunner: boolean = this.runnerSpawns.length === 0
-            ? isDefaultCycle
-            : this.runnerSpawnsIndex < this.runnerSpawns.length && this.runnerSpawns[this.runnerSpawnsIndex] === this.ticks;
-        if (shouldSpawnRunner && this.runnersAlive < this.maxRunnersAlive && this.runnersKilled + this.runnersAlive < this.totalRunners) {
-            this.spawnRunner();
-            if (this.runnerSpawns.length > 0) {
-                this.runnerSpawnsIndex++;
-            }
-        }
 
         const shouldSpawnHealer: boolean = this.healerSpawns.length === 0
             ? isDefaultCycle
@@ -266,6 +259,16 @@ export class BarbarianAssault {
             this.spawnHealer();
             if (this.healerSpawns.length > 0) {
                 this.healerSpawnsIndex++;
+            }
+        }
+
+        const shouldSpawnRunner: boolean = this.runnerSpawns.length === 0
+            ? isDefaultCycle
+            : this.runnerSpawnsIndex < this.runnerSpawns.length && this.runnerSpawns[this.runnerSpawnsIndex] === this.ticks;
+        if (shouldSpawnRunner && this.runnersAlive < this.maxRunnersAlive && this.runnersKilled + this.runnersAlive < this.totalRunners) {
+            this.spawnRunner();
+            if (this.runnerSpawns.length > 0) {
+                this.runnerSpawnsIndex++;
             }
         }
 
@@ -716,9 +719,9 @@ export class BarbarianAssault {
         }
 
         if (this.wave === 10) {
-            this.runners.push(new RunnerPenance(new Position(42, 38), new RunnerPenanceRng(movements), this.currentRunnerId, this.defenderLevel < 2 ? 4 : 5));
+            this.runners.push(new RunnerPenance(new Position(42, 38), new RunnerPenanceRng(movements), this.currentRunnerId, this.defenderLevel < 2 ? 4 : 5, this.currentPenanceId++));
         } else {
-            this.runners.push(new RunnerPenance(new Position(36, 39), new RunnerPenanceRng(movements), this.currentRunnerId, this.defenderLevel < 2 ? 4 : 5));
+            this.runners.push(new RunnerPenance(new Position(36, 39), new RunnerPenanceRng(movements), this.currentRunnerId, this.defenderLevel < 2 ? 4 : 5, this.currentPenanceId++));
         }
 
         this.currentRunnerId++;
@@ -732,7 +735,7 @@ export class BarbarianAssault {
      */
     private spawnHealer(): void {
         const spawnPos = this.wave === 10 ? new Position(36, 39) : new Position(42, 37);
-        const healer = new HealerPenance(spawnPos, this.maxHealerHealth, this.ticks, this.currentHealerId);
+        const healer = new HealerPenance(spawnPos, this.maxHealerHealth, this.ticks, this.currentHealerId, this.currentPenanceId++);
 
         const spawnIndex = this.currentHealerId - 1;
         if (spawnIndex < this.healerSpawnTargets.length) {
@@ -757,12 +760,10 @@ export class BarbarianAssault {
      * @private
      */
     private tickPenance(): void {
-        this.runners.forEach((runner: RunnerPenance): void => {
-            runner.tick(this);
-        });
-
-        this.healers.forEach((healer: HealerPenance): void => {
-            healer.tick(this);
+        const allPenance: Array<Penance> = [...this.runners, ...this.healers];
+        allPenance.sort((a, b) => a.penanceId - b.penanceId);
+        allPenance.forEach((p: Penance): void => {
+            p.tick(this);
         });
     }
 
@@ -986,6 +987,7 @@ export class BarbarianAssault {
         barbarianAssault.runnerMovements = [...this.runnerMovements];
         barbarianAssault.runnerMovementsIndex = this.runnerMovementsIndex;
         barbarianAssault.currentRunnerId = this.currentRunnerId;
+        barbarianAssault.currentPenanceId = this.currentPenanceId;
         barbarianAssault.defenderLevel = this.defenderLevel;
         barbarianAssault.mainAttackerCommands = new Map<number, Array<Command>>();
         this.mainAttackerCommands.forEach((commands: Array<Command>, tick: number): void => {

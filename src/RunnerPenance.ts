@@ -31,8 +31,8 @@ export class RunnerPenance extends Penance {
     public greenCounter: number = -1;
     public hp: number = 5;
 
-    public constructor(position: Position, rng: RunnerPenanceRng, id: number, sniffDistance: number) {
-        super(position);
+    public constructor(position: Position, rng: RunnerPenanceRng, id: number, sniffDistance: number, penanceId: number) {
+        super(position, penanceId);
         this.rng = rng;
         this.id = id;
         this.sniffDistance = sniffDistance;
@@ -577,7 +577,7 @@ export class RunnerPenance extends Penance {
      * @inheritDoc
      */
     public clone(): RunnerPenance {
-        let runnerPenance: RunnerPenance = new RunnerPenance(this.position, this.rng, this.id, this.sniffDistance);
+        let runnerPenance: RunnerPenance = new RunnerPenance(this.position, this.rng, this.id, this.sniffDistance, this.penanceId);
         runnerPenance.position = this.position === null ? null : this.position.clone();
         runnerPenance.destination = this.destination === null ? null : this.destination.clone();
         runnerPenance.cycleTick = this.cycleTick;

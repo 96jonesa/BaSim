@@ -85,7 +85,7 @@ export class Cannon {
             if (a.zone[0] !== b.zone[0]) return a.zone[0] - b.zone[0];
             if (a.zone[1] !== b.zone[1]) return a.zone[1] - b.zone[1];
             if (a.zoneCounter !== b.zoneCounter) return a.zoneCounter - b.zoneCounter;
-            return a.npc.id - b.npc.id;
+            return a.npc.penanceId - b.npc.penanceId;
         });
 
         return candidates[0].npc;

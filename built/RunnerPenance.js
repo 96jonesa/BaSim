@@ -6,8 +6,8 @@ import { EggType } from "./EggType.js";
  * Represents a Barbarian Assault runner penance.
  */
 export class RunnerPenance extends Penance {
-    constructor(position, rng, id, sniffDistance) {
-        super(position);
+    constructor(position, rng, id, sniffDistance, penanceId) {
+        super(position, penanceId);
         this.cycleTick = 1;
         this.targetState = 0;
         this.foodTarget = null;
@@ -509,7 +509,7 @@ export class RunnerPenance extends Penance {
      * @inheritDoc
      */
     clone() {
-        let runnerPenance = new RunnerPenance(this.position, this.rng, this.id, this.sniffDistance);
+        let runnerPenance = new RunnerPenance(this.position, this.rng, this.id, this.sniffDistance, this.penanceId);
         runnerPenance.position = this.position === null ? null : this.position.clone();
         runnerPenance.destination = this.destination === null ? null : this.destination.clone();
         runnerPenance.cycleTick = this.cycleTick;

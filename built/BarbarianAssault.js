@@ -47,6 +47,7 @@ export class BarbarianAssault {
         this.runnerMovementsIndex = 0;
         this.currentRunnerId = 1;
         this.currentHealerId = 1;
+        this.currentPenanceId = 1;
         this.foodCallsIndex = 0;
         this.cannon = new Cannon();
         this.healerSpawnTargets = [];
@@ -191,15 +192,6 @@ export class BarbarianAssault {
             this.changeDefenderFoodCall();
         }
         const isDefaultCycle = this.ticks > 1 && this.ticks % 10 === 1;
-        const shouldSpawnRunner = this.runnerSpawns.length === 0
-            ? isDefaultCycle
-            : this.runnerSpawnsIndex < this.runnerSpawns.length && this.runnerSpawns[this.runnerSpawnsIndex] === this.ticks;
-        if (shouldSpawnRunner && this.runnersAlive < this.maxRunnersAlive && this.runnersKilled + this.runnersAlive < this.totalRunners) {
-            this.spawnRunner();
-            if (this.runnerSpawns.length > 0) {
-                this.runnerSpawnsIndex++;
-            }
-        }
         const shouldSpawnHealer = this.healerSpawns.length === 0
             ? isDefaultCycle
             : this.healerSpawnsIndex < this.healerSpawns.length && this.healerSpawns[this.healerSpawnsIndex] === this.ticks;
@@ -207,6 +199,15 @@ export class BarbarianAssault {
             this.spawnHealer();
             if (this.healerSpawns.length > 0) {
                 this.healerSpawnsIndex++;
+            }
+        }
+        const shouldSpawnRunner = this.runnerSpawns.length === 0
+            ? isDefaultCycle
+            : this.runnerSpawnsIndex < this.runnerSpawns.length && this.runnerSpawns[this.runnerSpawnsIndex] === this.ticks;
+        if (shouldSpawnRunner && this.runnersAlive < this.maxRunnersAlive && this.runnersKilled + this.runnersAlive < this.totalRunners) {
+            this.spawnRunner();
+            if (this.runnerSpawns.length > 0) {
+                this.runnerSpawnsIndex++;
             }
         }
         const prePathPositions = new Map();
@@ -666,10 +667,10 @@ export class BarbarianAssault {
             movements = "";
         }
         if (this.wave === 10) {
-            this.runners.push(new RunnerPenance(new Position(42, 38), new RunnerPenanceRng(movements), this.currentRunnerId, this.defenderLevel < 2 ? 4 : 5));
+            this.runners.push(new RunnerPenance(new Position(42, 38), new RunnerPenanceRng(movements), this.currentRunnerId, this.defenderLevel < 2 ? 4 : 5, this.currentPenanceId++));
         }
         else {
-            this.runners.push(new RunnerPenance(new Position(36, 39), new RunnerPenanceRng(movements), this.currentRunnerId, this.defenderLevel < 2 ? 4 : 5));
+            this.runners.push(new RunnerPenance(new Position(36, 39), new RunnerPenanceRng(movements), this.currentRunnerId, this.defenderLevel < 2 ? 4 : 5, this.currentPenanceId++));
         }
         this.currentRunnerId++;
         this.runnersAlive++;
@@ -681,7 +682,7 @@ export class BarbarianAssault {
      */
     spawnHealer() {
         const spawnPos = this.wave === 10 ? new Position(36, 39) : new Position(42, 37);
-        const healer = new HealerPenance(spawnPos, this.maxHealerHealth, this.ticks, this.currentHealerId);
+        const healer = new HealerPenance(spawnPos, this.maxHealerHealth, this.ticks, this.currentHealerId, this.currentPenanceId++);
         const spawnIndex = this.currentHealerId - 1;
         if (spawnIndex < this.healerSpawnTargets.length) {
             const targetStr = this.healerSpawnTargets[spawnIndex];
@@ -708,11 +709,10 @@ export class BarbarianAssault {
      * @private
      */
     tickPenance() {
-        this.runners.forEach((runner) => {
-            runner.tick(this);
-        });
-        this.healers.forEach((healer) => {
-            healer.tick(this);
+        const allPenance = [...this.runners, ...this.healers];
+        allPenance.sort((a, b) => a.penanceId - b.penanceId);
+        allPenance.forEach((p) => {
+            p.tick(this);
         });
     }
     /**
@@ -913,6 +913,7 @@ export class BarbarianAssault {
         barbarianAssault.runnerMovements = [...this.runnerMovements];
         barbarianAssault.runnerMovementsIndex = this.runnerMovementsIndex;
         barbarianAssault.currentRunnerId = this.currentRunnerId;
+        barbarianAssault.currentPenanceId = this.currentPenanceId;
         barbarianAssault.defenderLevel = this.defenderLevel;
         barbarianAssault.mainAttackerCommands = new Map();
         this.mainAttackerCommands.forEach((commands, tick) => {

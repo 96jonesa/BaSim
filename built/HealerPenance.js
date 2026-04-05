@@ -9,8 +9,8 @@ import { getCannonPosition } from "./CannonPositions.js";
  * Represents a Barbarian Assault healer penance.
  */
 export class HealerPenance extends Penance {
-    constructor(position, maxHealth, spawnTick, id) {
-        super(position);
+    constructor(position, maxHealth, spawnTick, id, penanceId) {
+        super(position, penanceId);
         this.target = null;
         this.previousTargetType = null;
         this.sprayTimer = 0;
@@ -415,7 +415,7 @@ export class HealerPenance extends Penance {
      * @inheritDoc
      */
     clone() {
-        let healerPenance = new HealerPenance(this.position.clone(), this.maxHealth, this.spawnTick, this.id);
+        let healerPenance = new HealerPenance(this.position.clone(), this.maxHealth, this.spawnTick, this.id, this.penanceId);
         healerPenance.spawnPosition = this.spawnPosition === null ? null : this.spawnPosition.clone();
         healerPenance.target = this.target === null ? null : this.target.clone();
         healerPenance.previousTargetType = this.previousTargetType;

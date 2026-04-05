@@ -192,15 +192,6 @@ export class BarbarianAssault {
             this.changeDefenderFoodCall();
         }
         const isDefaultCycle = this.ticks > 1 && this.ticks % 10 === 1;
-        const shouldSpawnHealer = this.healerSpawns.length === 0
-            ? isDefaultCycle
-            : this.healerSpawnsIndex < this.healerSpawns.length && this.healerSpawns[this.healerSpawnsIndex] === this.ticks;
-        if (shouldSpawnHealer && (this.ignoreMaxHealers || this.healersAlive < this.maxHealersAlive) && this.healersKilled + this.healersAlive < this.totalHealers) {
-            this.spawnHealer();
-            if (this.healerSpawns.length > 0) {
-                this.healerSpawnsIndex++;
-            }
-        }
         const shouldSpawnRunner = this.runnerSpawns.length === 0
             ? isDefaultCycle
             : this.runnerSpawnsIndex < this.runnerSpawns.length && this.runnerSpawns[this.runnerSpawnsIndex] === this.ticks;
@@ -208,6 +199,15 @@ export class BarbarianAssault {
             this.spawnRunner();
             if (this.runnerSpawns.length > 0) {
                 this.runnerSpawnsIndex++;
+            }
+        }
+        const shouldSpawnHealer = this.healerSpawns.length === 0
+            ? isDefaultCycle
+            : this.healerSpawnsIndex < this.healerSpawns.length && this.healerSpawns[this.healerSpawnsIndex] === this.ticks;
+        if (shouldSpawnHealer && (this.ignoreMaxHealers || this.healersAlive < this.maxHealersAlive) && this.healersKilled + this.healersAlive < this.totalHealers) {
+            this.spawnHealer();
+            if (this.healerSpawns.length > 0) {
+                this.healerSpawnsIndex++;
             }
         }
         const prePathPositions = new Map();

@@ -16,6 +16,7 @@ export class RunnerPenance extends Penance {
         this.ticksStandingStill = 0;
         this.despawnCountdown = null;
         this.isDying = false;
+        this.diedThisTick = false;
         this.forcedMovementsIndex = 0;
         this.eggQueue = [];
         this.blueCounter = -1;
@@ -38,19 +39,20 @@ export class RunnerPenance extends Penance {
                         break;
                     case EggType.BLUE:
                         this.eggQueue.length = 0;
+                        const deathCountdown = this.diedThisTick ? this.despawnCountdown - 1 : this.despawnCountdown;
                         if (this.isDying && this.despawnCountdown === null) {
                             this.cycleTick--;
                             if (this.cycleTick < 1) {
                                 this.cycleTick = 10;
                             }
                         }
-                        else if (this.despawnCountdown === 2) {
+                        else if (deathCountdown === 2) {
                             this.cycleTick--;
                             if (this.cycleTick < 1) {
                                 this.cycleTick = 10;
                             }
                         }
-                        else if (this.despawnCountdown === 1) {
+                        else if (deathCountdown === 1) {
                             this.cycleTick--;
                             if (this.cycleTick < 1) {
                                 this.cycleTick = 10;
@@ -153,8 +155,9 @@ export class RunnerPenance extends Penance {
                         barbarianAssault.allRunnersDeadTick = barbarianAssault.ticks;
                     }
                     this.print("Urghhh!", barbarianAssault);
-                    this.despawnCountdown = 2;
+                    this.despawnCountdown = this.diedThisTick ? 3 : 2;
                 }
+                this.diedThisTick = false;
             }
         }
         this.processEggQueue(barbarianAssault);
@@ -273,11 +276,13 @@ export class RunnerPenance extends Penance {
                     this.print("Chomp, chomp.", barbarianAssault);
                     if (this.isInDeathRange(barbarianAssault.eastTrapPosition)) {
                         if (barbarianAssault.eastTrapCharges > 0 || !barbarianAssault.requireRepairs) {
+                            this.diedThisTick = true;
                             this.isDying = true;
                         }
                     }
                     if (this.isInDeathRange(barbarianAssault.westTrapPosition)) {
                         if (barbarianAssault.westTrapCharges > 0 || !barbarianAssault.requireRepairs) {
+                            this.diedThisTick = true;
                             this.isDying = true;
                         }
                     }
@@ -515,6 +520,7 @@ export class RunnerPenance extends Penance {
         runnerPenance.ticksStandingStill = this.ticksStandingStill;
         runnerPenance.despawnCountdown = this.despawnCountdown;
         runnerPenance.isDying = this.isDying;
+        runnerPenance.diedThisTick = this.diedThisTick;
         runnerPenance.rng = this.rng === null ? null : this.rng.clone();
         runnerPenance.id = this.id;
         runnerPenance.forcedMovementsIndex = this.forcedMovementsIndex;

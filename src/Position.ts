@@ -30,6 +30,12 @@ export class Position {
         return Math.max(Math.abs(this.x - position.x), Math.abs(this.y - position.y));
     }
 
+    public euclideanDistance(position: Position): number {
+        const dx = this.x - position.x;
+        const dy = this.y - position.y;
+        return Math.sqrt(dx * dx + dy * dy);
+    }
+
     /**
      * Gets the closest position adjacent to the given position, to this position. In the case of
      * ties, prioritizes in the following order: north, south, east, west.

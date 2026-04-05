@@ -41,7 +41,7 @@ export class Cannon {
                 const zd = zoneMap.get(r.id) || { zone: [r.position.x >>> 3, r.position.y >>> 3], counter: 1 };
                 return {
                     npc: r,
-                    dist: cannonPos.distance(r.position),
+                    dist: cannonPos.euclideanDistance(r.position),
                     zone: zd.zone,
                     zoneCounter: zd.counter,
                 };
@@ -61,7 +61,7 @@ export class Cannon {
                 const zd = zoneMap.get(h.id) || { zone: [h.position.x >>> 3, h.position.y >>> 3], counter: 1 };
                 return {
                     npc: h,
-                    dist: cannonPos.distance(h.position),
+                    dist: cannonPos.euclideanDistance(h.position),
                     zone: zd.zone,
                     zoneCounter: zd.counter,
                 };

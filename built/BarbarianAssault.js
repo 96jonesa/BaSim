@@ -407,10 +407,7 @@ export class BarbarianAssault {
                     this.mainAttackerPlayer.pendingSeed = command.seedType;
                     this.mainAttackerPlayer.clearCodeQueue();
                     if (!this.seedQueuePath && !hasMoveCommand) {
-                        this.mainAttackerPlayer.pathDestination = null;
-                        this.mainAttackerPlayer.isRedXPath = false;
-                        this.mainAttackerPlayer.checkpoints = [];
-                        this.mainAttackerPlayer.checkpointIndex = 0;
+                        this.mainAttackerPlayer.clearPath();
                     }
                     seedCommandProcessed = true;
                 }
@@ -452,10 +449,7 @@ export class BarbarianAssault {
                     this.secondAttackerPlayer.pendingSeed = command.seedType;
                     this.secondAttackerPlayer.clearCodeQueue();
                     if (!this.seedQueuePath && !hasMoveCommand) {
-                        this.secondAttackerPlayer.pathDestination = null;
-                        this.secondAttackerPlayer.isRedXPath = false;
-                        this.secondAttackerPlayer.checkpoints = [];
-                        this.secondAttackerPlayer.checkpointIndex = 0;
+                        this.secondAttackerPlayer.clearPath();
                     }
                     seedCommandProcessed = true;
                 }
@@ -497,10 +491,7 @@ export class BarbarianAssault {
                     this.healerPlayer.pendingSeed = command.seedType;
                     this.healerPlayer.clearCodeQueue();
                     if (!this.seedQueuePath && !hasMoveCommand) {
-                        this.healerPlayer.pathDestination = null;
-                        this.healerPlayer.isRedXPath = false;
-                        this.healerPlayer.checkpoints = [];
-                        this.healerPlayer.checkpointIndex = 0;
+                        this.healerPlayer.clearPath();
                     }
                     seedCommandProcessed = true;
                 }
@@ -542,10 +533,7 @@ export class BarbarianAssault {
                     this.collectorPlayer.pendingSeed = command.seedType;
                     this.collectorPlayer.clearCodeQueue();
                     if (!this.seedQueuePath && !hasMoveCommand) {
-                        this.collectorPlayer.pathDestination = null;
-                        this.collectorPlayer.isRedXPath = false;
-                        this.collectorPlayer.checkpoints = [];
-                        this.collectorPlayer.checkpointIndex = 0;
+                        this.collectorPlayer.clearPath();
                     }
                     seedCommandProcessed = true;
                 }
@@ -587,10 +575,7 @@ export class BarbarianAssault {
                     this.defenderPlayer.pendingSeed = command.seedType;
                     this.defenderPlayer.clearCodeQueue();
                     if (!this.seedQueuePath && !hasMoveCommand) {
-                        this.defenderPlayer.pathDestination = null;
-                        this.defenderPlayer.isRedXPath = false;
-                        this.defenderPlayer.checkpoints = [];
-                        this.defenderPlayer.checkpointIndex = 0;
+                        this.defenderPlayer.clearPath();
                     }
                     seedCommandProcessed = true;
                 }
@@ -607,33 +592,27 @@ export class BarbarianAssault {
                             this.defenderPlayer.dropFood(this, FoodType.WORMS);
                             break;
                         case DefenderActionType.PICKUP_TOFU:
-                            this.defenderPlayer.pathDestination = null;
-                            this.defenderPlayer.isRedXPath = false;
+                            this.defenderPlayer.clearPath();
                             this.defenderPlayer.foodBeingPickedUp = FoodType.TOFU;
                             break;
                         case DefenderActionType.PICKUP_CRACKERS:
-                            this.defenderPlayer.pathDestination = null;
-                            this.defenderPlayer.isRedXPath = false;
+                            this.defenderPlayer.clearPath();
                             this.defenderPlayer.foodBeingPickedUp = FoodType.CRACKERS;
                             break;
                         case DefenderActionType.PICKUP_WORMS:
-                            this.defenderPlayer.pathDestination = null;
-                            this.defenderPlayer.isRedXPath = false;
+                            this.defenderPlayer.clearPath();
                             this.defenderPlayer.foodBeingPickedUp = FoodType.WORMS;
                             break;
                         case DefenderActionType.PICKUP_ANY_FOOD:
-                            this.defenderPlayer.pathDestination = null;
-                            this.defenderPlayer.isRedXPath = false;
+                            this.defenderPlayer.clearPath();
                             this.defenderPlayer.shouldPickUpAnyFood = true;
                             break;
                         case DefenderActionType.PICKUP_LOGS:
-                            this.defenderPlayer.pathDestination = null;
-                            this.defenderPlayer.isRedXPath = false;
+                            this.defenderPlayer.clearPath();
                             this.defenderPlayer.isPickingUpLogs = true;
                             break;
                         case DefenderActionType.REPAIR_TRAP:
-                            this.defenderPlayer.pathDestination = null;
-                            this.defenderPlayer.isRedXPath = false;
+                            this.defenderPlayer.clearPath();
                             this.defenderPlayer.startRepairing(this);
                             break;
                         default:

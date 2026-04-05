@@ -674,24 +674,21 @@ function windowOnKeyDown(keyboardEvent: KeyboardEvent): void {
                     break;
                 case "t":
                     barbarianAssault.defenderPlayer.clearCodeQueue();
-                    barbarianAssault.defenderPlayer.pathDestination = null;
-                    barbarianAssault.defenderPlayer.isRedXPath = false;
+                    barbarianAssault.defenderPlayer.clearPath();
                     barbarianAssault.defenderPlayer.startRepairing(barbarianAssault);
                     controlledCommands.innerHTML += tickToDisplay(barbarianAssault.ticks) + ":t<br>";
                     controlledCommands.scrollTop = controlledCommands.scrollHeight;
                     break;
                 case "e":
                     barbarianAssault.defenderPlayer.clearCodeQueue();
-                    barbarianAssault.defenderPlayer.pathDestination = null;
-                    barbarianAssault.defenderPlayer.isRedXPath = false;
+                    barbarianAssault.defenderPlayer.clearPath();
                     barbarianAssault.defenderPlayer.shouldPickUpAnyFood = true;
                     controlledCommands.innerHTML += tickToDisplay(barbarianAssault.ticks) + ":e<br>";
                     controlledCommands.scrollTop = controlledCommands.scrollHeight;
                     break;
                 case "l":
                     barbarianAssault.defenderPlayer.clearCodeQueue();
-                    barbarianAssault.defenderPlayer.pathDestination = null;
-                    barbarianAssault.defenderPlayer.isRedXPath = false;
+                    barbarianAssault.defenderPlayer.clearPath();
                     barbarianAssault.defenderPlayer.isPickingUpLogs = true;
                     controlledCommands.innerHTML += tickToDisplay(barbarianAssault.ticks) + ":l<br>";
                     controlledCommands.scrollTop = controlledCommands.scrollHeight;
@@ -748,8 +745,7 @@ function windowOnKeyDown(keyboardEvent: KeyboardEvent): void {
             case "u":
                 if (!seedBlocked && !simpleFood && player === "defender") {
                     barbarianAssault.defenderPlayer.clearCodeQueue();
-                    barbarianAssault.defenderPlayer.pathDestination = null;
-                    barbarianAssault.defenderPlayer.isRedXPath = false;
+                    barbarianAssault.defenderPlayer.clearPath();
                     barbarianAssault.defenderPlayer.foodBeingPickedUp = FoodType.TOFU;
 
                     controlledCommands.innerHTML += tickToDisplay(barbarianAssault.ticks) + ":u<br>";
@@ -759,8 +755,7 @@ function windowOnKeyDown(keyboardEvent: KeyboardEvent): void {
             case "i":
                 if (!seedBlocked && !simpleFood && player === "defender") {
                     barbarianAssault.defenderPlayer.clearCodeQueue();
-                    barbarianAssault.defenderPlayer.pathDestination = null;
-                    barbarianAssault.defenderPlayer.isRedXPath = false;
+                    barbarianAssault.defenderPlayer.clearPath();
                     barbarianAssault.defenderPlayer.foodBeingPickedUp = FoodType.CRACKERS;
 
                     controlledCommands.innerHTML += tickToDisplay(barbarianAssault.ticks) + ":i<br>";
@@ -770,8 +765,7 @@ function windowOnKeyDown(keyboardEvent: KeyboardEvent): void {
             case "o":
                 if (!seedBlocked && !simpleFood && player === "defender") {
                     barbarianAssault.defenderPlayer.clearCodeQueue();
-                    barbarianAssault.defenderPlayer.pathDestination = null;
-                    barbarianAssault.defenderPlayer.isRedXPath = false;
+                    barbarianAssault.defenderPlayer.clearPath();
                     barbarianAssault.defenderPlayer.foodBeingPickedUp = FoodType.WORMS;
 
                     controlledCommands.innerHTML += tickToDisplay(barbarianAssault.ticks) + ":o<br>";
@@ -781,8 +775,7 @@ function windowOnKeyDown(keyboardEvent: KeyboardEvent): void {
             case "e":
                 if (!seedBlocked && !simpleFood && player === "defender") {
                     barbarianAssault.defenderPlayer.clearCodeQueue();
-                    barbarianAssault.defenderPlayer.pathDestination = null;
-                    barbarianAssault.defenderPlayer.isRedXPath = false;
+                    barbarianAssault.defenderPlayer.clearPath();
                     barbarianAssault.defenderPlayer.shouldPickUpAnyFood = true;
 
                     controlledCommands.innerHTML += tickToDisplay(barbarianAssault.ticks) + ":e<br>";
@@ -792,8 +785,7 @@ function windowOnKeyDown(keyboardEvent: KeyboardEvent): void {
             case "l":
                 if (!seedBlocked && !simpleFood && player === "defender") {
                     barbarianAssault.defenderPlayer.clearCodeQueue();
-                    barbarianAssault.defenderPlayer.pathDestination = null;
-                    barbarianAssault.defenderPlayer.isRedXPath = false;
+                    barbarianAssault.defenderPlayer.clearPath();
                     barbarianAssault.defenderPlayer.isPickingUpLogs = true;
 
                     controlledCommands.innerHTML += tickToDisplay(barbarianAssault.ticks) + ":l<br>";
@@ -803,8 +795,7 @@ function windowOnKeyDown(keyboardEvent: KeyboardEvent): void {
             case "r":
                 if (!seedBlocked && !simpleFood && player === "defender") {
                     barbarianAssault.defenderPlayer.clearCodeQueue();
-                    barbarianAssault.defenderPlayer.pathDestination = null;
-                    barbarianAssault.defenderPlayer.isRedXPath = false;
+                    barbarianAssault.defenderPlayer.clearPath();
                     barbarianAssault.defenderPlayer.startRepairing(barbarianAssault);
 
                     controlledCommands.innerHTML += tickToDisplay(barbarianAssault.ticks) + ":r<br>";
@@ -827,10 +818,7 @@ function windowOnKeyDown(keyboardEvent: KeyboardEvent): void {
                         controlledPlayer.pendingSeed = "MITHRIL";
                         controlledPlayer.clearCodeQueue();
                         if (!toggleSeedQueuePath.checked && lastClickTick !== barbarianAssault.ticks) {
-                            controlledPlayer.pathDestination = null;
-                            controlledPlayer.isRedXPath = false;
-                            controlledPlayer.checkpoints = [];
-                            controlledPlayer.checkpointIndex = 0;
+                            controlledPlayer.clearPath();
                         }
                         controlledCommands.innerHTML += tickToDisplay(barbarianAssault.ticks) + ":,<br>";
                         controlledCommands.scrollTop = controlledCommands.scrollHeight;
@@ -845,10 +833,7 @@ function windowOnKeyDown(keyboardEvent: KeyboardEvent): void {
                         controlledPlayer.pendingSeed = "ADAMANT";
                         controlledPlayer.clearCodeQueue();
                         if (!toggleSeedQueuePath.checked && lastClickTick !== barbarianAssault.ticks) {
-                            controlledPlayer.pathDestination = null;
-                            controlledPlayer.isRedXPath = false;
-                            controlledPlayer.checkpoints = [];
-                            controlledPlayer.checkpointIndex = 0;
+                            controlledPlayer.clearPath();
                         }
                         controlledCommands.innerHTML += tickToDisplay(barbarianAssault.ticks) + ":.<br>";
                         controlledCommands.scrollTop = controlledCommands.scrollHeight;

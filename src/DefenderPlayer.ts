@@ -113,8 +113,7 @@ export class DefenderPlayer extends Player {
         }
 
         this.repairTicksRemaining--;
-        this.pathDestination = null;
-        this.isRedXPath = false;
+        this.clearPath();
         this.foodBeingPickedUp = null;
         this.shouldPickUpAnyFood = false;
         this.isPickingUpLogs = false;
@@ -175,8 +174,7 @@ export class DefenderPlayer extends Player {
             }
         }
 
-        this.pathDestination = null;
-        this.isRedXPath = false;
+        this.clearPath();
         this.foodBeingPickedUp = null;
         this.shouldPickUpAnyFood = false;
         this.isPickingUpLogs = false;
@@ -220,8 +218,7 @@ export class DefenderPlayer extends Player {
             }
         }
 
-        this.pathDestination = null;
-        this.isRedXPath = false;
+        this.clearPath();
         this.foodBeingPickedUp = null;
         this.shouldPickUpAnyFood = false;
         this.isPickingUpLogs = false;

@@ -54,6 +54,13 @@ export abstract class Player extends Character {
         this.codeIndex = 0;
     }
 
+    public clearPath(): void {
+        this.pathDestination = null;
+        this.isRedXPath = false;
+        this.checkpoints = [];
+        this.checkpointIndex = 0;
+    }
+
     public processCodeQueue(barbarianAssault: BarbarianAssault): void {
         if (this.codeIndex >= this.codeQueue.length) {
             return;
@@ -76,8 +83,7 @@ export abstract class Player extends Character {
                 healer.eatFood(barbarianAssault);
                 this.codeIndex++;
                 this.arriveDelay = true;
-                this.pathDestination = null;
-                this.isRedXPath = false;
+                this.clearPath();
             } else {
                 this.recalculateFoodPath(barbarianAssault, healer);
             }
@@ -348,10 +354,7 @@ export abstract class Player extends Character {
             }
 
             if (!foundDestination) {
-                this.pathDestination = null;
-                this.isRedXPath = false;
-                this.checkpoints = [];
-                this.checkpointIndex = 0;
+                this.clearPath();
                 return;
             }
         }
@@ -432,8 +435,7 @@ export abstract class Player extends Character {
                 : this.pathDestination;
 
             if (this.position.equals(target) && target === this.pathDestination) {
-                this.pathDestination = null;
-                this.isRedXPath = false;
+                this.clearPath();
                 break;
             }
 
@@ -445,8 +447,7 @@ export abstract class Player extends Character {
             }
 
             if (this.checkpointIndex >= this.checkpoints.length && this.position.equals(this.pathDestination)) {
-                this.pathDestination = null;
-                this.isRedXPath = false;
+                this.clearPath();
                 break;
             }
         }

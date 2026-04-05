@@ -44,6 +44,12 @@ export class Player extends Character {
         this.codeQueue = [];
         this.codeIndex = 0;
     }
+    clearPath() {
+        this.pathDestination = null;
+        this.isRedXPath = false;
+        this.checkpoints = [];
+        this.checkpointIndex = 0;
+    }
     processCodeQueue(barbarianAssault) {
         if (this.codeIndex >= this.codeQueue.length) {
             return;
@@ -62,8 +68,7 @@ export class Player extends Character {
                 healer.eatFood(barbarianAssault);
                 this.codeIndex++;
                 this.arriveDelay = true;
-                this.pathDestination = null;
-                this.isRedXPath = false;
+                this.clearPath();
             }
             else {
                 this.recalculateFoodPath(barbarianAssault, healer);
@@ -288,10 +293,7 @@ export class Player extends Character {
                 }
             }
             if (!foundDestination) {
-                this.pathDestination = null;
-                this.isRedXPath = false;
-                this.checkpoints = [];
-                this.checkpointIndex = 0;
+                this.clearPath();
                 return;
             }
         }
@@ -361,8 +363,7 @@ export class Player extends Character {
                 ? this.checkpoints[this.checkpointIndex]
                 : this.pathDestination;
             if (this.position.equals(target) && target === this.pathDestination) {
-                this.pathDestination = null;
-                this.isRedXPath = false;
+                this.clearPath();
                 break;
             }
             this.stepToward(barbarianAssault, target);
@@ -371,8 +372,7 @@ export class Player extends Character {
                 this.checkpointIndex++;
             }
             if (this.checkpointIndex >= this.checkpoints.length && this.position.equals(this.pathDestination)) {
-                this.pathDestination = null;
-                this.isRedXPath = false;
+                this.clearPath();
                 break;
             }
         }

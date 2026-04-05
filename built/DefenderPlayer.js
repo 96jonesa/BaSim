@@ -96,8 +96,7 @@ export class DefenderPlayer extends Player {
             this.repairTrap(barbarianAssault);
         }
         this.repairTicksRemaining--;
-        this.pathDestination = null;
-        this.isRedXPath = false;
+        this.clearPath();
         this.foodBeingPickedUp = null;
         this.shouldPickUpAnyFood = false;
         this.isPickingUpLogs = false;
@@ -155,8 +154,7 @@ export class DefenderPlayer extends Player {
                 }
             }
         }
-        this.pathDestination = null;
-        this.isRedXPath = false;
+        this.clearPath();
         this.foodBeingPickedUp = null;
         this.shouldPickUpAnyFood = false;
         this.isPickingUpLogs = false;
@@ -196,8 +194,7 @@ export class DefenderPlayer extends Player {
                 barbarianAssault.southeastLogsArePresent = false;
             }
         }
-        this.pathDestination = null;
-        this.isRedXPath = false;
+        this.clearPath();
         this.foodBeingPickedUp = null;
         this.shouldPickUpAnyFood = false;
         this.isPickingUpLogs = false;

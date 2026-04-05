@@ -79,13 +79,13 @@ export class Cannon {
 
         if (candidates.length === 0) return null;
 
-        // Sort by: distance (asc), zone x (asc), zone y (asc), zone counter (asc), id (desc)
+        // Sort by: distance (asc), zone x (asc), zone y (asc), zone counter (asc), id (asc)
         candidates.sort((a, b) => {
             if (a.dist !== b.dist) return a.dist - b.dist;
             if (a.zone[0] !== b.zone[0]) return a.zone[0] - b.zone[0];
             if (a.zone[1] !== b.zone[1]) return a.zone[1] - b.zone[1];
             if (a.zoneCounter !== b.zoneCounter) return a.zoneCounter - b.zoneCounter;
-            return b.npc.id - a.npc.id;
+            return a.npc.id - b.npc.id;
         });
 
         return candidates[0].npc;

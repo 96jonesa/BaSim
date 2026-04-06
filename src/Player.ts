@@ -158,58 +158,59 @@ export abstract class Player extends Character {
             { tile: new Position(target.x, target.y + 1), check: (pos) => barbarianAssault.map.canMoveSouth(pos) },
         ];
 
-        let valid: Array<{ tile: Position; distance: number }> = [];
-        let minDistance: number = Infinity;
+        const valid: Array<Position> = [];
 
         for (const candidate of candidates) {
             if (candidate.check(candidate.tile) && barbarianAssault.map.canMoveToTile(candidate.tile)) {
-                const dist = this.position.distance(candidate.tile);
-                valid.push({ tile: candidate.tile, distance: dist });
-                if (dist < minDistance) {
-                    minDistance = dist;
-                }
+                valid.push(candidate.tile);
             }
         }
-
-        valid = valid.filter(v => v.distance <= minDistance);
 
         if (valid.length === 0) {
             return this.position.clone();
         }
 
         if (valid.length === 1) {
-            return valid[0].tile;
+            return valid[0];
         }
 
         const savedCheckpoints = this.checkpoints.map(p => p.clone());
         const savedCheckpointIndex = this.checkpointIndex;
         const savedPathDestination = this.pathDestination === null ? null : this.pathDestination.clone();
+        const savedIsRedXPath = this.isRedXPath;
 
-        let bestTile: Position = valid[0].tile;
+        let bestTile: Position = valid[0];
+        let bestSteps: number = Infinity;
         let bestWeight: number = Infinity;
 
-        for (const v of valid) {
-            this.findPath(barbarianAssault, v.tile);
+        for (const tile of valid) {
+            this.findPath(barbarianAssault, tile);
+            const steps = this.shortestDistances[tile.x + tile.y * barbarianAssault.map.width];
+
+            if (steps > bestSteps) continue;
 
             const firstTarget = this.checkpoints.length > 0 ? this.checkpoints[0] : this.pathDestination;
-            if (firstTarget === null) continue;
+            let weight = Infinity;
+            if (firstTarget !== null) {
+                let cardinalStr = "";
+                if (firstTarget.y < this.position.y) cardinalStr += "s";
+                else if (firstTarget.y > this.position.y) cardinalStr += "n";
+                if (firstTarget.x < this.position.x) cardinalStr += "w";
+                else if (firstTarget.x > this.position.x) cardinalStr += "e";
+                weight = MOVEMENT_PRIORITY[cardinalStr] ?? Infinity;
+            }
 
-            let cardinalStr = "";
-            if (firstTarget.y < this.position.y) cardinalStr += "s";
-            else if (firstTarget.y > this.position.y) cardinalStr += "n";
-            if (firstTarget.x < this.position.x) cardinalStr += "w";
-            else if (firstTarget.x > this.position.x) cardinalStr += "e";
-
-            const weight = MOVEMENT_PRIORITY[cardinalStr] ?? Infinity;
-            if (weight < bestWeight) {
+            if (steps < bestSteps || weight < bestWeight) {
+                bestSteps = steps;
                 bestWeight = weight;
-                bestTile = v.tile;
+                bestTile = tile;
             }
         }
 
         this.checkpoints = savedCheckpoints;
         this.checkpointIndex = savedCheckpointIndex;
         this.pathDestination = savedPathDestination;
+        this.isRedXPath = savedIsRedXPath;
 
         return bestTile;
     }

@@ -1033,6 +1033,7 @@ function draw() {
     drawOverlays();
     renderer.present();
     drawEggIcons();
+    drawHealerIds();
 }
 /**
  * Draws the map.
@@ -1325,6 +1326,19 @@ function drawEggIcons() {
             }
         }
     }
+}
+function drawHealerIds() {
+    if (!document.getElementById("togglehealerids").checked)
+        return;
+    const ts = renderer.tileSize;
+    const ctx = renderer.context;
+    ctx.font = (ts - 1) + "px serif";
+    ctx.fillStyle = "black";
+    barbarianAssault.healers.forEach((healer) => {
+        const px = (healer.position.x - renderer.tileOffsetX) * ts;
+        const py = renderer.canvasHeight - 1 - (healer.position.y * ts);
+        ctx.fillText(String(healer.id), px, py);
+    });
 }
 function drawRenderDistance() {
     const players = [
@@ -1698,6 +1712,7 @@ function exportSettings() {
         healerSpawns: healerSpawnsInput.value,
         tickDuration: document.getElementById(HTML_TICK_DURATION).value,
         infiniteFood: document.getElementById(HTML_TOGGLE_INFINITE_FOOD).checked,
+        showHealerIds: document.getElementById("togglehealerids").checked,
         requireRepairs: document.getElementById(HTML_TOGGLE_REPAIR).checked,
         requireLogToRepair: document.getElementById(HTML_TOGGLE_LOG_TO_REPAIR).checked,
         renderDistance: document.getElementById(HTML_TOGGLE_RENDER_DISTANCE).checked,
@@ -1749,6 +1764,8 @@ function importSettings() {
             document.getElementById(HTML_TICK_DURATION).value = s.tickDuration;
         if (s.infiniteFood !== undefined)
             document.getElementById(HTML_TOGGLE_INFINITE_FOOD).checked = s.infiniteFood;
+        if (s.showHealerIds !== undefined)
+            document.getElementById("togglehealerids").checked = s.showHealerIds;
         if (s.requireRepairs !== undefined)
             document.getElementById(HTML_TOGGLE_REPAIR).checked = s.requireRepairs;
         if (s.requireLogToRepair !== undefined)

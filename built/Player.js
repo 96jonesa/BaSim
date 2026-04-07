@@ -63,16 +63,14 @@ export class Player extends Character {
             this.codeIndex++;
             return;
         }
-        if (this.pathDestination === null || this.shouldRecalculatePath()) {
-            if (this.isCardinalAdjacentTo(healer)) {
-                healer.eatFood(barbarianAssault);
-                this.codeIndex++;
-                this.arriveDelay = true;
-                this.clearPath();
-            }
-            else {
-                this.recalculateFoodPath(barbarianAssault, healer);
-            }
+        if (this.isCardinalAdjacentTo(healer)) {
+            healer.eatFood(barbarianAssault);
+            this.codeIndex++;
+            this.arriveDelay = true;
+            this.clearPath();
+        }
+        else if (this.pathDestination === null || this.shouldRecalculatePath()) {
+            this.recalculateFoodPath(barbarianAssault, healer);
         }
     }
     initializeFoodPath(barbarianAssault) {

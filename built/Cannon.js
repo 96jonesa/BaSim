@@ -124,7 +124,7 @@ export class Cannon {
             const egg = new EggQueueItem(travelTime, cmd.eggType, cmd.cannon);
             target.eggQueue.push(egg);
             cmd.numEggs--;
-            cmd.stalled = travelTime;
+            cmd.stalled = 4;
         }
     }
     clone() {

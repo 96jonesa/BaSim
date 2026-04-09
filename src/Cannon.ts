@@ -139,7 +139,7 @@ export class Cannon {
             target.eggQueue.push(egg);
 
             cmd.numEggs--;
-            cmd.stalled = travelTime;
+            cmd.stalled = 4;
         }
     }
 

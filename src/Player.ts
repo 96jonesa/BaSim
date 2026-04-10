@@ -83,6 +83,7 @@ export abstract class Player extends Character {
             this.codeIndex++;
             this.arriveDelay = true;
             this.clearPath();
+            this.initializeFoodPath(barbarianAssault);
         } else if (this.pathDestination === null || this.shouldRecalculatePath()) {
             this.recalculateFoodPath(barbarianAssault, healer);
         }

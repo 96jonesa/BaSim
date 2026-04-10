@@ -13,20 +13,65 @@
  * Lines without a tick suffix are treated as tick 0 commands.
  */
 export function solarCommandsToMclovin(commands) {
-    return commands.split("\n").map(line => {
-        line = line.trim();
-        if (line.length === 0)
-            return "";
-        const lastColon = line.lastIndexOf(":");
-        if (lastColon === -1)
-            return "0:" + line;
-        const maybeTick = line.substring(lastColon + 1);
-        if (/^\d+$/.test(maybeTick)) {
-            const rest = line.substring(0, lastColon);
-            return maybeTick + ":" + rest;
+    const lines = commands.split("\n").map(line => line.trim());
+    const result = [];
+    let i = 0;
+    while (i < lines.length) {
+        const line = lines[i];
+        if (line.length === 0) {
+            result.push("");
+            i++;
+            continue;
         }
-        return "0:" + line;
-    }).join("\n");
+        const parsed = parseSolarLine(line);
+        if (parsed.healerFood !== null && parsed.tick !== null) {
+            const chain = [parsed.healerFood];
+            let j = i + 1;
+            while (j < lines.length) {
+                const next = parseSolarLine(lines[j].trim());
+                if (next.healerFood !== null && next.tick === null) {
+                    chain.push(next.healerFood);
+                    j++;
+                }
+                else {
+                    break;
+                }
+            }
+            if (chain.length > 1) {
+                result.push(parsed.tick + ":" + chain.join("-"));
+            }
+            else {
+                result.push(parsed.tick + ":" + parsed.healerFood);
+            }
+            i = j;
+        }
+        else {
+            result.push(parsed.converted);
+            i++;
+        }
+    }
+    return result.join("\n");
+}
+function parseSolarLine(line) {
+    if (line.length === 0)
+        return { converted: "", tick: null, healerFood: null };
+    const lastColon = line.lastIndexOf(":");
+    let tick = null;
+    let rest;
+    if (lastColon !== -1 && /^\d+$/.test(line.substring(lastColon + 1))) {
+        tick = line.substring(lastColon + 1);
+        rest = line.substring(0, lastColon);
+    }
+    else {
+        rest = line;
+    }
+    const healerMatch = rest.match(/^h(\d+),(\d+)$/);
+    if (healerMatch) {
+        const converted = (tick !== null && tick !== void 0 ? tick : "0") + ":" + rest;
+        return { converted, tick, healerFood: rest };
+    }
+    const converted = (tick !== null && tick !== void 0 ? tick : "0") + ":" + rest;
+    return { converted, tick: null, healerFood: null };
 }
 /**
  * Converts solar defender commands to mclovin defender format.

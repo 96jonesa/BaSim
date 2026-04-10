@@ -279,6 +279,9 @@ export class BarbarianAssault {
 
         this.tickPlayers();
         this.checkPathPhasing(prePathPositions);
+        for (const player of this.allPlayers()) {
+            player.pathStepPositions = [];
+        }
 
         this.executePlayerCommands();
     }

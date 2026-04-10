@@ -2223,6 +2223,23 @@ function convertCommandsStringToMap(commandsString, player) {
             previousCommandTick = tick;
             continue;
         }
+        const healerChainMatch = tickAndCommand[1].match(/^(h\d+,\d+)(-h\d+,\d+)+$/);
+        if (healerChainMatch) {
+            const pairs = tickAndCommand[1].split("-");
+            const entries = [];
+            for (const pair of pairs) {
+                const m = pair.match(/^h(\d+),(\d+)$/);
+                const healerId = parseInt(m[1]);
+                const count = parseInt(m[2]);
+                if (healerId < 1 || count < 1) {
+                    return null;
+                }
+                entries.push({ healerId, count });
+            }
+            addToCommandsMap(commandsMap, tick, new HealerCodeCommand(entries));
+            previousCommandTick = tick;
+            continue;
+        }
         const commandTokens = tickAndCommand[1].split(",");
         if (commandTokens.length === 1) {
             if (commandTokens[0] === "walk") {
@@ -2303,7 +2320,7 @@ function convertCommandsStringToMap(commandsString, player) {
                 if (!Number.isInteger(healerId) || !Number.isInteger(count) || healerId < 1 || count < 1) {
                     return null;
                 }
-                addToCommandsMap(commandsMap, tick, new HealerCodeCommand(healerId, count));
+                addToCommandsMap(commandsMap, tick, new HealerCodeCommand([{ healerId, count }]));
             }
             else if (commandTokens[0].startsWith(">")) {
                 const positionX = Number(commandTokens[0].substring(1));

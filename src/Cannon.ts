@@ -139,7 +139,8 @@ export class Cannon {
             target.eggQueue.push(egg);
 
             cmd.numEggs--;
-            cmd.stalled = 4;
+            const baseTravelTime = cmd.eggType === EggType.RED ? travelTime - 1 : travelTime;
+            cmd.stalled = baseTravelTime;
         }
     }
 

@@ -42,6 +42,11 @@ export class CollectorPlayer extends Player {
         collectorPlayer.preSeedPosition = this.preSeedPosition === null ? null : this.preSeedPosition.clone();
         collectorPlayer.seedMovedToPosition = this.seedMovedToPosition === null ? null : this.seedMovedToPosition.clone();
         collectorPlayer.repeatSeedType = this.repeatSeedType;
+        collectorPlayer.pendingJogreBones = this.pendingJogreBones;
+        collectorPlayer.jogreBonesMovedThisTick = this.jogreBonesMovedThisTick;
+        collectorPlayer.preJogreBonesPosition = this.preJogreBonesPosition === null ? null : this.preJogreBonesPosition.clone();
+        collectorPlayer.jogreBonesMovedToPosition = this.jogreBonesMovedToPosition === null ? null : this.jogreBonesMovedToPosition.clone();
+        collectorPlayer.repeatJogreBones = this.repeatJogreBones;
         collectorPlayer.redXHealerId = this.redXHealerId;
         collectorPlayer.isRedXPath = this.isRedXPath;
         collectorPlayer.phased = this.phased;

@@ -30,6 +30,11 @@ export class Player extends Character {
         this.preSeedPosition = null;
         this.seedMovedToPosition = null;
         this.repeatSeedType = null;
+        this.pendingJogreBones = false;
+        this.jogreBonesMovedThisTick = false;
+        this.preJogreBonesPosition = null;
+        this.jogreBonesMovedToPosition = null;
+        this.repeatJogreBones = false;
         this.redXHealerId = null;
         this.isRedXPath = false;
         this.phased = false;

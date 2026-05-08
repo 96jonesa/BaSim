@@ -34,6 +34,11 @@ export abstract class Player extends Character {
     public preSeedPosition: Position = null;
     public seedMovedToPosition: Position = null;
     public repeatSeedType: SeedType = null;
+    public pendingJogreBones: boolean = false;
+    public jogreBonesMovedThisTick: boolean = false;
+    public preJogreBonesPosition: Position = null;
+    public jogreBonesMovedToPosition: Position = null;
+    public repeatJogreBones: boolean = false;
     public redXHealerId: number = null;
     public isRedXPath: boolean = false;
     public phased: boolean = false;

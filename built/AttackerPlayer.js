@@ -42,6 +42,11 @@ export class AttackerPlayer extends Player {
         attackerPlayer.preSeedPosition = this.preSeedPosition === null ? null : this.preSeedPosition.clone();
         attackerPlayer.seedMovedToPosition = this.seedMovedToPosition === null ? null : this.seedMovedToPosition.clone();
         attackerPlayer.repeatSeedType = this.repeatSeedType;
+        attackerPlayer.pendingJogreBones = this.pendingJogreBones;
+        attackerPlayer.jogreBonesMovedThisTick = this.jogreBonesMovedThisTick;
+        attackerPlayer.preJogreBonesPosition = this.preJogreBonesPosition === null ? null : this.preJogreBonesPosition.clone();
+        attackerPlayer.jogreBonesMovedToPosition = this.jogreBonesMovedToPosition === null ? null : this.jogreBonesMovedToPosition.clone();
+        attackerPlayer.repeatJogreBones = this.repeatJogreBones;
         attackerPlayer.redXHealerId = this.redXHealerId;
         attackerPlayer.isRedXPath = this.isRedXPath;
         attackerPlayer.phased = this.phased;

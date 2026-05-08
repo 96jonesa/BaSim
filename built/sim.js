@@ -20,6 +20,7 @@ import { HealerCodeAction } from "./HealerCodeAction.js";
 import { WalkRunCommand } from "./WalkRunCommand.js";
 import { ToggleRunCommand } from "./ToggleRunCommand.js";
 import { SeedCommand } from "./SeedCommand.js";
+import { JogreBonesCommand } from "./JogreBonesCommand.js";
 import { RedXCommand } from "./RedXCommand.js";
 import { RedXMoveCommand } from "./RedXMoveCommand.js";
 import { DefenderPickupAtCommand } from "./DefenderPickupAtCommand.js";
@@ -590,7 +591,8 @@ function windowOnKeyDown(keyboardEvent) {
             stateHistory.splice(stateIndex + 1);
         }
         const seedCheckPlayer = getControlledPlayerObject();
-        const seedBlocked = seedCheckPlayer !== null && (seedCheckPlayer.seedMovedThisTick || seedCheckPlayer.pendingSeed !== null);
+        const seedBlocked = seedCheckPlayer !== null && (seedCheckPlayer.seedMovedThisTick || seedCheckPlayer.pendingSeed !== null
+            || seedCheckPlayer.jogreBonesMovedThisTick || seedCheckPlayer.pendingJogreBones);
         if (!seedBlocked && simpleFood && player === "defender") {
             switch (key) {
                 case "r":
@@ -759,6 +761,21 @@ function windowOnKeyDown(keyboardEvent) {
                             controlledPlayer.clearPath();
                         }
                         controlledCommands.innerHTML += tickToDisplay(barbarianAssault.ticks) + ":.<br>";
+                        controlledCommands.scrollTop = controlledCommands.scrollHeight;
+                    }
+                }
+                break;
+            }
+            case "j": {
+                if (!seedBlocked) {
+                    const controlledPlayer = getControlledPlayerObject();
+                    if (controlledPlayer !== null) {
+                        controlledPlayer.pendingJogreBones = true;
+                        controlledPlayer.clearCodeQueue();
+                        if (!toggleSeedQueuePath.checked && lastClickTick !== barbarianAssault.ticks) {
+                            controlledPlayer.clearPath();
+                        }
+                        controlledCommands.innerHTML += tickToDisplay(barbarianAssault.ticks) + ":j<br>";
                         controlledCommands.scrollTop = controlledCommands.scrollHeight;
                     }
                 }
@@ -950,7 +967,8 @@ function canvasOnMouseDown(mouseEvent) {
         }
         else {
             const controlledPlayer = getControlledPlayerObject();
-            if (controlledPlayer !== null && (controlledPlayer.seedMovedThisTick || controlledPlayer.pendingSeed !== null)) {
+            if (controlledPlayer !== null && (controlledPlayer.seedMovedThisTick || controlledPlayer.pendingSeed !== null
+                || controlledPlayer.jogreBonesMovedThisTick || controlledPlayer.pendingJogreBones)) {
                 return;
             }
             if (mouseEvent.shiftKey && isRunning && player === "defender") {
@@ -997,7 +1015,8 @@ function canvasOnMouseDown(mouseEvent) {
         const controlledPlayer = getControlledPlayerObject();
         if (controlledPlayer === null)
             return;
-        if (controlledPlayer.seedMovedThisTick || controlledPlayer.pendingSeed !== null)
+        if (controlledPlayer.seedMovedThisTick || controlledPlayer.pendingSeed !== null
+            || controlledPlayer.jogreBonesMovedThisTick || controlledPlayer.pendingJogreBones)
             return;
         lastClickTick = barbarianAssault.ticks;
         stateHistory.splice(stateIndex + 1);
@@ -2220,6 +2239,11 @@ function convertCommandsStringToMap(commandsString, player) {
         }
         else if (tickAndCommand[1] === ".") {
             addToCommandsMap(commandsMap, tick, new SeedCommand("ADAMANT"));
+            previousCommandTick = tick;
+            continue;
+        }
+        else if (tickAndCommand[1] === "j") {
+            addToCommandsMap(commandsMap, tick, new JogreBonesCommand());
             previousCommandTick = tick;
             continue;
         }

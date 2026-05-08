@@ -48,6 +48,11 @@ export class HealerPlayer extends Player {
         healerPlayer.preSeedPosition = this.preSeedPosition === null ? null : this.preSeedPosition.clone();
         healerPlayer.seedMovedToPosition = this.seedMovedToPosition === null ? null : this.seedMovedToPosition.clone();
         healerPlayer.repeatSeedType = this.repeatSeedType;
+        healerPlayer.pendingJogreBones = this.pendingJogreBones;
+        healerPlayer.jogreBonesMovedThisTick = this.jogreBonesMovedThisTick;
+        healerPlayer.preJogreBonesPosition = this.preJogreBonesPosition === null ? null : this.preJogreBonesPosition.clone();
+        healerPlayer.jogreBonesMovedToPosition = this.jogreBonesMovedToPosition === null ? null : this.jogreBonesMovedToPosition.clone();
+        healerPlayer.repeatJogreBones = this.repeatJogreBones;
         healerPlayer.redXHealerId = this.redXHealerId;
         healerPlayer.isRedXPath = this.isRedXPath;
         healerPlayer.phased = this.phased;

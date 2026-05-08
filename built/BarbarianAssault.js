@@ -17,6 +17,7 @@ import { HealerCodeAction } from "./HealerCodeAction.js";
 import { WalkRunCommand } from "./WalkRunCommand.js";
 import { ToggleRunCommand } from "./ToggleRunCommand.js";
 import { SeedCommand } from "./SeedCommand.js";
+import { JogreBonesCommand } from "./JogreBonesCommand.js";
 import { RedXCommand } from "./RedXCommand.js";
 import { RedXMoveCommand } from "./RedXMoveCommand.js";
 import { DefenderPickupAtCommand } from "./DefenderPickupAtCommand.js";
@@ -180,7 +181,8 @@ export class BarbarianAssault {
             }
         }
         this.applySeedMovements();
-        this.checkPhasing(this.playerTickStartPositions, (p) => p.seedMovedThisTick);
+        this.applyJogreBonesMovements();
+        this.checkPhasing(this.playerTickStartPositions, (p) => p.seedMovedThisTick || p.jogreBonesMovedThisTick);
         this.tickPenance();
         this.removePenance();
         this.cannon.tick(this);
@@ -368,6 +370,84 @@ export class BarbarianAssault {
             }
         }
     }
+    applyJogreBonesMovements() {
+        this.applyJogreBonesForPlayer(this.mainAttackerPlayer);
+        this.applyJogreBonesForPlayer(this.secondAttackerPlayer);
+        this.applyJogreBonesForPlayer(this.healerPlayer);
+        this.applyJogreBonesForPlayer(this.collectorPlayer);
+        this.applyJogreBonesForPlayer(this.defenderPlayer);
+    }
+    applyJogreBonesForPlayer(player) {
+        player.jogreBonesMovedThisTick = false;
+        // Can't burn bones while repairing
+        if (player instanceof DefenderPlayer && player.repairTicksRemaining > 0) {
+            player.pendingJogreBones = false;
+            player.repeatJogreBones = false;
+            player.preJogreBonesPosition = null;
+            player.jogreBonesMovedToPosition = null;
+            return;
+        }
+        // Check for auto-repeat from previous tick
+        if (player.repeatJogreBones) {
+            const preBonesPos = player.preJogreBonesPosition;
+            const blockedTile = player.jogreBonesMovedToPosition;
+            player.repeatJogreBones = false;
+            player.preJogreBonesPosition = null;
+            player.jogreBonesMovedToPosition = null;
+            // Can't burn bones two ticks in a row
+            player.pendingJogreBones = false;
+            // If player returned to pre-bones position, apply auto-repeat
+            if (preBonesPos !== null && player.position.equals(preBonesPos)) {
+                player.jogreBonesMovedThisTick = true;
+                this.applyJogreBonesStep(player, blockedTile);
+                if (player.checkpointIndex < player.checkpoints.length &&
+                    player.position.equals(player.checkpoints[player.checkpointIndex])) {
+                    player.checkpointIndex++;
+                }
+                if (player.pathDestination !== null) {
+                    player.findPath(this, player.pathDestination);
+                }
+            }
+            return;
+        }
+        // Handle regular pending bones
+        if (!player.pendingJogreBones)
+            return;
+        player.pendingJogreBones = false;
+        player.jogreBonesMovedThisTick = true;
+        // Save state for repeat detection
+        player.preJogreBonesPosition = player.position.clone();
+        this.applyJogreBonesStep(player, null);
+        // Save where bones moved player to (blocked on repeat)
+        player.jogreBonesMovedToPosition = player.position.clone();
+        player.repeatJogreBones = true;
+        if (player.checkpointIndex < player.checkpoints.length &&
+            player.position.equals(player.checkpoints[player.checkpointIndex])) {
+            player.checkpointIndex++;
+        }
+        if (player.pathDestination !== null) {
+            player.findPath(this, player.pathDestination);
+        }
+    }
+    applyJogreBonesStep(player, blockedTile) {
+        const directions = [[-1, 0], [1, 0], [0, -1], [0, 1]]; // W, E, S, N
+        for (const [dx, dy] of directions) {
+            const targetX = player.position.x + dx;
+            const targetY = player.position.y + dy;
+            if (blockedTile !== null && targetX === blockedTile.x && targetY === blockedTile.y) {
+                continue;
+            }
+            const canMove = dx === -1 ? this.map.canMoveWest(player.position)
+                : dx === 1 ? this.map.canMoveEast(player.position)
+                    : dy === -1 ? this.map.canMoveSouth(player.position)
+                        : this.map.canMoveNorth(player.position);
+            if (canMove) {
+                player.position.x += dx;
+                player.position.y += dy;
+                return;
+            }
+        }
+    }
     /**
      * Executes player commands for all players for the current tick.
      *
@@ -379,7 +459,8 @@ export class BarbarianAssault {
             const hasMoveCommand = commands.some(c => c instanceof MoveCommand);
             let seedCommandProcessed = false;
             commands.forEach((command) => {
-                if (this.mainAttackerPlayer.seedMovedThisTick && !(command instanceof WalkRunCommand) && !(command instanceof ToggleRunCommand))
+                const blocked = this.mainAttackerPlayer.seedMovedThisTick || this.mainAttackerPlayer.jogreBonesMovedThisTick;
+                if (blocked && !(command instanceof WalkRunCommand) && !(command instanceof ToggleRunCommand))
                     return;
                 if (seedCommandProcessed && !(command instanceof WalkRunCommand) && !(command instanceof ToggleRunCommand))
                     return;
@@ -414,6 +495,14 @@ export class BarbarianAssault {
                     }
                     seedCommandProcessed = true;
                 }
+                else if (command instanceof JogreBonesCommand) {
+                    this.mainAttackerPlayer.pendingJogreBones = true;
+                    this.mainAttackerPlayer.clearCodeQueue();
+                    if (!this.seedQueuePath && !hasMoveCommand) {
+                        this.mainAttackerPlayer.clearPath();
+                    }
+                    seedCommandProcessed = true;
+                }
             });
         }
         if (this.secondAttackerCommands.has(this.ticks)) {
@@ -421,7 +510,8 @@ export class BarbarianAssault {
             const hasMoveCommand = commands.some(c => c instanceof MoveCommand);
             let seedCommandProcessed = false;
             commands.forEach((command) => {
-                if (this.secondAttackerPlayer.seedMovedThisTick && !(command instanceof WalkRunCommand) && !(command instanceof ToggleRunCommand))
+                const blocked = this.secondAttackerPlayer.seedMovedThisTick || this.secondAttackerPlayer.jogreBonesMovedThisTick;
+                if (blocked && !(command instanceof WalkRunCommand) && !(command instanceof ToggleRunCommand))
                     return;
                 if (seedCommandProcessed && !(command instanceof WalkRunCommand) && !(command instanceof ToggleRunCommand))
                     return;
@@ -456,6 +546,14 @@ export class BarbarianAssault {
                     }
                     seedCommandProcessed = true;
                 }
+                else if (command instanceof JogreBonesCommand) {
+                    this.secondAttackerPlayer.pendingJogreBones = true;
+                    this.secondAttackerPlayer.clearCodeQueue();
+                    if (!this.seedQueuePath && !hasMoveCommand) {
+                        this.secondAttackerPlayer.clearPath();
+                    }
+                    seedCommandProcessed = true;
+                }
             });
         }
         if (this.healerCommands.has(this.ticks)) {
@@ -463,7 +561,8 @@ export class BarbarianAssault {
             const hasMoveCommand = commands.some(c => c instanceof MoveCommand);
             let seedCommandProcessed = false;
             commands.forEach((command) => {
-                if (this.healerPlayer.seedMovedThisTick && !(command instanceof WalkRunCommand) && !(command instanceof ToggleRunCommand))
+                const blocked = this.healerPlayer.seedMovedThisTick || this.healerPlayer.jogreBonesMovedThisTick;
+                if (blocked && !(command instanceof WalkRunCommand) && !(command instanceof ToggleRunCommand))
                     return;
                 if (seedCommandProcessed && !(command instanceof WalkRunCommand) && !(command instanceof ToggleRunCommand))
                     return;
@@ -498,6 +597,14 @@ export class BarbarianAssault {
                     }
                     seedCommandProcessed = true;
                 }
+                else if (command instanceof JogreBonesCommand) {
+                    this.healerPlayer.pendingJogreBones = true;
+                    this.healerPlayer.clearCodeQueue();
+                    if (!this.seedQueuePath && !hasMoveCommand) {
+                        this.healerPlayer.clearPath();
+                    }
+                    seedCommandProcessed = true;
+                }
             });
         }
         if (this.collectorCommands.has(this.ticks)) {
@@ -505,7 +612,8 @@ export class BarbarianAssault {
             const hasMoveCommand = commands.some(c => c instanceof MoveCommand);
             let seedCommandProcessed = false;
             commands.forEach((command) => {
-                if (this.collectorPlayer.seedMovedThisTick && !(command instanceof WalkRunCommand) && !(command instanceof ToggleRunCommand))
+                const blocked = this.collectorPlayer.seedMovedThisTick || this.collectorPlayer.jogreBonesMovedThisTick;
+                if (blocked && !(command instanceof WalkRunCommand) && !(command instanceof ToggleRunCommand))
                     return;
                 if (seedCommandProcessed && !(command instanceof WalkRunCommand) && !(command instanceof ToggleRunCommand))
                     return;
@@ -540,6 +648,14 @@ export class BarbarianAssault {
                     }
                     seedCommandProcessed = true;
                 }
+                else if (command instanceof JogreBonesCommand) {
+                    this.collectorPlayer.pendingJogreBones = true;
+                    this.collectorPlayer.clearCodeQueue();
+                    if (!this.seedQueuePath && !hasMoveCommand) {
+                        this.collectorPlayer.clearPath();
+                    }
+                    seedCommandProcessed = true;
+                }
             });
         }
         if (this.defenderCommands.has(this.ticks)) {
@@ -547,7 +663,8 @@ export class BarbarianAssault {
             const hasMoveCommand = commands.some(c => c instanceof MoveCommand);
             let seedCommandProcessed = false;
             commands.forEach((command) => {
-                if (this.defenderPlayer.seedMovedThisTick && !(command instanceof WalkRunCommand) && !(command instanceof ToggleRunCommand))
+                const blocked = this.defenderPlayer.seedMovedThisTick || this.defenderPlayer.jogreBonesMovedThisTick;
+                if (blocked && !(command instanceof WalkRunCommand) && !(command instanceof ToggleRunCommand))
                     return;
                 if (seedCommandProcessed && !(command instanceof WalkRunCommand) && !(command instanceof ToggleRunCommand))
                     return;
@@ -576,6 +693,14 @@ export class BarbarianAssault {
                 }
                 else if (command instanceof SeedCommand) {
                     this.defenderPlayer.pendingSeed = command.seedType;
+                    this.defenderPlayer.clearCodeQueue();
+                    if (!this.seedQueuePath && !hasMoveCommand) {
+                        this.defenderPlayer.clearPath();
+                    }
+                    seedCommandProcessed = true;
+                }
+                else if (command instanceof JogreBonesCommand) {
+                    this.defenderPlayer.pendingJogreBones = true;
                     this.defenderPlayer.clearCodeQueue();
                     if (!this.seedQueuePath && !hasMoveCommand) {
                         this.defenderPlayer.clearPath();

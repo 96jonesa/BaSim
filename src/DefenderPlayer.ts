@@ -267,6 +267,11 @@ export class DefenderPlayer extends Player {
         defenderPlayer.preSeedPosition = this.preSeedPosition === null ? null : this.preSeedPosition.clone();
         defenderPlayer.seedMovedToPosition = this.seedMovedToPosition === null ? null : this.seedMovedToPosition.clone();
         defenderPlayer.repeatSeedType = this.repeatSeedType;
+        defenderPlayer.pendingJogreBones = this.pendingJogreBones;
+        defenderPlayer.jogreBonesMovedThisTick = this.jogreBonesMovedThisTick;
+        defenderPlayer.preJogreBonesPosition = this.preJogreBonesPosition === null ? null : this.preJogreBonesPosition.clone();
+        defenderPlayer.jogreBonesMovedToPosition = this.jogreBonesMovedToPosition === null ? null : this.jogreBonesMovedToPosition.clone();
+        defenderPlayer.repeatJogreBones = this.repeatJogreBones;
         defenderPlayer.redXHealerId = this.redXHealerId;
         defenderPlayer.isRedXPath = this.isRedXPath;
         defenderPlayer.phased = this.phased;

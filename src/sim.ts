@@ -1160,6 +1160,7 @@ function draw(): void {
     renderer.present();
     drawEggIcons();
     drawHealerIds();
+    drawRunnerIds();
 }
 
 /**
@@ -1500,6 +1501,19 @@ function drawHealerIds(): void {
         const px = (healer.position.x - renderer.tileOffsetX) * ts;
         const py = renderer.canvasHeight - 1 - (healer.position.y * ts);
         ctx.fillText(String(healer.id), px, py);
+    });
+}
+
+function drawRunnerIds(): void {
+    if (!(document.getElementById("togglerunnerids") as HTMLInputElement).checked) return;
+    const ts = renderer.tileSize;
+    const ctx = renderer.context;
+    ctx.font = (ts - 1) + "px serif";
+    ctx.fillStyle = "black";
+    barbarianAssault.runners.forEach((runner: RunnerPenance): void => {
+        const px = (runner.position.x - renderer.tileOffsetX) * ts;
+        const py = renderer.canvasHeight - 1 - (runner.position.y * ts);
+        ctx.fillText(String(runner.id), px, py);
     });
 }
 
@@ -1927,6 +1941,7 @@ function exportSettings(): void {
         tickDuration: (document.getElementById(HTML_TICK_DURATION) as HTMLInputElement).value,
         infiniteFood: (document.getElementById(HTML_TOGGLE_INFINITE_FOOD) as HTMLInputElement).checked,
         showHealerIds: (document.getElementById("togglehealerids") as HTMLInputElement).checked,
+        showRunnerIds: (document.getElementById("togglerunnerids") as HTMLInputElement).checked,
         requireRepairs: (document.getElementById(HTML_TOGGLE_REPAIR) as HTMLInputElement).checked,
         requireLogToRepair: (document.getElementById(HTML_TOGGLE_LOG_TO_REPAIR) as HTMLInputElement).checked,
         renderDistance: (document.getElementById(HTML_TOGGLE_RENDER_DISTANCE) as HTMLInputElement).checked,
@@ -1971,6 +1986,7 @@ function importSettings(): void {
         if (s.tickDuration !== undefined) (document.getElementById(HTML_TICK_DURATION) as HTMLInputElement).value = s.tickDuration;
         if (s.infiniteFood !== undefined) (document.getElementById(HTML_TOGGLE_INFINITE_FOOD) as HTMLInputElement).checked = s.infiniteFood;
         if (s.showHealerIds !== undefined) (document.getElementById("togglehealerids") as HTMLInputElement).checked = s.showHealerIds;
+        if (s.showRunnerIds !== undefined) (document.getElementById("togglerunnerids") as HTMLInputElement).checked = s.showRunnerIds;
         if (s.requireRepairs !== undefined) (document.getElementById(HTML_TOGGLE_REPAIR) as HTMLInputElement).checked = s.requireRepairs;
         if (s.requireLogToRepair !== undefined) (document.getElementById(HTML_TOGGLE_LOG_TO_REPAIR) as HTMLInputElement).checked = s.requireLogToRepair;
         if (s.renderDistance !== undefined) (document.getElementById(HTML_TOGGLE_RENDER_DISTANCE) as HTMLInputElement).checked = s.renderDistance;

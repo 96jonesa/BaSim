@@ -1053,6 +1053,7 @@ function draw() {
     renderer.present();
     drawEggIcons();
     drawHealerIds();
+    drawRunnerIds();
 }
 /**
  * Draws the map.
@@ -1361,6 +1362,19 @@ function drawHealerIds() {
         const px = (healer.position.x - renderer.tileOffsetX) * ts;
         const py = renderer.canvasHeight - 1 - (healer.position.y * ts);
         ctx.fillText(String(healer.id), px, py);
+    });
+}
+function drawRunnerIds() {
+    if (!document.getElementById("togglerunnerids").checked)
+        return;
+    const ts = renderer.tileSize;
+    const ctx = renderer.context;
+    ctx.font = (ts - 1) + "px serif";
+    ctx.fillStyle = "black";
+    barbarianAssault.runners.forEach((runner) => {
+        const px = (runner.position.x - renderer.tileOffsetX) * ts;
+        const py = renderer.canvasHeight - 1 - (runner.position.y * ts);
+        ctx.fillText(String(runner.id), px, py);
     });
 }
 function drawRenderDistance() {
@@ -1736,6 +1750,7 @@ function exportSettings() {
         tickDuration: document.getElementById(HTML_TICK_DURATION).value,
         infiniteFood: document.getElementById(HTML_TOGGLE_INFINITE_FOOD).checked,
         showHealerIds: document.getElementById("togglehealerids").checked,
+        showRunnerIds: document.getElementById("togglerunnerids").checked,
         requireRepairs: document.getElementById(HTML_TOGGLE_REPAIR).checked,
         requireLogToRepair: document.getElementById(HTML_TOGGLE_LOG_TO_REPAIR).checked,
         renderDistance: document.getElementById(HTML_TOGGLE_RENDER_DISTANCE).checked,
@@ -1789,6 +1804,8 @@ function importSettings() {
             document.getElementById(HTML_TOGGLE_INFINITE_FOOD).checked = s.infiniteFood;
         if (s.showHealerIds !== undefined)
             document.getElementById("togglehealerids").checked = s.showHealerIds;
+        if (s.showRunnerIds !== undefined)
+            document.getElementById("togglerunnerids").checked = s.showRunnerIds;
         if (s.requireRepairs !== undefined)
             document.getElementById(HTML_TOGGLE_REPAIR).checked = s.requireRepairs;
         if (s.requireLogToRepair !== undefined)

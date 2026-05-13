@@ -425,6 +425,10 @@ export class BarbarianAssault {
             player.position.equals(player.checkpoints[player.checkpointIndex])) {
             player.checkpointIndex++;
         }
+
+        if (player.pathDestination !== null) {
+            player.findPath(this, player.pathDestination);
+        }
     }
 
     private applySeedStep(player: Player, seedType: SeedType, blockedTile: Position): void {
@@ -521,6 +525,10 @@ export class BarbarianAssault {
         if (player.checkpointIndex < player.checkpoints.length &&
             player.position.equals(player.checkpoints[player.checkpointIndex])) {
             player.checkpointIndex++;
+        }
+
+        if (player.pathDestination !== null) {
+            player.findPath(this, player.pathDestination);
         }
     }
 

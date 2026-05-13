@@ -470,11 +470,11 @@ function reset(): void {
         infiniteFood,
         [],
         defenderLevel,
-        player === "mainattacker" ? new Map<number, Array<Command>> : convertCommandsStringToMap((document.getElementById(HTML_MAIN_ATTACKER_COMMANDS) as HTMLInputElement).value, "mainattacker"),
-        player === "secondattacker" ? new Map<number, Array<Command>> : convertCommandsStringToMap((document.getElementById(HTML_SECOND_ATTACKER_COMMANDS) as HTMLInputElement).value, "secondattacker"),
-        player === "healer" ? new Map<number, Array<Command>> : convertCommandsStringToMap((document.getElementById(HTML_HEALER_COMMANDS) as HTMLInputElement).value, "healer"),
-        player === "collector" ? new Map<number, Array<Command>> : convertCommandsStringToMap((document.getElementById(HTML_COLLECTOR_COMMANDS) as HTMLInputElement).value, "collector"),
-        player === "defender" ? new Map<number, Array<Command>> : convertCommandsStringToMap((document.getElementById(HTML_DEFENDER_COMMANDS) as HTMLInputElement).value, "defender"),
+        player === "mainattacker" ? new Map<number, Array<Command>> : getTeamCommandsForPlayer("mainattacker"),
+        player === "secondattacker" ? new Map<number, Array<Command>> : getTeamCommandsForPlayer("secondattacker"),
+        player === "healer" ? new Map<number, Array<Command>> : getTeamCommandsForPlayer("healer"),
+        player === "collector" ? new Map<number, Array<Command>> : getTeamCommandsForPlayer("collector"),
+        player === "defender" ? new Map<number, Array<Command>> : getTeamCommandsForPlayer("defender"),
         []
     );
     barbarianAssault.ignoreMaxHealers = toggleIgnoreMaxHealers.checked;
@@ -1590,11 +1590,11 @@ function startStopButtonOnClick(): void {
             return;
         }
 
-        const mainAttackerCommands: Map<number, Array<Command>> = convertCommandsStringToMap((document.getElementById(HTML_MAIN_ATTACKER_COMMANDS) as HTMLInputElement).value, "mainattacker");
-        const secondAttackerCommands: Map<number, Array<Command>> = convertCommandsStringToMap((document.getElementById(HTML_SECOND_ATTACKER_COMMANDS) as HTMLInputElement).value, "secondattacker");
-        const healerCommands: Map<number, Array<Command>> = convertCommandsStringToMap((document.getElementById(HTML_HEALER_COMMANDS) as HTMLInputElement).value, "healer");
-        const collectorCommands: Map<number, Array<Command>> = convertCommandsStringToMap((document.getElementById(HTML_COLLECTOR_COMMANDS) as HTMLInputElement).value, "collector");
-        const defenderCommands: Map<number, Array<Command>> = convertCommandsStringToMap((document.getElementById(HTML_DEFENDER_COMMANDS) as HTMLInputElement).value, "defender");
+        const mainAttackerCommands: Map<number, Array<Command>> = getTeamCommandsForPlayer("mainattacker");
+        const secondAttackerCommands: Map<number, Array<Command>> = getTeamCommandsForPlayer("secondattacker");
+        const healerCommands: Map<number, Array<Command>> = getTeamCommandsForPlayer("healer");
+        const collectorCommands: Map<number, Array<Command>> = getTeamCommandsForPlayer("collector");
+        const defenderCommands: Map<number, Array<Command>> = getTeamCommandsForPlayer("defender");
 
         if (mainAttackerCommands === null || secondAttackerCommands === null || healerCommands === null || collectorCommands === null || defenderCommands === null) {
             alert("Invalid team commands. Example: 7:20,24");
@@ -1976,6 +1976,11 @@ function exportSettings(): void {
         healer: (document.getElementById(HTML_HEALER_COMMANDS) as HTMLTextAreaElement).value,
         collector: (document.getElementById(HTML_COLLECTOR_COMMANDS) as HTMLTextAreaElement).value,
         defender: (document.getElementById(HTML_DEFENDER_COMMANDS) as HTMLTextAreaElement).value,
+        mainAttackerEnabled: (document.getElementById("togglemainattackercommands") as HTMLInputElement).checked,
+        secondAttackerEnabled: (document.getElementById("togglesecondattackercommands") as HTMLInputElement).checked,
+        healerEnabled: (document.getElementById("togglehealercommands") as HTMLInputElement).checked,
+        collectorEnabled: (document.getElementById("togglecollectorcommands") as HTMLInputElement).checked,
+        defenderEnabled: (document.getElementById("toggledefendercommands") as HTMLInputElement).checked,
         playerToControl: playerSelect.value,
         secondsMode: secondsMode,
         startTick: startTickInput.value,
@@ -2027,6 +2032,11 @@ function importSettings(): void {
         if (s.healer !== undefined) (document.getElementById(HTML_HEALER_COMMANDS) as HTMLTextAreaElement).value = s.healer;
         if (s.collector !== undefined) (document.getElementById(HTML_COLLECTOR_COMMANDS) as HTMLTextAreaElement).value = s.collector;
         if (s.defender !== undefined) (document.getElementById(HTML_DEFENDER_COMMANDS) as HTMLTextAreaElement).value = s.defender;
+        if (s.mainAttackerEnabled !== undefined) (document.getElementById("togglemainattackercommands") as HTMLInputElement).checked = s.mainAttackerEnabled;
+        if (s.secondAttackerEnabled !== undefined) (document.getElementById("togglesecondattackercommands") as HTMLInputElement).checked = s.secondAttackerEnabled;
+        if (s.healerEnabled !== undefined) (document.getElementById("togglehealercommands") as HTMLInputElement).checked = s.healerEnabled;
+        if (s.collectorEnabled !== undefined) (document.getElementById("togglecollectorcommands") as HTMLInputElement).checked = s.collectorEnabled;
+        if (s.defenderEnabled !== undefined) (document.getElementById("toggledefendercommands") as HTMLInputElement).checked = s.defenderEnabled;
         if (s.playerToControl !== undefined) {
             playerSelect.value = s.playerToControl;
             player = playerSelect.value;
@@ -2378,6 +2388,29 @@ function toggleRepairOnChange(): void {
     requireRepairs = toggleRepair.checked;
     reset();
 }
+
+const TEAM_COMMAND_TOGGLE_IDS: Record<string, string> = {
+    "mainattacker": "togglemainattackercommands",
+    "secondattacker": "togglesecondattackercommands",
+    "healer": "togglehealercommands",
+    "collector": "togglecollectorcommands",
+    "defender": "toggledefendercommands",
+};
+
+const TEAM_COMMAND_INPUT_IDS: Record<string, string> = {
+    "mainattacker": HTML_MAIN_ATTACKER_COMMANDS,
+    "secondattacker": HTML_SECOND_ATTACKER_COMMANDS,
+    "healer": HTML_HEALER_COMMANDS,
+    "collector": HTML_COLLECTOR_COMMANDS,
+    "defender": HTML_DEFENDER_COMMANDS,
+};
+
+function getTeamCommandsForPlayer(playerName: string): Map<number, Array<Command>> | null {
+    if (!(document.getElementById(TEAM_COMMAND_TOGGLE_IDS[playerName]) as HTMLInputElement).checked) {
+        return new Map<number, Array<Command>>();
+    }
+    return convertCommandsStringToMap((document.getElementById(TEAM_COMMAND_INPUT_IDS[playerName]) as HTMLInputElement).value, playerName);
+}
 function movementsInputOnChange(): void {
     reset();
 }
@@ -2701,11 +2734,11 @@ function getMovementsRunnersDoNotDieOnTime(foodCalls: Array<FoodType>, runnerMov
 
     const allCombinations: Array<Array<string>> = getAllCombinations(candidateMovements, 0, [[]]);
 
-    const mainAttackerCommands: Map<number, Array<Command>> = convertCommandsStringToMap((document.getElementById(HTML_MAIN_ATTACKER_COMMANDS) as HTMLInputElement).value, "mainattacker");
-    const secondAttackerCommands: Map<number, Array<Command>> = convertCommandsStringToMap((document.getElementById(HTML_SECOND_ATTACKER_COMMANDS) as HTMLInputElement).value, "secondattacker");
-    const healerCommands: Map<number, Array<Command>> = convertCommandsStringToMap((document.getElementById(HTML_HEALER_COMMANDS) as HTMLInputElement).value, "healer");
-    const collectorCommands: Map<number, Array<Command>> = convertCommandsStringToMap((document.getElementById(HTML_COLLECTOR_COMMANDS) as HTMLInputElement).value, "collector");
-    const defenderCommands: Map<number, Array<Command>> = convertCommandsStringToMap((document.getElementById(HTML_DEFENDER_COMMANDS) as HTMLInputElement).value, "defender");
+    const mainAttackerCommands: Map<number, Array<Command>> = getTeamCommandsForPlayer("mainattacker");
+    const secondAttackerCommands: Map<number, Array<Command>> = getTeamCommandsForPlayer("secondattacker");
+    const healerCommands: Map<number, Array<Command>> = getTeamCommandsForPlayer("healer");
+    const collectorCommands: Map<number, Array<Command>> = getTeamCommandsForPlayer("collector");
+    const defenderCommands: Map<number, Array<Command>> = getTeamCommandsForPlayer("defender");
 
     for (let i: number = 0; i < allCombinations.length; i++) {
         const runnerMovements: Array<string> = allCombinations[i];

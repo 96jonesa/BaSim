@@ -427,7 +427,7 @@ function reset() {
     document.getElementById(HTML_HEALER_TABLE).style.display = "none";
     stateHistory = [];
     stateIndex = -1;
-    barbarianAssault = new BarbarianAssault(wave, requireRepairs, requireLogs, infiniteFood, [], defenderLevel, player === "mainattacker" ? new Map : convertCommandsStringToMap(document.getElementById(HTML_MAIN_ATTACKER_COMMANDS).value, "mainattacker"), player === "secondattacker" ? new Map : convertCommandsStringToMap(document.getElementById(HTML_SECOND_ATTACKER_COMMANDS).value, "secondattacker"), player === "healer" ? new Map : convertCommandsStringToMap(document.getElementById(HTML_HEALER_COMMANDS).value, "healer"), player === "collector" ? new Map : convertCommandsStringToMap(document.getElementById(HTML_COLLECTOR_COMMANDS).value, "collector"), player === "defender" ? new Map : convertCommandsStringToMap(document.getElementById(HTML_DEFENDER_COMMANDS).value, "defender"), []);
+    barbarianAssault = new BarbarianAssault(wave, requireRepairs, requireLogs, infiniteFood, [], defenderLevel, player === "mainattacker" ? new Map : getTeamCommandsForPlayer("mainattacker"), player === "secondattacker" ? new Map : getTeamCommandsForPlayer("secondattacker"), player === "healer" ? new Map : getTeamCommandsForPlayer("healer"), player === "collector" ? new Map : getTeamCommandsForPlayer("collector"), player === "defender" ? new Map : getTeamCommandsForPlayer("defender"), []);
     barbarianAssault.ignoreMaxHealers = toggleIgnoreMaxHealers.checked;
     draw();
 }
@@ -1441,11 +1441,11 @@ function startStopButtonOnClick() {
             alert("Invalid food calls. Example: twcw");
             return;
         }
-        const mainAttackerCommands = convertCommandsStringToMap(document.getElementById(HTML_MAIN_ATTACKER_COMMANDS).value, "mainattacker");
-        const secondAttackerCommands = convertCommandsStringToMap(document.getElementById(HTML_SECOND_ATTACKER_COMMANDS).value, "secondattacker");
-        const healerCommands = convertCommandsStringToMap(document.getElementById(HTML_HEALER_COMMANDS).value, "healer");
-        const collectorCommands = convertCommandsStringToMap(document.getElementById(HTML_COLLECTOR_COMMANDS).value, "collector");
-        const defenderCommands = convertCommandsStringToMap(document.getElementById(HTML_DEFENDER_COMMANDS).value, "defender");
+        const mainAttackerCommands = getTeamCommandsForPlayer("mainattacker");
+        const secondAttackerCommands = getTeamCommandsForPlayer("secondattacker");
+        const healerCommands = getTeamCommandsForPlayer("healer");
+        const collectorCommands = getTeamCommandsForPlayer("collector");
+        const defenderCommands = getTeamCommandsForPlayer("defender");
         if (mainAttackerCommands === null || secondAttackerCommands === null || healerCommands === null || collectorCommands === null || defenderCommands === null) {
             alert("Invalid team commands. Example: 7:20,24");
             return;
@@ -1782,6 +1782,11 @@ function exportSettings() {
         healer: document.getElementById(HTML_HEALER_COMMANDS).value,
         collector: document.getElementById(HTML_COLLECTOR_COMMANDS).value,
         defender: document.getElementById(HTML_DEFENDER_COMMANDS).value,
+        mainAttackerEnabled: document.getElementById("togglemainattackercommands").checked,
+        secondAttackerEnabled: document.getElementById("togglesecondattackercommands").checked,
+        healerEnabled: document.getElementById("togglehealercommands").checked,
+        collectorEnabled: document.getElementById("togglecollectorcommands").checked,
+        defenderEnabled: document.getElementById("toggledefendercommands").checked,
         playerToControl: playerSelect.value,
         secondsMode: secondsMode,
         startTick: startTickInput.value,
@@ -1853,6 +1858,16 @@ function importSettings() {
             document.getElementById(HTML_COLLECTOR_COMMANDS).value = s.collector;
         if (s.defender !== undefined)
             document.getElementById(HTML_DEFENDER_COMMANDS).value = s.defender;
+        if (s.mainAttackerEnabled !== undefined)
+            document.getElementById("togglemainattackercommands").checked = s.mainAttackerEnabled;
+        if (s.secondAttackerEnabled !== undefined)
+            document.getElementById("togglesecondattackercommands").checked = s.secondAttackerEnabled;
+        if (s.healerEnabled !== undefined)
+            document.getElementById("togglehealercommands").checked = s.healerEnabled;
+        if (s.collectorEnabled !== undefined)
+            document.getElementById("togglecollectorcommands").checked = s.collectorEnabled;
+        if (s.defenderEnabled !== undefined)
+            document.getElementById("toggledefendercommands").checked = s.defenderEnabled;
         if (s.playerToControl !== undefined) {
             playerSelect.value = s.playerToControl;
             player = playerSelect.value;
@@ -2207,6 +2222,26 @@ function toggleRepairOnChange() {
     requireRepairs = toggleRepair.checked;
     reset();
 }
+const TEAM_COMMAND_TOGGLE_IDS = {
+    "mainattacker": "togglemainattackercommands",
+    "secondattacker": "togglesecondattackercommands",
+    "healer": "togglehealercommands",
+    "collector": "togglecollectorcommands",
+    "defender": "toggledefendercommands",
+};
+const TEAM_COMMAND_INPUT_IDS = {
+    "mainattacker": HTML_MAIN_ATTACKER_COMMANDS,
+    "secondattacker": HTML_SECOND_ATTACKER_COMMANDS,
+    "healer": HTML_HEALER_COMMANDS,
+    "collector": HTML_COLLECTOR_COMMANDS,
+    "defender": HTML_DEFENDER_COMMANDS,
+};
+function getTeamCommandsForPlayer(playerName) {
+    if (!document.getElementById(TEAM_COMMAND_TOGGLE_IDS[playerName]).checked) {
+        return new Map();
+    }
+    return convertCommandsStringToMap(document.getElementById(TEAM_COMMAND_INPUT_IDS[playerName]).value, playerName);
+}
 function movementsInputOnChange() {
     reset();
 }
@@ -2483,11 +2518,11 @@ function getMovementsRunnersDoNotDieOnTime(foodCalls, runnerMovementsToCheck, ru
         candidateMovements.push(getAllForcedMovementsForOneRunner(movementPattern));
     });
     const allCombinations = getAllCombinations(candidateMovements, 0, [[]]);
-    const mainAttackerCommands = convertCommandsStringToMap(document.getElementById(HTML_MAIN_ATTACKER_COMMANDS).value, "mainattacker");
-    const secondAttackerCommands = convertCommandsStringToMap(document.getElementById(HTML_SECOND_ATTACKER_COMMANDS).value, "secondattacker");
-    const healerCommands = convertCommandsStringToMap(document.getElementById(HTML_HEALER_COMMANDS).value, "healer");
-    const collectorCommands = convertCommandsStringToMap(document.getElementById(HTML_COLLECTOR_COMMANDS).value, "collector");
-    const defenderCommands = convertCommandsStringToMap(document.getElementById(HTML_DEFENDER_COMMANDS).value, "defender");
+    const mainAttackerCommands = getTeamCommandsForPlayer("mainattacker");
+    const secondAttackerCommands = getTeamCommandsForPlayer("secondattacker");
+    const healerCommands = getTeamCommandsForPlayer("healer");
+    const collectorCommands = getTeamCommandsForPlayer("collector");
+    const defenderCommands = getTeamCommandsForPlayer("defender");
     for (let i = 0; i < allCombinations.length; i++) {
         const runnerMovements = allCombinations[i];
         if (!runnersDieOnTimeForMovements(runnerMovements, foodCalls, runnersDeadByTick, mainAttackerCommands, secondAttackerCommands, healerCommands, collectorCommands, defenderCommands)) {

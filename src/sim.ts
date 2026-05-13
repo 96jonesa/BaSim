@@ -102,7 +102,13 @@ window.onload = init;
 var markingTiles: boolean;
 var markedTiles: Array<TileMarker>;
 
-const TILE_MARKERS_STORAGE_KEY: string = "mclovin-ba-sim-tile-markers";
+const TILE_MARKERS_STORAGE_KEY_LEGACY: string = "mclovin-ba-sim-tile-markers";
+const TILE_MARKERS_STORAGE_KEY_WAVES_1_9: string = "mclovin-ba-sim-tile-markers-waves-1-9";
+const TILE_MARKERS_STORAGE_KEY_WAVE_10: string = "mclovin-ba-sim-tile-markers-wave-10";
+
+function getTileMarkersStorageKey(): string {
+    return wave === 10 ? TILE_MARKERS_STORAGE_KEY_WAVE_10 : TILE_MARKERS_STORAGE_KEY_WAVES_1_9;
+}
 
 function saveMarkedTiles(): void {
     const data = markedTiles.map((t: TileMarker) => ({
@@ -112,11 +118,23 @@ function saveMarkedTiles(): void {
         g: t.rgbColor.g,
         b: t.rgbColor.b,
     }));
-    localStorage.setItem(TILE_MARKERS_STORAGE_KEY, JSON.stringify(data));
+    localStorage.setItem(getTileMarkersStorageKey(), JSON.stringify(data));
 }
 
 function loadMarkedTiles(): Array<TileMarker> {
-    const json = localStorage.getItem(TILE_MARKERS_STORAGE_KEY);
+    const key = getTileMarkersStorageKey();
+    let json = localStorage.getItem(key);
+
+    // One-time migration: move pre-split markers into the waves 1-9 bucket.
+    if (json === null && key === TILE_MARKERS_STORAGE_KEY_WAVES_1_9) {
+        const legacy = localStorage.getItem(TILE_MARKERS_STORAGE_KEY_LEGACY);
+        if (legacy !== null) {
+            localStorage.setItem(TILE_MARKERS_STORAGE_KEY_WAVES_1_9, legacy);
+            localStorage.removeItem(TILE_MARKERS_STORAGE_KEY_LEGACY);
+            json = legacy;
+        }
+    }
+
     if (json === null) {
         return [];
     }
@@ -236,6 +254,7 @@ function init(): void {
     startStopButton.onclick = startStopButtonOnClick;
     waveSelect = document.getElementById(HTML_WAVE_SELECT) as HTMLInputElement;
     waveSelect.onchange = waveSelectOnChange;
+    wave = Number(waveSelect.value);
     defenderLevelSelection = document.getElementById(HTML_DEF_LEVEL_SELECT) as HTMLInputElement;
     defenderLevelSelection.onchange = defenderLevelSelectionOnChange;
     toggleRepair = document.getElementById(HTML_TOGGLE_REPAIR) as HTMLInputElement;
@@ -953,8 +972,12 @@ function load(): void {
     controlledCommands.innerHTML = savedControlledCommandsInnerHTML;
     defenderLevelSelection.value = savedDefenderLevel;
     defenderLevel = Number(defenderLevelSelection.value);
+    const previousWave = wave;
     waveSelect.value = savedWave;
     wave = Number(waveSelect.value);
+    if ((previousWave === 10) !== (wave === 10)) {
+        markedTiles = loadMarkedTiles();
+    }
     movementsInput.value = savedMovementsString;
     (document.getElementById(HTML_MAIN_ATTACKER_COMMANDS) as HTMLInputElement).value = savedMainAttackerCommands;
     (document.getElementById(HTML_SECOND_ATTACKER_COMMANDS) as HTMLInputElement).value = savedSecondAttackerCommands;
@@ -1974,8 +1997,12 @@ function importSettings(): void {
         const s = JSON.parse(input);
         if (s.defenderLevel !== undefined) defenderLevelSelection.value = s.defenderLevel;
         if (s.wave !== undefined) {
+            const previousWave = wave;
             waveSelect.value = s.wave;
             wave = Number(waveSelect.value);
+            if ((previousWave === 10) !== (wave === 10)) {
+                markedTiles = loadMarkedTiles();
+            }
         }
         if (s.runnerMovements !== undefined) movementsInput.value = s.runnerMovements;
         if (s.foodCalls !== undefined) foodCallsInput.value = s.foodCalls;
@@ -2049,8 +2076,12 @@ function importSettingsFromSolar(): void {
             (document.getElementById(HTML_TOGGLE_SIMPLE_FOOD) as HTMLButtonElement).click();
         }
         if (s.wave !== undefined) {
+            const previousWave = wave;
             waveSelect.value = s.wave;
             wave = Number(waveSelect.value);
+            if ((previousWave === 10) !== (wave === 10)) {
+                markedTiles = loadMarkedTiles();
+            }
         }
         if (s.runnerMovements !== undefined) movementsInput.value = s.runnerMovements;
         if (s.eggs !== undefined) cannonQueueInput.value = s.eggs;
@@ -2085,7 +2116,11 @@ function rgbToHex(color: RGBColor): string {
  * Sets the wave to the selected wave value, and stops and resets the simulator.
  */
 function waveSelectOnChange(): void {
+    const previousWave = wave;
     wave = Number(waveSelect.value);
+    if ((previousWave === 10) !== (wave === 10)) {
+        markedTiles = loadMarkedTiles();
+    }
     reset();
 }
 

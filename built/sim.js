@@ -82,7 +82,12 @@ const HTML_LOAD_STATE = "loadstate";
 window.onload = init;
 var markingTiles;
 var markedTiles;
-const TILE_MARKERS_STORAGE_KEY = "mclovin-ba-sim-tile-markers";
+const TILE_MARKERS_STORAGE_KEY_LEGACY = "mclovin-ba-sim-tile-markers";
+const TILE_MARKERS_STORAGE_KEY_WAVES_1_9 = "mclovin-ba-sim-tile-markers-waves-1-9";
+const TILE_MARKERS_STORAGE_KEY_WAVE_10 = "mclovin-ba-sim-tile-markers-wave-10";
+function getTileMarkersStorageKey() {
+    return wave === 10 ? TILE_MARKERS_STORAGE_KEY_WAVE_10 : TILE_MARKERS_STORAGE_KEY_WAVES_1_9;
+}
 function saveMarkedTiles() {
     const data = markedTiles.map((t) => ({
         x: t.position.x,
@@ -91,10 +96,20 @@ function saveMarkedTiles() {
         g: t.rgbColor.g,
         b: t.rgbColor.b,
     }));
-    localStorage.setItem(TILE_MARKERS_STORAGE_KEY, JSON.stringify(data));
+    localStorage.setItem(getTileMarkersStorageKey(), JSON.stringify(data));
 }
 function loadMarkedTiles() {
-    const json = localStorage.getItem(TILE_MARKERS_STORAGE_KEY);
+    const key = getTileMarkersStorageKey();
+    let json = localStorage.getItem(key);
+    // One-time migration: move pre-split markers into the waves 1-9 bucket.
+    if (json === null && key === TILE_MARKERS_STORAGE_KEY_WAVES_1_9) {
+        const legacy = localStorage.getItem(TILE_MARKERS_STORAGE_KEY_LEGACY);
+        if (legacy !== null) {
+            localStorage.setItem(TILE_MARKERS_STORAGE_KEY_WAVES_1_9, legacy);
+            localStorage.removeItem(TILE_MARKERS_STORAGE_KEY_LEGACY);
+            json = legacy;
+        }
+    }
     if (json === null) {
         return [];
     }
@@ -208,6 +223,7 @@ function init() {
     startStopButton.onclick = startStopButtonOnClick;
     waveSelect = document.getElementById(HTML_WAVE_SELECT);
     waveSelect.onchange = waveSelectOnChange;
+    wave = Number(waveSelect.value);
     defenderLevelSelection = document.getElementById(HTML_DEF_LEVEL_SELECT);
     defenderLevelSelection.onchange = defenderLevelSelectionOnChange;
     toggleRepair = document.getElementById(HTML_TOGGLE_REPAIR);
@@ -867,8 +883,12 @@ function load() {
     controlledCommands.innerHTML = savedControlledCommandsInnerHTML;
     defenderLevelSelection.value = savedDefenderLevel;
     defenderLevel = Number(defenderLevelSelection.value);
+    const previousWave = wave;
     waveSelect.value = savedWave;
     wave = Number(waveSelect.value);
+    if ((previousWave === 10) !== (wave === 10)) {
+        markedTiles = loadMarkedTiles();
+    }
     movementsInput.value = savedMovementsString;
     document.getElementById(HTML_MAIN_ATTACKER_COMMANDS).value = savedMainAttackerCommands;
     document.getElementById(HTML_SECOND_ATTACKER_COMMANDS).value = savedSecondAttackerCommands;
@@ -1783,8 +1803,12 @@ function importSettings() {
         if (s.defenderLevel !== undefined)
             defenderLevelSelection.value = s.defenderLevel;
         if (s.wave !== undefined) {
+            const previousWave = wave;
             waveSelect.value = s.wave;
             wave = Number(waveSelect.value);
+            if ((previousWave === 10) !== (wave === 10)) {
+                markedTiles = loadMarkedTiles();
+            }
         }
         if (s.runnerMovements !== undefined)
             movementsInput.value = s.runnerMovements;
@@ -1876,8 +1900,12 @@ function importSettingsFromSolar() {
             document.getElementById(HTML_TOGGLE_SIMPLE_FOOD).click();
         }
         if (s.wave !== undefined) {
+            const previousWave = wave;
             waveSelect.value = s.wave;
             wave = Number(waveSelect.value);
+            if ((previousWave === 10) !== (wave === 10)) {
+                markedTiles = loadMarkedTiles();
+            }
         }
         if (s.runnerMovements !== undefined)
             movementsInput.value = s.runnerMovements;
@@ -1919,7 +1947,11 @@ function rgbToHex(color) {
  * Sets the wave to the selected wave value, and stops and resets the simulator.
  */
 function waveSelectOnChange() {
+    const previousWave = wave;
     wave = Number(waveSelect.value);
+    if ((previousWave === 10) !== (wave === 10)) {
+        markedTiles = loadMarkedTiles();
+    }
     reset();
 }
 function playerSelectOnChange() {

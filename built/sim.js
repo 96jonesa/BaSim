@@ -1164,13 +1164,17 @@ function drawDetails() {
     renderer.fillItem(32, 34);
     // Draw cannons
     const westCannon = getCannonPosition(CannonSide.WEST);
-    const eastCannon = getCannonPosition(CannonSide.EAST);
     renderer.setDrawColor(80, 80, 80, 200);
     renderer.fill(westCannon.x, westCannon.y);
-    renderer.fill(eastCannon.x, eastCannon.y);
     renderer.setDrawColor(40, 40, 40, 255);
     renderer.outline(westCannon.x, westCannon.y);
-    renderer.outline(eastCannon.x, eastCannon.y);
+    if (wave !== 10) {
+        const eastCannon = getCannonPosition(CannonSide.EAST);
+        renderer.setDrawColor(80, 80, 80, 200);
+        renderer.fill(eastCannon.x, eastCannon.y);
+        renderer.setDrawColor(40, 40, 40, 255);
+        renderer.outline(eastCannon.x, eastCannon.y);
+    }
 }
 /**
  * Draws items (e.g. {@link Food}.

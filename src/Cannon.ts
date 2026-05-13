@@ -120,6 +120,7 @@ export class Cannon {
         for (const cmd of this.queue) {
             if (cmd.numEggs <= 0) continue;
             if (cmd.tick > barbarianAssault.ticks) continue;
+            if (cmd.cannon === CannonSide.EAST && barbarianAssault.wave === 10) continue;
 
             if (cmd.stalled > 0) {
                 cmd.stalled--;

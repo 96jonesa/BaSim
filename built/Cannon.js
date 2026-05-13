@@ -110,6 +110,8 @@ export class Cannon {
                 continue;
             if (cmd.tick > barbarianAssault.ticks)
                 continue;
+            if (cmd.cannon === CannonSide.EAST && barbarianAssault.wave === 10)
+                continue;
             if (cmd.stalled > 0) {
                 cmd.stalled--;
                 continue;

@@ -404,9 +404,6 @@ export class BarbarianAssault {
                     player.position.equals(player.checkpoints[player.checkpointIndex])) {
                     player.checkpointIndex++;
                 }
-                if (player.pathDestination !== null) {
-                    player.findPath(this, player.pathDestination);
-                }
             }
             return;
         }
@@ -424,9 +421,6 @@ export class BarbarianAssault {
         if (player.checkpointIndex < player.checkpoints.length &&
             player.position.equals(player.checkpoints[player.checkpointIndex])) {
             player.checkpointIndex++;
-        }
-        if (player.pathDestination !== null) {
-            player.findPath(this, player.pathDestination);
         }
     }
     applyJogreBonesStep(player, blockedTile) {

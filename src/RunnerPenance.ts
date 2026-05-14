@@ -45,6 +45,9 @@ export class RunnerPenance extends Penance {
                     case EggType.RED:
                         this.hp -= 3;
                         break;
+                    case EggType.SPLASH:
+                        this.hp -= 1;
+                        break;
                     case EggType.GREEN:
                         this.hp -= 1;
                         this.greenCounter = 24;

@@ -843,10 +843,6 @@ export class BarbarianAssault {
                 return Math.max(dx, dy) <= 3;
             });
             candidates.sort((a, b) => {
-                const da = target.position.euclideanDistance(a.position);
-                const db = target.position.euclideanDistance(b.position);
-                if (da !== db)
-                    return da - db;
                 const za = this.cannon.getZoneInfo(a);
                 const zb = this.cannon.getZoneInfo(b);
                 if (za.zone[1] !== zb.zone[1])

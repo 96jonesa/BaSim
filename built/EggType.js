@@ -3,4 +3,5 @@ export var EggType;
     EggType["RED"] = "r";
     EggType["GREEN"] = "g";
     EggType["BLUE"] = "b";
+    EggType["SPLASH"] = "s";
 })(EggType || (EggType = {}));

@@ -35,6 +35,11 @@ export class Cannon {
         }
     }
 
+    public getZoneInfo(npc: RunnerPenance | HealerPenance): { zone: [number, number]; counter: number } {
+        const zoneMap = npc instanceof RunnerPenance ? this.npcZones : this.npcZonesHealer;
+        return zoneMap.get(npc.id) || { zone: [npc.position.x >>> 3, npc.position.y >>> 3], counter: 1 };
+    }
+
     private getTarget(cmd: CannonCommand, barbarianAssault: BarbarianAssault): RunnerPenance | HealerPenance | null {
         const cannonPos = getCannonPosition(cmd.cannon);
         const zoneMap = cmd.penance === PenanceType.RUNNER ? this.npcZones : this.npcZonesHealer;
@@ -136,7 +141,8 @@ export class Cannon {
 
             if (travelTime < 0) continue;
 
-            const egg = new EggQueueItem(travelTime, cmd.eggType, cmd.cannon);
+            const forcedSplashes = cmd.eggType === EggType.RED ? cmd.forcedSplashes : null;
+            const egg = new EggQueueItem(travelTime, cmd.eggType, cmd.cannon, forcedSplashes);
             target.eggQueue.push(egg);
 
             cmd.numEggs--;
@@ -199,11 +205,20 @@ export function parseCannonInput(input: string, secondsMode: boolean = false): A
             return parseInt(value.trim());
         }
 
-        if (tokens.length === 3) {
-            // Full format: "wrr,1,51"
+        function parseForcedSplashes(value: string): number {
+            const v = parseInt(value.trim());
+            if (isNaN(v) || v < 0 || !Number.isInteger(v) || String(v) !== value.trim()) return NaN;
+            return v;
+        }
+
+        const firstIsDescriptor = tokens.length > 0 && /^[a-z]{3}$/i.test(tokens[0].trim());
+
+        if (tokens.length === 4 || (tokens.length === 3 && firstIsDescriptor)) {
+            // Full format: "wrr,1,51" or "wrr,1,51,3"
             const descriptor = tokens[0].trim();
             const numEggs = parseInt(tokens[1].trim());
             const tick = parseTick(tokens[2]);
+            const forcedSplashes = tokens.length === 4 ? parseForcedSplashes(tokens[3]) : null;
 
             if (descriptor.length === 3) {
                 const cannonChar = descriptor[0];
@@ -216,16 +231,23 @@ export function parseCannonInput(input: string, secondsMode: boolean = false): A
             }
 
             if (isNaN(numEggs) || isNaN(tick)) return null;
+            if (forcedSplashes !== null && isNaN(forcedSplashes)) return null;
 
-            commands.push(new CannonCommand(id++, lastCannon, lastPenance, lastEggType, numEggs, tick));
-        } else if (tokens.length === 2) {
-            // Shorthand: "1,51" - inherit cannon/penance/eggType from last
+            const cmd = new CannonCommand(id++, lastCannon, lastPenance, lastEggType, numEggs, tick);
+            cmd.forcedSplashes = forcedSplashes;
+            commands.push(cmd);
+        } else if (tokens.length === 3 || tokens.length === 2) {
+            // Shorthand: "1,51" or "1,51,3" - inherit cannon/penance/eggType from last
             const numEggs = parseInt(tokens[0].trim());
             const tick = parseTick(tokens[1]);
+            const forcedSplashes = tokens.length === 3 ? parseForcedSplashes(tokens[2]) : null;
 
             if (isNaN(numEggs) || isNaN(tick)) return null;
+            if (forcedSplashes !== null && isNaN(forcedSplashes)) return null;
 
-            commands.push(new CannonCommand(id++, lastCannon, lastPenance, lastEggType, numEggs, tick));
+            const cmd = new CannonCommand(id++, lastCannon, lastPenance, lastEggType, numEggs, tick);
+            cmd.forcedSplashes = forcedSplashes;
+            commands.push(cmd);
         } else {
             return null;
         }

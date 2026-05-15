@@ -59,6 +59,12 @@ export class HealerPenance extends Penance {
                             this.poisonHitsplat = true;
                         }
                         break;
+                    case EggType.SPLASH:
+                        if (!this.zombieState) {
+                            this.health -= 1;
+                            this.poisonHitsplat = true;
+                        }
+                        break;
                     case EggType.GREEN:
                         if (!this.zombieState) {
                             this.health -= 1;

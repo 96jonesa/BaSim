@@ -10,6 +10,7 @@ export class CannonCommand {
     public numEggs: number;
     public tick: number;
     public stalled: number = 0;
+    public forcedSplashes: number | null = null;
 
     public constructor(id: number, cannon: CannonSide, penance: PenanceType, eggType: EggType, numEggs: number, tick: number) {
         this.id = id;
@@ -23,6 +24,7 @@ export class CannonCommand {
     public clone(): CannonCommand {
         const cmd = new CannonCommand(this.id, this.cannon, this.penance, this.eggType, this.numEggs, this.tick);
         cmd.stalled = this.stalled;
+        cmd.forcedSplashes = this.forcedSplashes;
         return cmd;
     }
 }

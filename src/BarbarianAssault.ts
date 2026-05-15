@@ -3,6 +3,8 @@ import {Position} from "./Position.js";
 import {BarbarianAssaultMap} from "./BarbarianAssaultMap.js";
 import {RunnerPenance} from "./RunnerPenance.js";
 import {Penance} from "./Penance.js";
+import {EggType} from "./EggType.js";
+import {EggQueueItem} from "./EggQueueItem.js";
 import {DefenderPlayer} from "./DefenderPlayer.js";
 import {RunnerPenanceRng} from "./RunnerPenanceRng.js";
 import {CollectorPlayer} from "./CollectorPlayer.js";
@@ -242,6 +244,7 @@ export class BarbarianAssault {
         this.tickPenance();
         this.removePenance();
         this.cannon.tick(this);
+        this.applyRedEggSplashes();
 
         if (this.ticks > 1 && this.ticks % 10 === 1) {
             this.northwestLogsArePresent = true;
@@ -882,6 +885,57 @@ export class BarbarianAssault {
         allPenance.forEach((p: Penance): void => {
             p.tick(this);
         });
+    }
+
+    private applyRedEggSplashes(): void {
+        const allPenance: Array<RunnerPenance | HealerPenance> = [...this.runners, ...this.healers];
+        allPenance.sort((a, b) => a.penanceId - b.penanceId);
+
+        const arrivingRedEggs: Array<{ target: RunnerPenance | HealerPenance; egg: EggQueueItem }> = [];
+        for (const target of allPenance) {
+            for (const egg of target.eggQueue) {
+                if (egg.type === EggType.RED && egg.stalled === 0) {
+                    arrivingRedEggs.push({ target, egg });
+                }
+            }
+        }
+
+        for (const { target, egg } of arrivingRedEggs) {
+            const candidates: Array<RunnerPenance | HealerPenance> = allPenance.filter(p => {
+                if (p === target) return false;
+                if (p.blueCounter >= 0) return false;
+                const dx = Math.abs(p.position.x - target.position.x);
+                const dy = Math.abs(p.position.y - target.position.y);
+                return Math.max(dx, dy) <= 3;
+            });
+
+            candidates.sort((a, b) => {
+                const da = target.position.euclideanDistance(a.position);
+                const db = target.position.euclideanDistance(b.position);
+                if (da !== db) return da - db;
+                const za = this.cannon.getZoneInfo(a);
+                const zb = this.cannon.getZoneInfo(b);
+                if (za.zone[1] !== zb.zone[1]) return zb.zone[1] - za.zone[1];
+                if (za.zone[0] !== zb.zone[0]) return zb.zone[0] - za.zone[0];
+                if (za.counter !== zb.counter) return za.counter - zb.counter;
+                return b.penanceId - a.penanceId;
+            });
+
+            if (egg.forcedSplashes !== null) {
+                const count = Math.min(egg.forcedSplashes, candidates.length);
+                for (let i = 0; i < count; i++) {
+                    candidates[i].eggQueue.push(new EggQueueItem(0, EggType.SPLASH, egg.cannon));
+                }
+            } else {
+                for (const candidate of candidates) {
+                    if (Math.random() < 0.5) {
+                        candidate.eggQueue.push(new EggQueueItem(0, EggType.SPLASH, egg.cannon));
+                    } else {
+                        break;
+                    }
+                }
+            }
+        }
     }
 
     /**

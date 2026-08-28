@@ -23,6 +23,11 @@ export class AttackerPlayer extends Player {
         } else {
             this.move(barbarianAssault);
         }
+        if (this.deferredFoodPathReinit) {
+            this.deferredFoodPathReinit = false;
+            this.clearPath();
+            this.initializeFoodPath(barbarianAssault);
+        }
     }
 
     /**
@@ -40,6 +45,7 @@ export class AttackerPlayer extends Player {
         attackerPlayer.codeIndex = this.codeIndex;
 
         attackerPlayer.arriveDelay = this.arriveDelay;
+        attackerPlayer.deferredFoodPathReinit = this.deferredFoodPathReinit;
         attackerPlayer.prevPosition = this.prevPosition === null ? null : this.prevPosition.clone();
         attackerPlayer.isRunning = this.isRunning;
         attackerPlayer.pendingSeed = this.pendingSeed;

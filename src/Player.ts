@@ -27,6 +27,7 @@ export abstract class Player extends Character {
     public codeQueue: Array<HealerCodeAction> = [];
     public codeIndex: number = 0;
     public arriveDelay: boolean = false;
+    public deferredFoodPathReinit: boolean = false;
     public prevPosition: Position = null;
     public isRunning: boolean = true;
     public pendingSeed: SeedType = null;
@@ -86,9 +87,21 @@ export abstract class Player extends Character {
         if (this.isCardinalAdjacentTo(healer)) {
             healer.eatFood(barbarianAssault);
             this.codeIndex++;
-            this.arriveDelay = true;
-            this.clearPath();
-            this.initializeFoodPath(barbarianAssault);
+            const movedLastTick = this.prevPosition !== null && !this.position.equals(this.prevPosition);
+            if (movedLastTick) {
+                // We just arrived — rest this tick and set up the path to the
+                // next queued healer for the following ticks.
+                this.arriveDelay = true;
+                this.clearPath();
+                this.initializeFoodPath(barbarianAssault);
+            } else {
+                // We were already sitting adjacent. Recalculate the food path
+                // to the healer we just ate (so this tick's move keeps chasing
+                // it), then after the move the tick handler will clearPath +
+                // initializeFoodPath for the next queued healer.
+                this.recalculateFoodPath(barbarianAssault, healer);
+                this.deferredFoodPathReinit = true;
+            }
         } else if (this.pathDestination === null || this.shouldRecalculatePath()) {
             this.recalculateFoodPath(barbarianAssault, healer);
         }

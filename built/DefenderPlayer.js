@@ -52,6 +52,11 @@ export class DefenderPlayer extends Player {
         if (!this.position.equals(position)) {
             this.ticksStandingStill = 0;
         }
+        if (this.deferredFoodPathReinit) {
+            this.deferredFoodPathReinit = false;
+            this.clearPath();
+            this.initializeFoodPath(barbarianAssault);
+        }
     }
     /**
      * Drops a {@link Food} of the given FoodType at this defender player's current
@@ -233,6 +238,7 @@ export class DefenderPlayer extends Player {
         defenderPlayer.codeQueue = this.codeQueue.map(a => a.clone());
         defenderPlayer.codeIndex = this.codeIndex;
         defenderPlayer.arriveDelay = this.arriveDelay;
+        defenderPlayer.deferredFoodPathReinit = this.deferredFoodPathReinit;
         defenderPlayer.prevPosition = this.prevPosition === null ? null : this.prevPosition.clone();
         defenderPlayer.isRunning = this.isRunning;
         defenderPlayer.pendingSeed = this.pendingSeed;

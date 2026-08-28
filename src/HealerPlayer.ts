@@ -24,6 +24,11 @@ export class HealerPlayer extends Player {
         } else {
             this.move(barbarianAssault);
         }
+        if (this.deferredFoodPathReinit) {
+            this.deferredFoodPathReinit = false;
+            this.clearPath();
+            this.initializeFoodPath(barbarianAssault);
+        }
     }
 
     /**
@@ -41,6 +46,7 @@ export class HealerPlayer extends Player {
         healerPlayer.codeIndex = this.codeIndex;
 
         healerPlayer.arriveDelay = this.arriveDelay;
+        healerPlayer.deferredFoodPathReinit = this.deferredFoodPathReinit;
         healerPlayer.prevPosition = this.prevPosition === null ? null : this.prevPosition.clone();
         healerPlayer.isRunning = this.isRunning;
         healerPlayer.pendingSeed = this.pendingSeed;

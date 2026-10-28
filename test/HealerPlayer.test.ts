@@ -161,6 +161,26 @@ describe("processCodeQueue", (): void => {
     });
 });
 
+// Settings from https://github.com/96jonesa/BaSim/issues/60 (seconds mode): healer 0:37,38 / 46.2:37,37,
+// defender 1.2:45,27, healer spawn 42 targeting the defender; food code h1,1 issued at foodTick
+function makeStepBackBA(foodTick: number): BarbarianAssault {
+    const healerCommands = new Map<number, Array<Command>>();
+    healerCommands.set(1, [new MoveCommand(new Position(37, 38))]);
+    healerCommands.set(78, [new MoveCommand(new Position(37, 37))]);
+    healerCommands.set(foodTick, [new HealerCodeCommand([{healerId: 1, count: 1}])]);
+    const defenderCommands = new Map<number, Array<Command>>();
+    defenderCommands.set(3, [new MoveCommand(new Position(45, 27))]);
+
+    const ba = new BarbarianAssault(10, true, false, true, [], 5,
+        new Map<number, Array<Command>>(), new Map<number, Array<Command>>(),
+        healerCommands, new Map<number, Array<Command>>(), defenderCommands, []);
+    ba.healerSpawnTargets = ["d"];
+    ba.simpleFood = true;
+    ba.healerSpawns = [71];
+
+    return ba;
+}
+
 describe("arrive delay", (): void => {
     function makeBA(): BarbarianAssault {
         return new BarbarianAssault(10, true, false, true, [], 5,
@@ -204,21 +224,8 @@ describe("arrive delay", (): void => {
 
     // https://github.com/96jonesa/BaSim/issues/60
     test("player does not move when food lands after a step back", (): void => {
-        // Settings from the issue (seconds mode): healer 0:37,38 / 46.2:37,37 / 46.8:h1,1,
-        // defender 1.2:45,27, healer spawn 42 targeting the defender
-        const healerCommands = new Map<number, Array<Command>>();
-        healerCommands.set(1, [new MoveCommand(new Position(37, 38))]);
-        healerCommands.set(78, [new MoveCommand(new Position(37, 37))]);
-        healerCommands.set(79, [new HealerCodeCommand([{healerId: 1, count: 1}])]);
-        const defenderCommands = new Map<number, Array<Command>>();
-        defenderCommands.set(3, [new MoveCommand(new Position(45, 27))]);
-
-        const ba = new BarbarianAssault(10, true, false, true, [], 5,
-            new Map<number, Array<Command>>(), new Map<number, Array<Command>>(),
-            healerCommands, new Map<number, Array<Command>>(), defenderCommands, []);
-        ba.healerSpawnTargets = ["d"];
-        ba.simpleFood = true;
-        ba.healerSpawns = [71];
+        // Food clicked on the arrival tick (46.8) is held by arrive delay
+        const ba = makeStepBackBA(79);
 
         while (ba.ticks < 82) {
             ba.tick();
@@ -228,5 +235,23 @@ describe("arrive delay", (): void => {
             // Food registers at 48.0 (tick 81), one tick after arrive delay
             expect(ba.healers.length > 0 && ba.healers[0].isPoisoned).toBe(ba.ticks >= 81);
         }
+    });
+
+    // Verified in game: waiting out the arrive delay before clicking food still chases the healer
+    test("player chases healer when food lands after waiting a tick past the step back", (): void => {
+        // Food clicked a tick after arriving (47.4), once the healer is adjacent
+        const ba = makeStepBackBA(80);
+
+        while (ba.ticks < 82) {
+            ba.tick();
+            if (ba.ticks >= 79 && ba.ticks <= 80) {
+                expect(ba.healerPlayer.position.equals(new Position(37, 37))).toBe(true);
+            }
+            // Food still registers at 48.0 (tick 81)
+            expect(ba.healers.length > 0 && ba.healers[0].isPoisoned).toBe(ba.ticks >= 81);
+        }
+
+        // Player kept following the healer on the tick the food landed
+        expect(ba.healerPlayer.position.equals(new Position(38, 37))).toBe(true);
     });
 });

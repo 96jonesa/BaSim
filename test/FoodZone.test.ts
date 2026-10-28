@@ -6,7 +6,7 @@ import {FoodZone} from "../src/FoodZone.js";
 
 describe("clone", (): void => {
     test("clone is a deep copy", (): void => {
-        const position: Position = null;
+        const position: Position = null!;
         const foodType: FoodType = FoodType.TOFU;
         const isGood: boolean = true;
         const food: Food = new Food(position, foodType, isGood);
@@ -20,7 +20,7 @@ describe("clone", (): void => {
     });
 
     test("clone is a deep copy with null food", (): void => {
-        const food: Food = null;
+        const food: Food = null!;
         const foodList: Array<Food> = [food];
 
         const foodZone: FoodZone = new FoodZone(foodList);

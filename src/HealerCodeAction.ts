@@ -59,7 +59,7 @@ export function assignSpawnPriorities(actions: Array<HealerCodeAction>): void {
             groups.set(action.healerId, []);
             groupOrder.push(action.healerId);
         }
-        groups.get(action.healerId).push(action);
+        groups.get(action.healerId)!.push(action);
     }
 
     // Assign spawn tick to the first action per healer (if not already set)
@@ -71,11 +71,11 @@ export function assignSpawnPriorities(actions: Array<HealerCodeAction>): void {
     }
 
     // Sort groups by the first action's waitUntil
-    groupOrder.sort((a, b) => groups.get(a)[0].waitUntil - groups.get(b)[0].waitUntil);
+    groupOrder.sort((a, b) => groups.get(a)![0].waitUntil - groups.get(b)![0].waitUntil);
 
     // Flatten back into the actions array
     actions.length = 0;
     for (const healerId of groupOrder) {
-        actions.push(...groups.get(healerId));
+        actions.push(...groups.get(healerId)!);
     }
 }

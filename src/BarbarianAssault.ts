@@ -51,12 +51,12 @@ export class BarbarianAssault {
     public runnersToRemove: Array<RunnerPenance> = [];
     public runnersAlive: number = 0;
     public runnersKilled: number = 0;
-    public allRunnersDeadTick: number = null;
+    public allRunnersDeadTick: number | null = null;
     public healersToRemove: Array<HealerPenance> = [];
     public healers: Array<HealerPenance> = [];
     public healersAlive: number = 0;
     public healersKilled: number = 0;
-    public allHealersDeadTick: number = null;
+    public allHealersDeadTick: number | null = null;
     public maxHealersAlive: number;
     public ignoreMaxHealers: boolean = false;
     public totalHealers: number;
@@ -317,15 +317,15 @@ export class BarbarianAssault {
     private checkPathPhasing(prePositions: Map<Player, Position>): void {
         const players = this.allPlayers();
         for (const player of players) {
-            const didMove = !player.position.equals(prePositions.get(player));
+            const didMove = !player.position.equals(prePositions.get(player)!);
             if (didMove) {
                 player.phased = false;
                 continue;
             }
-            const playerPos = prePositions.get(player);
+            const playerPos = prePositions.get(player)!;
             for (const other of players) {
                 if (other === player) continue;
-                const otherStartedHere = prePositions.get(other).equals(playerPos);
+                const otherStartedHere = prePositions.get(other)!.equals(playerPos);
                 const otherSteppedHere = other.pathStepPositions.some(p => p.equals(playerPos));
                 const otherEndedHere = other.position.equals(playerPos);
                 if ((otherStartedHere || otherSteppedHere) && !otherEndedHere) {
@@ -348,10 +348,10 @@ export class BarbarianAssault {
                 player.phased = false;
                 continue;
             }
-            const prePosP = prePositions.get(player);
+            const prePosP = prePositions.get(player)!;
             for (const other of players) {
                 if (other === player) continue;
-                const prePosQ = prePositions.get(other);
+                const prePosQ = prePositions.get(other)!;
                 if (prePosQ.equals(prePosP) && didMove(other)) {
                     player.phased = true;
                     break;
@@ -434,7 +434,7 @@ export class BarbarianAssault {
         }
     }
 
-    private applySeedStep(player: Player, seedType: SeedType, blockedTile: Position): void {
+    private applySeedStep(player: Player, seedType: SeedType, blockedTile: Position | null): void {
         const directions = seedType === "MITHRIL"
             ? [[-1, 0], [1, 0], [0, -1], [0, 1]]   // W, E, S, N
             : [[1, 0], [-1, 0], [0, -1], [0, 1]];   // E, W, S, N
@@ -527,7 +527,7 @@ export class BarbarianAssault {
         }
     }
 
-    private applyJogreBonesStep(player: Player, blockedTile: Position): void {
+    private applyJogreBonesStep(player: Player, blockedTile: Position | null): void {
         const directions = [[-1, 0], [1, 0], [0, -1], [0, 1]]; // W, E, S, N
 
         for (const [dx, dy] of directions) {
@@ -558,7 +558,7 @@ export class BarbarianAssault {
      */
     private executePlayerCommands(): void {
         if (this.mainAttackerCommands.has(this.ticks)) {
-            const commands = this.mainAttackerCommands.get(this.ticks);
+            const commands = this.mainAttackerCommands.get(this.ticks)!;
             const hasMoveCommand = commands.some(c => c instanceof MoveCommand);
             let seedCommandProcessed = false;
             commands.forEach((command: Command): void => {
@@ -601,7 +601,7 @@ export class BarbarianAssault {
         }
 
         if (this.secondAttackerCommands.has(this.ticks)) {
-            const commands = this.secondAttackerCommands.get(this.ticks);
+            const commands = this.secondAttackerCommands.get(this.ticks)!;
             const hasMoveCommand = commands.some(c => c instanceof MoveCommand);
             let seedCommandProcessed = false;
             commands.forEach((command: Command): void => {
@@ -644,7 +644,7 @@ export class BarbarianAssault {
         }
 
         if (this.healerCommands.has(this.ticks)) {
-            const commands = this.healerCommands.get(this.ticks);
+            const commands = this.healerCommands.get(this.ticks)!;
             const hasMoveCommand = commands.some(c => c instanceof MoveCommand);
             let seedCommandProcessed = false;
             commands.forEach((command: Command): void => {
@@ -687,7 +687,7 @@ export class BarbarianAssault {
         }
 
         if (this.collectorCommands.has(this.ticks)) {
-            const commands = this.collectorCommands.get(this.ticks);
+            const commands = this.collectorCommands.get(this.ticks)!;
             const hasMoveCommand = commands.some(c => c instanceof MoveCommand);
             let seedCommandProcessed = false;
             commands.forEach((command: Command): void => {
@@ -730,7 +730,7 @@ export class BarbarianAssault {
         }
 
         if (this.defenderCommands.has(this.ticks)) {
-            const commands = this.defenderCommands.get(this.ticks);
+            const commands = this.defenderCommands.get(this.ticks)!;
             const hasMoveCommand = commands.some(c => c instanceof MoveCommand);
             let seedCommandProcessed = false;
             commands.forEach((command: Command): void => {
@@ -1072,7 +1072,7 @@ export class BarbarianAssault {
             this.defenderCommands,
             this.foodCalls
         );
-        barbarianAssault.map = this.map === null ? null : this.map.clone();
+        barbarianAssault.map = this.map === null ? null! : this.map.clone();
         barbarianAssault.ticks = this.ticks;
         barbarianAssault.wave = this.wave;
         barbarianAssault.maxRunnersAlive = this.maxRunnersAlive;
@@ -1082,40 +1082,40 @@ export class BarbarianAssault {
         barbarianAssault.westTrapCharges = this.westTrapCharges;
         barbarianAssault.northwestLogsArePresent = this.northwestLogsArePresent;
         barbarianAssault.southeastLogsArePresent = this.southeastLogsArePresent;
-        barbarianAssault.eastTrapPosition = this.eastTrapPosition === null ? null : this.eastTrapPosition.clone();
-        barbarianAssault.westTrapPosition = this.westTrapPosition === null ? null : this.westTrapPosition.clone();
+        barbarianAssault.eastTrapPosition = this.eastTrapPosition === null ? null! : this.eastTrapPosition.clone();
+        barbarianAssault.westTrapPosition = this.westTrapPosition === null ? null! : this.westTrapPosition.clone();
         barbarianAssault.runnersToRemove = [];
         for (let i: number = 0; i < this.runnersToRemove.length; i++) {
-            barbarianAssault.runnersToRemove.push(this.runnersToRemove[i] === null ? null : this.runnersToRemove[i].clone());
+            barbarianAssault.runnersToRemove.push(this.runnersToRemove[i] === null ? null! : this.runnersToRemove[i].clone());
         }
         barbarianAssault.runnersAlive = this.runnersAlive;
         barbarianAssault.runnersKilled = this.runnersKilled;
         barbarianAssault.allRunnersDeadTick = this.allRunnersDeadTick;
         barbarianAssault.healersToRemove = [];
         for (let i: number = 0; i < this.healersToRemove.length; i++) {
-            barbarianAssault.healersToRemove.push(this.healersToRemove[i] === null ? null : this.healersToRemove[i].clone());
+            barbarianAssault.healersToRemove.push(this.healersToRemove[i] === null ? null! : this.healersToRemove[i].clone());
         }
         barbarianAssault.healers = [];
         for (let i: number = 0; i < this.healers.length; i++) {
-            barbarianAssault.healers.push(this.healers[i] === null ? null : this.healers[i].clone());
+            barbarianAssault.healers.push(this.healers[i] === null ? null! : this.healers[i].clone());
         }
         barbarianAssault.healersAlive = this.healersAlive;
         barbarianAssault.healersKilled = this.healersKilled;
         barbarianAssault.allHealersDeadTick = this.allHealersDeadTick;
         barbarianAssault.currentHealerId = this.currentHealerId;
         barbarianAssault.foodCallsIndex = this.foodCallsIndex;
-        barbarianAssault.collectorPlayer = this.collectorPlayer === null ? null : this.collectorPlayer.clone();
-        barbarianAssault.defenderPlayer = this.defenderPlayer === null ? null : this.defenderPlayer.clone();
-        barbarianAssault.mainAttackerPlayer = this.mainAttackerPlayer === null ? null : this.mainAttackerPlayer.clone();
-        barbarianAssault.secondAttackerPlayer = this.secondAttackerPlayer === null ? null : this.secondAttackerPlayer.clone();
-        barbarianAssault.healerPlayer = this.healerPlayer === null ? null : this.healerPlayer.clone();
+        barbarianAssault.collectorPlayer = this.collectorPlayer === null ? null! : this.collectorPlayer.clone();
+        barbarianAssault.defenderPlayer = this.defenderPlayer === null ? null! : this.defenderPlayer.clone();
+        barbarianAssault.mainAttackerPlayer = this.mainAttackerPlayer === null ? null! : this.mainAttackerPlayer.clone();
+        barbarianAssault.secondAttackerPlayer = this.secondAttackerPlayer === null ? null! : this.secondAttackerPlayer.clone();
+        barbarianAssault.healerPlayer = this.healerPlayer === null ? null! : this.healerPlayer.clone();
         barbarianAssault.requireRepairs = this.requireRepairs;
         barbarianAssault.requireLogs = this.requireLogs;
         barbarianAssault.infiniteFood = this.infiniteFood;
         barbarianAssault.ignoreMaxHealers = this.ignoreMaxHealers;
         barbarianAssault.runners = [];
         for (let i: number = 0; i < this.runners.length; i++) {
-            barbarianAssault.runners.push(this.runners[i] === null ? null : this.runners[i].clone());
+            barbarianAssault.runners.push(this.runners[i] === null ? null! : this.runners[i].clone());
         }
         // Re-link runner foodTargets to the cloned map's food objects
         for (const runner of barbarianAssault.runners) {

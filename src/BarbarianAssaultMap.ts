@@ -256,7 +256,7 @@ export class BarbarianAssaultMap {
         barbarianAssaultMap.height = this.height;
         barbarianAssaultMap.foodZones = [];
         for (let i: number = 0; i < this.foodZones.length; i++) {
-            barbarianAssaultMap.foodZones.push(this.foodZones[i] === null ? null : this.foodZones[i].clone());
+            barbarianAssaultMap.foodZones.push(this.foodZones[i] === null ? null! : this.foodZones[i].clone());
         }
         barbarianAssaultMap.foodZonesWidth = this.foodZonesWidth;
         barbarianAssaultMap.foodZonesHeight = this.foodZonesHeight;

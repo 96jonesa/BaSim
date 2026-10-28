@@ -38,7 +38,7 @@ export class HealerPlayer extends Player {
      */
     public clone(): HealerPlayer {
         let healerPlayer: HealerPlayer = new HealerPlayer(this.position);
-        healerPlayer.position = this.position === null ? null : this.position.clone();
+        healerPlayer.position = this.position === null ? null! : this.position.clone();
         healerPlayer.checkpoints = this.checkpoints.map(p => p.clone());
         healerPlayer.checkpointIndex = this.checkpointIndex;
         healerPlayer.pathDestination = this.pathDestination === null ? null : this.pathDestination.clone();

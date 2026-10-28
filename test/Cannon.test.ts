@@ -44,7 +44,7 @@ describe("parseCannonInput", (): void => {
     });
 
     test("parses full format wrr,1,51", (): void => {
-        const cmds = parseCannonInput("wrr,1,51");
+        const cmds = parseCannonInput("wrr,1,51")!;
         expect(cmds).not.toBeNull();
         expect(cmds.length).toBe(1);
         expect(cmds[0].cannon).toBe(CannonSide.WEST);
@@ -55,7 +55,7 @@ describe("parseCannonInput", (): void => {
     });
 
     test("parses east cannon healer green egg", (): void => {
-        const cmds = parseCannonInput("ehg,3,20");
+        const cmds = parseCannonInput("ehg,3,20")!;
         expect(cmds).not.toBeNull();
         expect(cmds[0].cannon).toBe(CannonSide.EAST);
         expect(cmds[0].penance).toBe(PenanceType.HEALER);
@@ -65,12 +65,12 @@ describe("parseCannonInput", (): void => {
     });
 
     test("parses blue egg", (): void => {
-        const cmds = parseCannonInput("wrb,1,10");
+        const cmds = parseCannonInput("wrb,1,10")!;
         expect(cmds[0].eggType).toBe(EggType.BLUE);
     });
 
     test("parses multiple commands separated by -", (): void => {
-        const cmds = parseCannonInput("wrr,1,11-ehg,2,21");
+        const cmds = parseCannonInput("wrr,1,11-ehg,2,21")!;
         expect(cmds).not.toBeNull();
         expect(cmds.length).toBe(2);
         expect(cmds[0].cannon).toBe(CannonSide.WEST);
@@ -82,7 +82,7 @@ describe("parseCannonInput", (): void => {
     });
 
     test("shorthand inherits from previous command", (): void => {
-        const cmds = parseCannonInput("wrr,1,11-2,21");
+        const cmds = parseCannonInput("wrr,1,11-2,21")!;
         expect(cmds).not.toBeNull();
         expect(cmds.length).toBe(2);
         expect(cmds[1].cannon).toBe(CannonSide.WEST);
@@ -100,7 +100,7 @@ describe("parseCannonInput", (): void => {
     });
 
     test("commands get sequential ids", (): void => {
-        const cmds = parseCannonInput("wrr,1,11-2,21-ehg,1,31");
+        const cmds = parseCannonInput("wrr,1,11-2,21-ehg,1,31")!;
         expect(cmds[0].id).toBe(0);
         expect(cmds[1].id).toBe(1);
         expect(cmds[2].id).toBe(2);

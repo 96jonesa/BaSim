@@ -28,7 +28,7 @@ export class Food {
      */
     public clone(): Food {
         let food: Food = new Food(this.position, this.type, this.isGood);
-        food.position = this.position === null ? null : this.position.clone();
+        food.position = this.position === null ? null! : this.position.clone();
         food.type = this.type;
         food.isGood = this.isGood;
         food.colorRed = this.colorRed;

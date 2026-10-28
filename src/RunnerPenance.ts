@@ -15,11 +15,11 @@ import {getCannonPosition} from "./CannonPositions.js";
 export class RunnerPenance extends Penance {
     public cycleTick: number = 1;
     public targetState: number = 0;
-    public foodTarget: Food = null;
+    public foodTarget: Food | null = null;
     public chat: string = "";
     public blughhhhCountdown: number = 0;
     public ticksStandingStill: number = 0;
-    public despawnCountdown: number = null;
+    public despawnCountdown: number | null = null;
     public isDying: boolean = false;
     public diedThisTick: boolean = false;
     public rng: RunnerPenanceRng;
@@ -54,7 +54,7 @@ export class RunnerPenance extends Penance {
                         break;
                     case EggType.BLUE:
                         this.eggQueue.length = 0;
-                        const deathCountdown = this.diedThisTick ? this.despawnCountdown - 1 : this.despawnCountdown;
+                        const deathCountdown = this.diedThisTick ? this.despawnCountdown! - 1 : this.despawnCountdown;
                         if (this.isDying && this.despawnCountdown === null) {
                             this.cycleTick--;
                             if (this.cycleTick < 1) {
@@ -261,7 +261,7 @@ export class RunnerPenance extends Penance {
         const endXZone: number = Math.max(xZone - 1, 0);
         const endYZone: number = Math.max(yZone - 1, 0);
 
-        let firstFoodFound: Food = null;
+        let firstFoodFound: Food | null = null;
 
         for (let x: number = Math.min(xZone + 1, barbarianAssault.map.foodZonesWidth - 1); x >= endXZone; x--) {
             for (let y: number = Math.min(yZone + 1, barbarianAssault.map.foodZonesHeight - 1); y >= endYZone; y--) {
@@ -581,8 +581,8 @@ export class RunnerPenance extends Penance {
      */
     public clone(): RunnerPenance {
         let runnerPenance: RunnerPenance = new RunnerPenance(this.position, this.rng, this.id, this.sniffDistance, this.penanceId);
-        runnerPenance.position = this.position === null ? null : this.position.clone();
-        runnerPenance.destination = this.destination === null ? null : this.destination.clone();
+        runnerPenance.position = this.position === null ? null! : this.position.clone();
+        runnerPenance.destination = this.destination === null ? null! : this.destination.clone();
         runnerPenance.cycleTick = this.cycleTick;
         runnerPenance.targetState = this.targetState;
         runnerPenance.foodTarget = this.foodTarget === null ? null : this.foodTarget.clone();
@@ -592,7 +592,7 @@ export class RunnerPenance extends Penance {
         runnerPenance.despawnCountdown = this.despawnCountdown;
         runnerPenance.isDying = this.isDying;
         runnerPenance.diedThisTick = this.diedThisTick;
-        runnerPenance.rng = this.rng === null ? null : this.rng.clone();
+        runnerPenance.rng = this.rng === null ? null! : this.rng.clone();
         runnerPenance.id = this.id;
         runnerPenance.forcedMovementsIndex = this.forcedMovementsIndex;
         runnerPenance.sniffDistance = this.sniffDistance;

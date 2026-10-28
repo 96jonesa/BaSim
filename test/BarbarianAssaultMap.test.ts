@@ -242,7 +242,7 @@ describe("clone", (): void => {
 
         barbarianAssaultMap.addFood(new Food(new Position(0, 0), FoodType.TOFU, true));
 
-        barbarianAssaultMap.foodZones[1] = null;
+        barbarianAssaultMap.foodZones[1] = null!;
 
         const barbarianAssaultMapClone: BarbarianAssaultMap = barbarianAssaultMap.clone();
 

@@ -37,7 +37,7 @@ export class CollectorPlayer extends Player {
      */
     public clone(): CollectorPlayer {
         let collectorPlayer: CollectorPlayer = new CollectorPlayer(this.position);
-        collectorPlayer.position = this.position === null ? null : this.position.clone();
+        collectorPlayer.position = this.position === null ? null! : this.position.clone();
         collectorPlayer.checkpoints = this.checkpoints.map(p => p.clone());
         collectorPlayer.checkpointIndex = this.checkpointIndex;
         collectorPlayer.pathDestination = this.pathDestination === null ? null : this.pathDestination.clone();

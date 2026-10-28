@@ -15,11 +15,11 @@ import {CannonSide} from "./CannonSide.js";
  */
 export class HealerPenance extends Penance {
     public spawnPosition: Position;
-    public target: Character = null;
-    public previousTargetType: HealerTargetType = null;
+    public target: Character | null = null;
+    public previousTargetType: HealerTargetType | null = null;
     public sprayTimer: number = 0;
     public isDying: boolean = false;
-    public despawnCountdown: number = null;
+    public despawnCountdown: number | null = null;
     public id: number;
 
     // health/poison-related
@@ -37,7 +37,7 @@ export class HealerPenance extends Penance {
     public greenCounter: number = -1;
     public zombieState: boolean = false;
     public forcedTarget: string = "";
-    public drawnPosition: Position = null;
+    public drawnPosition: Position | null = null;
 
     public constructor(position: Position, maxHealth: number, spawnTick: number, id: number, penanceId: number) {
         super(position, penanceId);
@@ -418,7 +418,7 @@ export class HealerPenance extends Penance {
      * @private
      */
     private tryToSprayRunner(barbarianAssault: BarbarianAssault): boolean {
-        if (this.position.equals(this.position.closestAdjacentPosition(this.target.position))) {
+        if (this.position.equals(this.position.closestAdjacentPosition(this.target!.position))) {
             this.previousTargetType = HealerTargetType.RUNNER;
             this.target = null;
             this.sprayTimer = 0;
@@ -437,7 +437,7 @@ export class HealerPenance extends Penance {
      * @private
      */
     private tryToSprayPlayer(barbarianAssault: BarbarianAssault): boolean {
-        if (this.position.equals(this.position.closestAdjacentPosition(this.target.position)) && barbarianAssault.map.hasLineOfSight(this.position, this.target.position, 15)) {
+        if (this.position.equals(this.position.closestAdjacentPosition(this.target!.position)) && barbarianAssault.map.hasLineOfSight(this.position, this.target!.position, 15)) {
             this.previousTargetType = HealerTargetType.PLAYER;
             this.target = null;
             this.sprayTimer = 0;
@@ -487,7 +487,7 @@ export class HealerPenance extends Penance {
      */
     public clone(): HealerPenance {
         let healerPenance: HealerPenance = new HealerPenance(this.position.clone(), this.maxHealth, this.spawnTick, this.id, this.penanceId);
-        healerPenance.spawnPosition = this.spawnPosition === null ? null : this.spawnPosition.clone();
+        healerPenance.spawnPosition = this.spawnPosition === null ? null! : this.spawnPosition.clone();
         healerPenance.target = this.target === null ? null : this.target.clone();
         healerPenance.previousTargetType = this.previousTargetType;
         healerPenance.sprayTimer = this.sprayTimer;
@@ -507,7 +507,7 @@ export class HealerPenance extends Penance {
         healerPenance.blueCounter = this.blueCounter;
         healerPenance.greenCounter = this.greenCounter;
         healerPenance.zombieState = this.zombieState;
-        healerPenance.destination = this.destination === null ? null : this.destination.clone();
+        healerPenance.destination = this.destination === null ? null! : this.destination.clone();
         healerPenance.forcedTarget = this.forcedTarget;
         healerPenance.drawnPosition = this.drawnPosition === null ? null : this.drawnPosition.clone();
 

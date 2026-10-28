@@ -169,7 +169,7 @@ export class Cannon {
     }
 }
 
-export function parseCannonInput(input: string, secondsMode: boolean = false): Array<CannonCommand> {
+export function parseCannonInput(input: string, secondsMode: boolean = false): Array<CannonCommand> | null {
     if (input.trim() === "") return [];
 
     const commands: Array<CannonCommand> = [];

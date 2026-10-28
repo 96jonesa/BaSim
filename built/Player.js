@@ -23,6 +23,8 @@ export class Player extends Character {
         this.codeQueue = [];
         this.codeIndex = 0;
         this.arriveDelay = false;
+        this.foodDelayedByArrival = false;
+        this.arrivedLastMove = false;
         this.deferredFoodPathReinit = false;
         this.prevPosition = null;
         this.isRunning = true;
@@ -49,6 +51,7 @@ export class Player extends Character {
     clearCodeQueue() {
         this.codeQueue = [];
         this.codeIndex = 0;
+        this.foodDelayedByArrival = false;
     }
     clearPath() {
         this.pathDestination = null;
@@ -57,6 +60,8 @@ export class Player extends Character {
         this.checkpointIndex = 0;
     }
     processCodeQueue(barbarianAssault) {
+        const foodDelayedByArrival = this.foodDelayedByArrival;
+        this.foodDelayedByArrival = false;
         if (this.codeIndex >= this.codeQueue.length) {
             return;
         }
@@ -73,9 +78,10 @@ export class Player extends Character {
             healer.eatFood(barbarianAssault);
             this.codeIndex++;
             const movedLastTick = this.prevPosition !== null && !this.position.equals(this.prevPosition);
-            if (movedLastTick) {
-                // We just arrived — rest this tick and set up the path to the
-                // next queued healer for the following ticks.
+            if (movedLastTick || foodDelayedByArrival) {
+                // We just arrived (or just sat out the arrive delay) — rest this
+                // tick and set up the path to the next queued healer for the
+                // following ticks.
                 this.arriveDelay = true;
                 this.clearPath();
                 this.initializeFoodPath(barbarianAssault);
@@ -88,6 +94,14 @@ export class Player extends Character {
                 this.recalculateFoodPath(barbarianAssault, healer);
                 this.deferredFoodPathReinit = true;
             }
+        }
+        else if (this.arrivedLastMove && this.isCardinalAdjacentToPosition(this.position, healer.position)) {
+            // Within reach of the healer's true tile, but we arrived last tick, so
+            // arrive delay holds off the food: stand still this tick and use it
+            // next tick without moving.
+            this.foodDelayedByArrival = true;
+            this.arriveDelay = true;
+            this.clearPath();
         }
         else if (this.pathDestination === null || this.shouldRecalculatePath()) {
             this.recalculateFoodPath(barbarianAssault, healer);
@@ -375,6 +389,7 @@ export class Player extends Character {
      */
     move(barbarianAssault) {
         this.pathStepPositions = [];
+        this.arrivedLastMove = false;
         const steps = (this.isRunning && !this.seedMovedThisTick) ? 2 : 1;
         for (let s = 0; s < steps; s++) {
             if (this.pathDestination === null)
@@ -393,6 +408,7 @@ export class Player extends Character {
             }
             if (this.checkpointIndex >= this.checkpoints.length && this.position.equals(this.pathDestination)) {
                 this.clearPath();
+                this.arrivedLastMove = true;
                 break;
             }
         }

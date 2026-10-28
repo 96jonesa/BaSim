@@ -45,6 +45,8 @@ export class AttackerPlayer extends Player {
         attackerPlayer.codeIndex = this.codeIndex;
 
         attackerPlayer.arriveDelay = this.arriveDelay;
+        attackerPlayer.foodDelayedByArrival = this.foodDelayedByArrival;
+        attackerPlayer.arrivedLastMove = this.arrivedLastMove;
         attackerPlayer.deferredFoodPathReinit = this.deferredFoodPathReinit;
         attackerPlayer.prevPosition = this.prevPosition === null ? null : this.prevPosition.clone();
         attackerPlayer.isRunning = this.isRunning;

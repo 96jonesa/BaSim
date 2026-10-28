@@ -46,6 +46,8 @@ export class HealerPlayer extends Player {
         healerPlayer.codeIndex = this.codeIndex;
 
         healerPlayer.arriveDelay = this.arriveDelay;
+        healerPlayer.foodDelayedByArrival = this.foodDelayedByArrival;
+        healerPlayer.arrivedLastMove = this.arrivedLastMove;
         healerPlayer.deferredFoodPathReinit = this.deferredFoodPathReinit;
         healerPlayer.prevPosition = this.prevPosition === null ? null : this.prevPosition.clone();
         healerPlayer.isRunning = this.isRunning;

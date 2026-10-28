@@ -268,9 +268,9 @@ function init(): void {
     toggleRenderDistance = document.getElementById(HTML_TOGGLE_RENDER_DISTANCE) as HTMLInputElement;
     toggleIgnoreMaxHealers = document.getElementById(HTML_TOGGLE_IGNORE_MAX_HEALERS) as HTMLInputElement;
     toggleSeedQueuePath = document.getElementById(HTML_TOGGLE_SEED_QUEUE_PATH) as HTMLInputElement;
-    tickCountSpan = document.getElementById(HTML_TICK_COUNT);
-    allDeadTimesSpan = document.getElementById("alldeadtimes");
-    currentDefenderFoodSpan = document.getElementById(HTML_CURRENT_DEF_FOOD);
+    tickCountSpan = document.getElementById(HTML_TICK_COUNT) as HTMLElement;
+    allDeadTimesSpan = document.getElementById("alldeadtimes") as HTMLElement;
+    currentDefenderFoodSpan = document.getElementById(HTML_CURRENT_DEF_FOOD) as HTMLElement;
     markerColorInput = document.getElementById(HTML_MARKER_COLOR) as HTMLInputElement;
     renderer = new Renderer(canvas, 48 * 12, 48 * 12, 12, 8);
     for (const type of ["r", "g", "b"]) {
@@ -289,14 +289,14 @@ function init(): void {
         simpleFood = !simpleFood;
         toggleSimpleFoodButton.innerHTML = simpleFood ? "Disable simple food" : "Enable simple food";
         const display = simpleFood ? "none" : "";
-        document.getElementById(HTML_FOOD_CALLS_ROW).style.display = display;
-        document.getElementById(HTML_INFINITE_FOOD_ROW).style.display = display;
-        document.getElementById(HTML_CURRENT_FOOD_ROW).style.display = display;
-        document.getElementById("hotkeylegend-normal").style.display = display;
-        document.getElementById("hotkeylegend-simple").style.display = simpleFood ? "" : "none";
-        document.getElementById("tclegend-normal").style.display = display;
-        document.getElementById("tclegend-simple").style.display = simpleFood ? "" : "none";
-        const tip = document.getElementById("teamcommandstip");
+        (document.getElementById(HTML_FOOD_CALLS_ROW) as HTMLElement).style.display = display;
+        (document.getElementById(HTML_INFINITE_FOOD_ROW) as HTMLElement).style.display = display;
+        (document.getElementById(HTML_CURRENT_FOOD_ROW) as HTMLElement).style.display = display;
+        (document.getElementById("hotkeylegend-normal") as HTMLElement).style.display = display;
+        (document.getElementById("hotkeylegend-simple") as HTMLElement).style.display = simpleFood ? "" : "none";
+        (document.getElementById("tclegend-normal") as HTMLElement).style.display = display;
+        (document.getElementById("tclegend-simple") as HTMLElement).style.display = simpleFood ? "" : "none";
+        const tip = document.getElementById("teamcommandstip") as HTMLElement;
         const baseTip = "Enter commands as tick:x,y per line to move a player to (x,y) at that tick. e.g. 5:20,21. Multiple commands per tick allowed.\n\n";
         const defTip = simpleFood
             ? "Defender actions: tick:r/w/e/l/t performs that key action at the specified tick. tick:e,x,y picks up any food at (x,y).\n\n"
@@ -339,7 +339,7 @@ function init(): void {
     playerSelect = document.getElementById(HTML_PLAYER_SELECT) as HTMLInputElement;
     playerSelect.onchange = playerSelectOnChange;
     player = playerSelect.value;
-    controlledCommands = document.getElementById(HTML_CONTROLLED_COMMANDS);
+    controlledCommands = document.getElementById(HTML_CONTROLLED_COMMANDS) as HTMLElement;
     runnerMovementsToCheckInput = document.getElementById(HTML_RUNNER_MOVEMENTS_TO_CHECK) as HTMLTextAreaElement;
     runnerMovementsToCheckInput.onchange = runnerMovementsToCheckInputOnChange;
     cannonQueueInput = document.getElementById(HTML_CANNON_QUEUE) as HTMLInputElement;
@@ -375,7 +375,7 @@ function init(): void {
     runnersDeadByTickInput.onchange = runnersDeadByTickInputOnChange;
     simulateButton = document.getElementById(HTML_SIMULATE) as HTMLButtonElement;
     simulateButton.onclick = simulateButtonOnClick;
-    runnersDoNotDieWithMovements = document.getElementById(HTML_RUNNERS_DO_NOT_DIE_WITH_MOVEMENTS);
+    runnersDoNotDieWithMovements = document.getElementById(HTML_RUNNERS_DO_NOT_DIE_WITH_MOVEMENTS) as HTMLElement;
 
     const darkModeToggle = document.getElementById(HTML_TOGGLE_DARK_MODE) as HTMLInputElement;
     const savedDarkMode = localStorage.getItem("mclovin-ba-sim-dark-mode");
@@ -470,11 +470,11 @@ function reset(): void {
         infiniteFood,
         [],
         defenderLevel,
-        player === "mainattacker" ? new Map<number, Array<Command>> : getTeamCommandsForPlayer("mainattacker"),
-        player === "secondattacker" ? new Map<number, Array<Command>> : getTeamCommandsForPlayer("secondattacker"),
-        player === "healer" ? new Map<number, Array<Command>> : getTeamCommandsForPlayer("healer"),
-        player === "collector" ? new Map<number, Array<Command>> : getTeamCommandsForPlayer("collector"),
-        player === "defender" ? new Map<number, Array<Command>> : getTeamCommandsForPlayer("defender"),
+        player === "mainattacker" ? new Map<number, Array<Command>> : getTeamCommandsForPlayer("mainattacker")!,
+        player === "secondattacker" ? new Map<number, Array<Command>> : getTeamCommandsForPlayer("secondattacker")!,
+        player === "healer" ? new Map<number, Array<Command>> : getTeamCommandsForPlayer("healer")!,
+        player === "collector" ? new Map<number, Array<Command>> : getTeamCommandsForPlayer("collector")!,
+        player === "defender" ? new Map<number, Array<Command>> : getTeamCommandsForPlayer("defender")!,
         []
     );
     barbarianAssault.ignoreMaxHealers = toggleIgnoreMaxHealers.checked;
@@ -489,7 +489,7 @@ function reset(): void {
  * @return  a list of per-runner movements strings if the entire runner movements configuration
  *          is valid (i.e. contains only valid characters in the expected format), otherwise null
  */
-function parseMovementsInput(): Array<string> {
+function parseMovementsInput(): Array<string> | null {
     const movements: Array<string> = movementsInput.value.split("-");
 
     for (let i: number = 0; i < movements.length; i++) {
@@ -531,7 +531,7 @@ function isValidMovementPattern(pattern: string): boolean {
     return true;
 }
 
-function parseRunnerMovementsToCheck(): Array<Array<string>> {
+function parseRunnerMovementsToCheck(): Array<Array<string>> | null {
     const lines: Array<string> = runnerMovementsToCheckInput.value.split("\n").filter(line => line.trim() !== "");
 
     if (lines.length === 0) {
@@ -555,7 +555,7 @@ function parseRunnerMovementsToCheck(): Array<Array<string>> {
     return result;
 }
 
-function parseFoodCallsInput(): Array<FoodType> {
+function parseFoodCallsInput(): Array<FoodType> | null {
     const foodCalls: Array<FoodType> = [];
 
     const foodCallsString: string = foodCallsInput.value;
@@ -651,7 +651,7 @@ function convertSpawnsInputToTicks(value: string): Array<number> | null {
     return spawns;
 }
 
-function getControlledPlayerObject(): Player {
+function getControlledPlayerObject(): Player | null {
     switch (player) {
         case "defender": return barbarianAssault.defenderPlayer;
         case "mainattacker": return barbarianAssault.mainAttackerPlayer;
@@ -1576,32 +1576,32 @@ function startStopButtonOnClick(): void {
         barbarianAssault.map.reset();
         reset();
     } else {
-        const movements: Array<string> = parseMovementsInput();
+        const movements: Array<string> | null = parseMovementsInput();
 
         if (movements === null) {
             alert("Invalid runner movements. Example: ws-s");
             return;
         }
 
-        const foodCalls: Array<FoodType> = simpleFood ? [] : parseFoodCallsInput();
+        const foodCalls: Array<FoodType> | null = simpleFood ? [] : parseFoodCallsInput();
 
         if (foodCalls === null) {
             alert("Invalid food calls. Example: twcw");
             return;
         }
 
-        const mainAttackerCommands: Map<number, Array<Command>> = getTeamCommandsForPlayer("mainattacker");
-        const secondAttackerCommands: Map<number, Array<Command>> = getTeamCommandsForPlayer("secondattacker");
-        const healerCommands: Map<number, Array<Command>> = getTeamCommandsForPlayer("healer");
-        const collectorCommands: Map<number, Array<Command>> = getTeamCommandsForPlayer("collector");
-        const defenderCommands: Map<number, Array<Command>> = getTeamCommandsForPlayer("defender");
+        const mainAttackerCommands: Map<number, Array<Command>> | null = getTeamCommandsForPlayer("mainattacker");
+        const secondAttackerCommands: Map<number, Array<Command>> | null = getTeamCommandsForPlayer("secondattacker");
+        const healerCommands: Map<number, Array<Command>> | null = getTeamCommandsForPlayer("healer");
+        const collectorCommands: Map<number, Array<Command>> | null = getTeamCommandsForPlayer("collector");
+        const defenderCommands: Map<number, Array<Command>> | null = getTeamCommandsForPlayer("defender");
 
         if (mainAttackerCommands === null || secondAttackerCommands === null || healerCommands === null || collectorCommands === null || defenderCommands === null) {
             alert("Invalid team commands. Example: 7:20,24");
             return;
         }
 
-        const cannonQueue: Array<CannonCommand> = parseCannonInput(cannonQueueInput.value, useSeconds());
+        const cannonQueue: Array<CannonCommand> | null = parseCannonInput(cannonQueueInput.value, useSeconds());
 
         if (cannonQueue === null) {
             alert("Invalid cannon queue. Example: wrr,1,51-erg,1,21");
@@ -1704,14 +1704,14 @@ function simulateButtonOnClick(): void {
         reset();
     }
 
-    const allRunnerMovementsToCheck: Array<Array<string>> = parseRunnerMovementsToCheck();
+    const allRunnerMovementsToCheck: Array<Array<string>> | null = parseRunnerMovementsToCheck();
 
     if (allRunnerMovementsToCheck === null) {
         alert("Invalid runner movements to check. Example: ws-x-ex or [sw]e-w-s");
         return;
     }
 
-    const foodCalls: Array<FoodType> = parseFoodCallsInput();
+    const foodCalls: Array<FoodType> | null = parseFoodCallsInput();
 
     if (foodCalls === null) {
         alert("Invalid food calls. Example: twcw");
@@ -2048,10 +2048,10 @@ function importSettings(): void {
             secondsMode = !!s.secondsMode;
             toggleSecondsButton.innerHTML = secondsMode ? "Express time in ticks" : "Express time in seconds";
             startTickInput.placeholder = secondsMode ? "0" : "1";
-            document.getElementById("startticklabel").innerHTML = secondsMode ? "Start time" : "Start tick";
+            (document.getElementById("startticklabel") as HTMLElement).innerHTML = secondsMode ? "Start time" : "Start tick";
             runnerSpawnsInput.placeholder = secondsMode ? "6,12,18" : "11,21,31";
             healerSpawnsInput.placeholder = secondsMode ? "6,12,18" : "11,21,31";
-            document.getElementById("runnersdeadbylabel").innerHTML = secondsMode ? "Runners dead by time" : "Runners dead by tick";
+            (document.getElementById("runnersdeadbylabel") as HTMLElement).innerHTML = secondsMode ? "Runners dead by time" : "Runners dead by tick";
             runnersDeadByTickInput.placeholder = secondsMode ? "24.6" : "42";
             const prefixSpans = document.getElementsByClassName("tc-prefix");
             for (let i = 0; i < prefixSpans.length; i++) {
@@ -2362,10 +2362,10 @@ function toggleSecondsOnClick(): void {
     secondsMode = toSeconds;
     toggleSecondsButton.innerHTML = secondsMode ? "Express time in ticks" : "Express time in seconds";
     startTickInput.placeholder = secondsMode ? "0" : "1";
-    document.getElementById("startticklabel").innerHTML = secondsMode ? "Start time" : "Start tick";
+    (document.getElementById("startticklabel") as HTMLElement).innerHTML = secondsMode ? "Start time" : "Start tick";
     runnerSpawnsInput.placeholder = secondsMode ? "6,12,18" : "11,21,31";
     healerSpawnsInput.placeholder = secondsMode ? "6,12,18" : "11,21,31";
-    document.getElementById("runnersdeadbylabel").innerHTML = secondsMode ? "Runners dead by time" : "Runners dead by tick";
+    (document.getElementById("runnersdeadbylabel") as HTMLElement).innerHTML = secondsMode ? "Runners dead by time" : "Runners dead by tick";
     runnersDeadByTickInput.placeholder = secondsMode ? "24.6" : "42";
     const prefixSpans = document.getElementsByClassName("tc-prefix");
     for (let i = 0; i < prefixSpans.length; i++) {
@@ -2464,7 +2464,7 @@ function toggleLogToRepairOnChange(): void {
  *                          the given commands string, or null if the given
  *                          commands string is invalid
  */
-function convertCommandsStringToMap(commandsString: string, player: string): Map<number, Array<Command>> {
+function convertCommandsStringToMap(commandsString: string, player: string): Map<number, Array<Command>> | null {
     if (commandsString === null) {
         return null;
     }
@@ -2488,7 +2488,7 @@ function convertCommandsStringToMap(commandsString: string, player: string): Map
             return null;
         }
 
-        let tick: number;
+        let tick: number | null;
         if (useSeconds()) {
             const seconds = parseFloat(tickAndCommand[0]);
             if (isNaN(seconds)) {
@@ -2524,7 +2524,7 @@ function convertCommandsStringToMap(commandsString: string, player: string): Map
             const pairs = tickAndCommand[1].split("-");
             const entries: Array<{ healerId: number; count: number }> = [];
             for (const pair of pairs) {
-                const m = pair.match(/^h(\d+),(\d+)$/);
+                const m = pair.match(/^h(\d+),(\d+)$/)!;
                 const healerId = parseInt(m[1]);
                 const count = parseInt(m[2]);
                 if (healerId < 1 || count < 1) {
@@ -2656,7 +2656,7 @@ function convertCommandsStringToMap(commandsString: string, player: string): Map
 
 function addToCommandsMap(commandsMap: Map<number, Array<Command>>, tick: number, command: Command): void {
     if (commandsMap.has(tick)) {
-        commandsMap.get(tick).push(command);
+        commandsMap.get(tick)!.push(command);
     } else {
         commandsMap.set(tick, [command]);
     }
@@ -2694,7 +2694,7 @@ function runnersDieOnTimeForMovements(
     collectorCommands: Map<number, Array<Command>>,
     defenderCommands: Map<number, Array<Command>>
 ): boolean {
-    const cannonQueue: Array<CannonCommand> = parseCannonInput(cannonQueueInput.value, useSeconds());
+    const cannonQueue: Array<CannonCommand> | null = parseCannonInput(cannonQueueInput.value, useSeconds());
 
     const barbarianAssaultSim: BarbarianAssault = new BarbarianAssault(
         wave,
@@ -2734,11 +2734,11 @@ function getMovementsRunnersDoNotDieOnTime(foodCalls: Array<FoodType>, runnerMov
 
     const allCombinations: Array<Array<string>> = getAllCombinations(candidateMovements, 0, [[]]);
 
-    const mainAttackerCommands: Map<number, Array<Command>> = getTeamCommandsForPlayer("mainattacker");
-    const secondAttackerCommands: Map<number, Array<Command>> = getTeamCommandsForPlayer("secondattacker");
-    const healerCommands: Map<number, Array<Command>> = getTeamCommandsForPlayer("healer");
-    const collectorCommands: Map<number, Array<Command>> = getTeamCommandsForPlayer("collector");
-    const defenderCommands: Map<number, Array<Command>> = getTeamCommandsForPlayer("defender");
+    const mainAttackerCommands: Map<number, Array<Command>> = getTeamCommandsForPlayer("mainattacker")!;
+    const secondAttackerCommands: Map<number, Array<Command>> = getTeamCommandsForPlayer("secondattacker")!;
+    const healerCommands: Map<number, Array<Command>> = getTeamCommandsForPlayer("healer")!;
+    const collectorCommands: Map<number, Array<Command>> = getTeamCommandsForPlayer("collector")!;
+    const defenderCommands: Map<number, Array<Command>> = getTeamCommandsForPlayer("defender")!;
 
     for (let i: number = 0; i < allCombinations.length; i++) {
         const runnerMovements: Array<string> = allCombinations[i];

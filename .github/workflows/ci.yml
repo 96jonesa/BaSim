@@ -34,4 +34,7 @@ jobs:
             exit 1
           fi
 
+      # vitest strips types without checking them, so type-check src/ and test/ together.
+      - run: npm run typecheck
+
       - run: npm test

@@ -110,7 +110,7 @@ describe("parseCannonInput", (): void => {
 describe("Cannon.tick", (): void => {
     test("fires egg at runner in range", (): void => {
         const ba = makeBA();
-        const runner = new RunnerPenance(new Position(30, 26), new RunnerPenanceRng(""), 1, 5);
+        const runner = new RunnerPenance(new Position(30, 26), new RunnerPenanceRng(""), 1, 5, 1);
         ba.runners.push(runner);
         ba.runnersAlive = 1;
         ba.ticks = 11;
@@ -124,7 +124,7 @@ describe("Cannon.tick", (): void => {
 
     test("does not fire before command tick", (): void => {
         const ba = makeBA();
-        const runner = new RunnerPenance(new Position(30, 26), new RunnerPenanceRng(""), 1, 5);
+        const runner = new RunnerPenance(new Position(30, 26), new RunnerPenanceRng(""), 1, 5, 1);
         ba.runners.push(runner);
         ba.runnersAlive = 1;
         ba.ticks = 10;
@@ -137,7 +137,7 @@ describe("Cannon.tick", (): void => {
 
     test("does not fire at dying runner", (): void => {
         const ba = makeBA();
-        const runner = new RunnerPenance(new Position(30, 26), new RunnerPenanceRng(""), 1, 5);
+        const runner = new RunnerPenance(new Position(30, 26), new RunnerPenanceRng(""), 1, 5, 1);
         runner.isDying = true;
         ba.runners.push(runner);
         ba.runnersAlive = 1;
@@ -151,7 +151,7 @@ describe("Cannon.tick", (): void => {
 
     test("does not fire at stunned runner", (): void => {
         const ba = makeBA();
-        const runner = new RunnerPenance(new Position(30, 26), new RunnerPenanceRng(""), 1, 5);
+        const runner = new RunnerPenance(new Position(30, 26), new RunnerPenanceRng(""), 1, 5, 1);
         runner.blueCounter = 5;
         ba.runners.push(runner);
         ba.runnersAlive = 1;
@@ -166,7 +166,7 @@ describe("Cannon.tick", (): void => {
     test("does not fire at runner out of range", (): void => {
         const ba = makeBA();
         // East cannon at (40,26), place runner far away
-        const runner = new RunnerPenance(new Position(10, 10), new RunnerPenanceRng(""), 1, 5);
+        const runner = new RunnerPenance(new Position(10, 10), new RunnerPenanceRng(""), 1, 5, 1);
         ba.runners.push(runner);
         ba.runnersAlive = 1;
         ba.ticks = 11;
@@ -179,7 +179,7 @@ describe("Cannon.tick", (): void => {
 
     test("fires at healer when penance type is healer", (): void => {
         const ba = makeBA();
-        const healer = new HealerPenance(new Position(30, 26), 27, 1, 1);
+        const healer = new HealerPenance(new Position(30, 26), 27, 1, 1, 1);
         ba.healers.push(healer);
         ba.healersAlive = 1;
         ba.ticks = 11;
@@ -193,7 +193,7 @@ describe("Cannon.tick", (): void => {
 
     test("decrements numEggs after firing", (): void => {
         const ba = makeBA();
-        const runner = new RunnerPenance(new Position(30, 26), new RunnerPenanceRng(""), 1, 5);
+        const runner = new RunnerPenance(new Position(30, 26), new RunnerPenanceRng(""), 1, 5, 1);
         ba.runners.push(runner);
         ba.runnersAlive = 1;
         ba.ticks = 11;
@@ -207,7 +207,7 @@ describe("Cannon.tick", (): void => {
 
     test("sets stall cooldown after firing", (): void => {
         const ba = makeBA();
-        const runner = new RunnerPenance(new Position(30, 26), new RunnerPenanceRng(""), 1, 5);
+        const runner = new RunnerPenance(new Position(30, 26), new RunnerPenanceRng(""), 1, 5, 1);
         ba.runners.push(runner);
         ba.runnersAlive = 1;
         ba.ticks = 11;
@@ -222,8 +222,8 @@ describe("Cannon.tick", (): void => {
     test("targets closer runner over farther runner", (): void => {
         const ba = makeBA();
         // East cannon at (40,26)
-        const closerRunner = new RunnerPenance(new Position(38, 26), new RunnerPenanceRng(""), 1, 5);
-        const fartherRunner = new RunnerPenance(new Position(30, 26), new RunnerPenanceRng(""), 2, 5);
+        const closerRunner = new RunnerPenance(new Position(38, 26), new RunnerPenanceRng(""), 1, 5, 1);
+        const fartherRunner = new RunnerPenance(new Position(30, 26), new RunnerPenanceRng(""), 2, 5, 2);
         ba.runners.push(closerRunner);
         ba.runners.push(fartherRunner);
         ba.runnersAlive = 2;
@@ -234,6 +234,23 @@ describe("Cannon.tick", (): void => {
 
         expect(closerRunner.eggQueue.length).toBe(1);
         expect(fartherRunner.eggQueue.length).toBe(0);
+    });
+
+    test("targets lower penanceId when runners are otherwise tied", (): void => {
+        const ba = makeBA();
+        // East cannon at (40,26): both runners are the same distance away and in the same zone
+        const laterRunner = new RunnerPenance(new Position(38, 27), new RunnerPenanceRng(""), 2, 5, 2);
+        const earlierRunner = new RunnerPenance(new Position(38, 25), new RunnerPenanceRng(""), 1, 5, 1);
+        ba.runners.push(laterRunner);
+        ba.runners.push(earlierRunner);
+        ba.runnersAlive = 2;
+        ba.ticks = 11;
+
+        ba.cannon.queue.push(new CannonCommand(0, CannonSide.EAST, PenanceType.RUNNER, EggType.RED, 1, 11));
+        ba.cannon.tick(ba);
+
+        expect(earlierRunner.eggQueue.length).toBe(1);
+        expect(laterRunner.eggQueue.length).toBe(0);
     });
 });
 
@@ -257,7 +274,7 @@ describe("travel time", (): void => {
     ])("egg type %s at distance %i has travel time %i", (eggType: EggType, distance: number, expectedTime: number): void => {
         const ba = makeBA();
         // East cannon at (40,26), place runner at exact distance
-        const runner = new RunnerPenance(new Position(40 - distance, 26), new RunnerPenanceRng(""), 1, 5);
+        const runner = new RunnerPenance(new Position(40 - distance, 26), new RunnerPenanceRng(""), 1, 5, 1);
         ba.runners.push(runner);
         ba.runnersAlive = 1;
         ba.ticks = 11;

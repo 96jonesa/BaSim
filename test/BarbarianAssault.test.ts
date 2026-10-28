@@ -5,6 +5,10 @@ import {Position} from "../src/Position.js";
 import {RunnerPenanceRng} from "../src/RunnerPenanceRng.js";
 import {FoodType} from "../src/FoodType.js";
 import {Command} from "../src/Command.js";
+import {HealerPenance} from "../src/HealerPenance.js";
+import {EggQueueItem} from "../src/EggQueueItem.js";
+import {EggType} from "../src/EggType.js";
+import {CannonSide} from "../src/CannonSide.js";
 
 describe("constructor", (): void => {
     test.each([
@@ -248,8 +252,8 @@ describe("tick", (): void => {
         );
 
         barbarianAssault.ticks = 10;
-        barbarianAssault.runners.push(new RunnerPenance(new Position(42, 38), new RunnerPenanceRng(""), 1, 5));
-        barbarianAssault.runners.push(new RunnerPenance(new Position(42, 38), new RunnerPenanceRng(""), 2, 5));
+        barbarianAssault.runners.push(new RunnerPenance(new Position(42, 38), new RunnerPenanceRng(""), 1, 5, 1));
+        barbarianAssault.runners.push(new RunnerPenance(new Position(42, 38), new RunnerPenanceRng(""), 2, 5, 2));
         barbarianAssault.runnersAlive = 2;
 
         barbarianAssault.tick();
@@ -301,9 +305,9 @@ describe("tick", (): void => {
             []
         );
 
-        const runner1: RunnerPenance = new RunnerPenance(new Position(42, 38), new RunnerPenanceRng(""), 1, 5);
-        const runner2: RunnerPenance = new RunnerPenance(new Position(42, 38), new RunnerPenanceRng(""), 2, 5);
-        const runner3: RunnerPenance = new RunnerPenance(new Position(42, 38), new RunnerPenanceRng(""), 3, 5);
+        const runner1: RunnerPenance = new RunnerPenance(new Position(42, 38), new RunnerPenanceRng(""), 1, 5, 1);
+        const runner2: RunnerPenance = new RunnerPenance(new Position(42, 38), new RunnerPenanceRng(""), 2, 5, 2);
+        const runner3: RunnerPenance = new RunnerPenance(new Position(42, 38), new RunnerPenanceRng(""), 3, 5, 3);
 
         runner1.despawnCountdown = 1;
 
@@ -411,6 +415,78 @@ describe("tick", (): void => {
         expect.soft(barbarianAssault.defenderFoodCall).toBe(newFoodType);
 
         vi.spyOn(Math, "random").mockRestore();
+    });
+
+    test("penance take turns in penanceId order, not insertion order", (): void => {
+        const barbarianAssault: BarbarianAssault = new BarbarianAssault(
+            1,
+            true,
+            true,
+            false,
+            [],
+            5,
+            new Map<number, Array<Command>>(),
+            new Map<number, Array<Command>>(),
+            new Map<number, Array<Command>>(),
+            new Map<number, Array<Command>>(),
+            new Map<number, Array<Command>>(),
+            []
+        );
+
+        const runner: RunnerPenance = new RunnerPenance(new Position(36, 39), new RunnerPenanceRng(""), 1, 5, 20);
+        const healer: HealerPenance = new HealerPenance(new Position(42, 37), 27, 1, 1, 10);
+
+        barbarianAssault.runners.push(runner);
+        barbarianAssault.healers.push(healer);
+
+        const turnOrder: Array<number> = [];
+        vi.spyOn(runner, "tick").mockImplementation((): void => {
+            turnOrder.push(runner.penanceId);
+        });
+        vi.spyOn(healer, "tick").mockImplementation((): void => {
+            turnOrder.push(healer.penanceId);
+        });
+
+        barbarianAssault.tick();
+
+        expect(turnOrder).toEqual([10, 20]);
+    });
+
+    test("red egg splash ties go to the higher penanceId", (): void => {
+        const barbarianAssault: BarbarianAssault = new BarbarianAssault(
+            1,
+            true,
+            true,
+            false,
+            [],
+            5,
+            new Map<number, Array<Command>>(),
+            new Map<number, Array<Command>>(),
+            new Map<number, Array<Command>>(),
+            new Map<number, Array<Command>>(),
+            new Map<number, Array<Command>>(),
+            []
+        );
+
+        // Both candidates are within splash range of the target and in the same zone, so only penanceId separates them.
+        const target: RunnerPenance = new RunnerPenance(new Position(36, 39), new RunnerPenanceRng(""), 1, 5, 1);
+        const lowerRunner: RunnerPenance = new RunnerPenance(new Position(35, 38), new RunnerPenanceRng(""), 2, 5, 2);
+        const higherRunner: RunnerPenance = new RunnerPenance(new Position(37, 38), new RunnerPenanceRng(""), 3, 5, 3);
+
+        target.eggQueue.push(new EggQueueItem(0, EggType.RED, CannonSide.WEST, 1));
+
+        barbarianAssault.runners.push(target);
+        barbarianAssault.runners.push(lowerRunner);
+        barbarianAssault.runners.push(higherRunner);
+
+        for (const runner of barbarianAssault.runners) {
+            vi.spyOn(runner, "tick").mockImplementation((): void => {});
+        }
+
+        barbarianAssault.tick();
+
+        expect(higherRunner.eggQueue.map((egg: EggQueueItem): EggType => egg.type)).toEqual([EggType.SPLASH]);
+        expect(lowerRunner.eggQueue.length).toBe(0);
     });
 });
 
@@ -551,7 +627,7 @@ describe("clone", (): void => {
             []
         );
 
-        const runnerPenance: RunnerPenance = new RunnerPenance(new Position(42, 38), new RunnerPenanceRng(""), 1, 5);
+        const runnerPenance: RunnerPenance = new RunnerPenance(new Position(42, 38), new RunnerPenanceRng(""), 1, 5, 1);
 
         barbarianAssault.runners.push(runnerPenance);
         barbarianAssault.runnersToRemove.push(runnerPenance);

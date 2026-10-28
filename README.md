@@ -19,7 +19,9 @@ Run tests by running `npm run test` in the terminal.
 
 Run tests and generate a coverage report by running `npm run coverage` in the terminal.
 
-CI (`.github/workflows/ci.yml`) runs on every pull request and push to `master`: it rebuilds `built/` from scratch, fails if the committed `built/` does not match, and runs the tests. Run `npm run build` and commit `built/` along with your `src/` changes.
+Type-check the tests (and the source they import) by running `npm run typecheck` in the terminal. `npm run test` does not do this: vitest strips types without checking them.
+
+CI (`.github/workflows/ci.yml`) runs on every pull request and push to `master`: it rebuilds `built/` from scratch, fails if the committed `built/` does not match, type-checks, and runs the tests. Run `npm run build` and commit `built/` along with your `src/` changes.
 
 Delete all transpiled JavaScript, delete the coverage report, and uninstall dependencies by running `npm run clean` in the terminal.
 

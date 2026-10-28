@@ -9,7 +9,7 @@ import {Command} from "../src/Command";
 
 describe("processEggQueue", (): void => {
     test("red egg deals 3 damage when stalled reaches 0", (): void => {
-        const healer = new HealerPenance(new Position(42, 37), 27, 1, 1);
+        const healer = new HealerPenance(new Position(42, 37), 27, 1, 1, 1);
         const ba = new BarbarianAssault(1, true, true, false, [], 5, new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), []);
 
         healer.eggQueue.push(new EggQueueItem(0, EggType.RED, CannonSide.WEST));
@@ -20,7 +20,7 @@ describe("processEggQueue", (): void => {
     });
 
     test("red egg does not damage zombie healer", (): void => {
-        const healer = new HealerPenance(new Position(42, 37), 27, 1, 1);
+        const healer = new HealerPenance(new Position(42, 37), 27, 1, 1, 1);
         const ba = new BarbarianAssault(1, true, true, false, [], 5, new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), []);
         healer.zombieState = true;
         healer.health = 0;
@@ -32,7 +32,7 @@ describe("processEggQueue", (): void => {
     });
 
     test("green egg deals 1 damage and starts poison", (): void => {
-        const healer = new HealerPenance(new Position(42, 37), 27, 1, 1);
+        const healer = new HealerPenance(new Position(42, 37), 27, 1, 1, 1);
         const ba = new BarbarianAssault(1, true, true, false, [], 5, new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), []);
 
         healer.eggQueue.push(new EggQueueItem(0, EggType.GREEN, CannonSide.WEST));
@@ -44,7 +44,7 @@ describe("processEggQueue", (): void => {
     });
 
     test("green egg does not damage zombie healer", (): void => {
-        const healer = new HealerPenance(new Position(42, 37), 27, 1, 1);
+        const healer = new HealerPenance(new Position(42, 37), 27, 1, 1, 1);
         const ba = new BarbarianAssault(1, true, true, false, [], 5, new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), []);
         healer.zombieState = true;
         healer.health = 0;
@@ -57,7 +57,7 @@ describe("processEggQueue", (): void => {
     });
 
     test("green poison ticks damage every 30 ticks", (): void => {
-        const healer = new HealerPenance(new Position(42, 37), 27, 1, 1);
+        const healer = new HealerPenance(new Position(42, 37), 27, 1, 1, 1);
         const ba = new BarbarianAssault(1, true, true, false, [], 5, new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), []);
 
         healer.greenCounter = 120;
@@ -68,7 +68,7 @@ describe("processEggQueue", (): void => {
     });
 
     test("green poison does not tick at non-multiple of 30", (): void => {
-        const healer = new HealerPenance(new Position(42, 37), 27, 1, 1);
+        const healer = new HealerPenance(new Position(42, 37), 27, 1, 1, 1);
         const ba = new BarbarianAssault(1, true, true, false, [], 5, new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), []);
         healer.poisonHitsplat = false;
 
@@ -79,7 +79,7 @@ describe("processEggQueue", (): void => {
     });
 
     test("green poison does not damage zombie healer on tick", (): void => {
-        const healer = new HealerPenance(new Position(42, 37), 27, 1, 1);
+        const healer = new HealerPenance(new Position(42, 37), 27, 1, 1, 1);
         const ba = new BarbarianAssault(1, true, true, false, [], 5, new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), []);
         healer.zombieState = true;
         healer.health = 0;
@@ -91,7 +91,7 @@ describe("processEggQueue", (): void => {
     });
 
     test("blue egg sets blueCounter and clears queue", (): void => {
-        const healer = new HealerPenance(new Position(42, 37), 27, 1, 1);
+        const healer = new HealerPenance(new Position(42, 37), 27, 1, 1, 1);
         const ba = new BarbarianAssault(1, true, true, false, [], 5, new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), []);
 
         healer.eggQueue.push(new EggQueueItem(2, EggType.RED, CannonSide.WEST));
@@ -103,7 +103,7 @@ describe("processEggQueue", (): void => {
     });
 
     test("blue egg on dying healer creates zombie in place", (): void => {
-        const healer = new HealerPenance(new Position(42, 37), 27, 1, 1);
+        const healer = new HealerPenance(new Position(42, 37), 27, 1, 1, 1);
         const ba = new BarbarianAssault(1, true, true, false, [], 5, new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), []);
         healer.isDying = true;
         healer.health = 0;
@@ -119,7 +119,7 @@ describe("processEggQueue", (): void => {
     });
 
     test("zombie state clears on regen tick", (): void => {
-        const healer = new HealerPenance(new Position(42, 37), 27, 1, 1);
+        const healer = new HealerPenance(new Position(42, 37), 27, 1, 1, 1);
         const ba = new BarbarianAssault(1, true, true, false, [], 5, new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), []);
         healer.zombieState = true;
         healer.health = 1;
@@ -131,7 +131,7 @@ describe("processEggQueue", (): void => {
     });
 
     test("zombie state persists before regen tick", (): void => {
-        const healer = new HealerPenance(new Position(42, 37), 27, 1, 1);
+        const healer = new HealerPenance(new Position(42, 37), 27, 1, 1, 1);
         const ba = new BarbarianAssault(1, true, true, false, [], 5, new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), []);
         healer.zombieState = true;
         healer.health = 0;
@@ -143,7 +143,7 @@ describe("processEggQueue", (): void => {
     });
 
     test("stalled counter decrements each call", (): void => {
-        const healer = new HealerPenance(new Position(42, 37), 27, 1, 1);
+        const healer = new HealerPenance(new Position(42, 37), 27, 1, 1, 1);
         const ba = new BarbarianAssault(1, true, true, false, [], 5, new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), []);
 
         healer.eggQueue.push(new EggQueueItem(4, EggType.RED, CannonSide.WEST));
@@ -154,7 +154,7 @@ describe("processEggQueue", (): void => {
     });
 
     test("egg removed from queue after landing", (): void => {
-        const healer = new HealerPenance(new Position(42, 37), 27, 1, 1);
+        const healer = new HealerPenance(new Position(42, 37), 27, 1, 1, 1);
         const ba = new BarbarianAssault(1, true, true, false, [], 5, new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), []);
 
         healer.eggQueue.push(new EggQueueItem(0, EggType.RED, CannonSide.WEST));
@@ -165,7 +165,7 @@ describe("processEggQueue", (): void => {
     });
 
     test("blue stun decrements each tick", (): void => {
-        const healer = new HealerPenance(new Position(42, 37), 27, 1, 1);
+        const healer = new HealerPenance(new Position(42, 37), 27, 1, 1, 1);
         const ba = new BarbarianAssault(1, true, true, false, [], 5, new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), []);
 
         healer.blueCounter = 5;
@@ -175,7 +175,7 @@ describe("processEggQueue", (): void => {
     });
 
     test("healer skips movement when stunned", (): void => {
-        const healer = new HealerPenance(new Position(42, 37), 27, 1, 1);
+        const healer = new HealerPenance(new Position(42, 37), 27, 1, 1, 1);
         const ba = new BarbarianAssault(1, true, true, false, [], 5, new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), []);
         ba.ticks = 10;
 
@@ -190,7 +190,7 @@ describe("processEggQueue", (): void => {
     });
 
     test("clone copies egg-related fields", (): void => {
-        const healer = new HealerPenance(new Position(42, 37), 27, 1, 1);
+        const healer = new HealerPenance(new Position(42, 37), 27, 1, 1, 1);
         healer.blueCounter = 3;
         healer.greenCounter = 50;
         healer.zombieState = true;
@@ -208,7 +208,7 @@ describe("processEggQueue", (): void => {
     });
 
     test("clone copies forcedTarget", (): void => {
-        const healer = new HealerPenance(new Position(42, 37), 27, 1, 1);
+        const healer = new HealerPenance(new Position(42, 37), 27, 1, 1, 1);
         healer.forcedTarget = "mainsecond";
 
         const cloned = healer.clone();
@@ -217,7 +217,7 @@ describe("processEggQueue", (): void => {
     });
 
     test("lastPoisonTick initialized to spawnTick", (): void => {
-        const healer = new HealerPenance(new Position(42, 37), 27, 11, 1);
+        const healer = new HealerPenance(new Position(42, 37), 27, 11, 1, 1);
 
         expect(healer.lastPoisonTick).toBe(11);
     });

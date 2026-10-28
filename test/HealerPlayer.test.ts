@@ -115,7 +115,7 @@ describe("processCodeQueue", (): void => {
     test("skips dying healer", (): void => {
         const ba = makeBA();
         ba.ticks = 11;
-        const healer = new HealerPenance(new Position(42, 37), 27, 1, 1);
+        const healer = new HealerPenance(new Position(42, 37), 27, 1, 1, 1);
         healer.isDying = true;
         ba.healers = [healer];
 
@@ -130,7 +130,7 @@ describe("processCodeQueue", (): void => {
     test("uses food when adjacent to healer", (): void => {
         const ba = makeBA();
         ba.ticks = 11;
-        const healer = new HealerPenance(new Position(30, 30), 27, 1, 1);
+        const healer = new HealerPenance(new Position(30, 30), 27, 1, 1, 1);
         healer.drawnPosition = new Position(30, 30);
         ba.healers = [healer];
 
@@ -148,7 +148,7 @@ describe("processCodeQueue", (): void => {
     test("does not advance index when not yet done", (): void => {
         const ba = makeBA();
         ba.ticks = 11;
-        const healer = new HealerPenance(new Position(30, 30), 27, 1, 1);
+        const healer = new HealerPenance(new Position(30, 30), 27, 1, 1, 1);
         ba.healers = [healer];
 
         // Player is far from healer — will pathfind but not reach
@@ -193,7 +193,7 @@ describe("arrive delay", (): void => {
         const ba = makeBA();
         ba.ticks = 80;
         // Healer stepped onto the player's previous tile this tick
-        const healer = new HealerPenance(new Position(37, 38), 27, 1, 1);
+        const healer = new HealerPenance(new Position(37, 38), 27, 1, 1, 1);
         healer.drawnPosition = new Position(37, 39);
         ba.healers = [healer];
 

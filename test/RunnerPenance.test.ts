@@ -10,7 +10,7 @@ import {CannonSide} from "../src/CannonSide";
 
 describe("tick", (): void => {
     test("cycleTick increases by 1 when less than 10", (): void => {
-        const runnerPenance: RunnerPenance = new RunnerPenance(new Position(36, 39), new RunnerPenanceRng(""), 1, 5);
+        const runnerPenance: RunnerPenance = new RunnerPenance(new Position(36, 39), new RunnerPenanceRng(""), 1, 5, 1);
 
         runnerPenance.cycleTick = 9;
 
@@ -35,7 +35,7 @@ describe("tick", (): void => {
     });
 
     test("cycleTick resets to 1 after 10", (): void => {
-        const runnerPenance: RunnerPenance = new RunnerPenance(new Position(36, 39), new RunnerPenanceRng(""), 1, 5);
+        const runnerPenance: RunnerPenance = new RunnerPenance(new Position(36, 39), new RunnerPenanceRng(""), 1, 5, 1);
 
         runnerPenance.cycleTick = 10;
 
@@ -64,7 +64,7 @@ describe("tick", (): void => {
     });
 
     test("despawnCountdown decreases by 1 when not null", (): void => {
-        const runnerPenance: RunnerPenance = new RunnerPenance(new Position(36, 39), new RunnerPenanceRng(""), 1, 5);
+        const runnerPenance: RunnerPenance = new RunnerPenance(new Position(36, 39), new RunnerPenanceRng(""), 1, 5, 1);
 
         runnerPenance.despawnCountdown = 9;
 
@@ -89,7 +89,7 @@ describe("tick", (): void => {
     });
 
     test("added to runnersToRemove when despawnCountdown reaches 0 (1 at start of tick)", (): void => {
-        const runnerPenance: RunnerPenance = new RunnerPenance(new Position(36, 39), new RunnerPenanceRng(""), 1, 5);
+        const runnerPenance: RunnerPenance = new RunnerPenance(new Position(36, 39), new RunnerPenanceRng(""), 1, 5, 1);
 
         runnerPenance.despawnCountdown = 1;
 
@@ -116,7 +116,7 @@ describe("tick", (): void => {
     });
 
     test("runnersAlive decreases by 1 when not dying and despawnCountdown reaches 0 (1 at start of tick)", (): void => {
-        const runnerPenance: RunnerPenance = new RunnerPenance(new Position(36, 39), new RunnerPenanceRng(""), 1, 5);
+        const runnerPenance: RunnerPenance = new RunnerPenance(new Position(36, 39), new RunnerPenanceRng(""), 1, 5, 1);
 
         runnerPenance.despawnCountdown = 1;
         runnerPenance.isDying = false;
@@ -177,7 +177,7 @@ describe("tick", (): void => {
 
         const position: Position = new Position(barbarianAssault.eastTrapPosition.x + relativeX, barbarianAssault.eastTrapPosition.y + relativeY);
 
-        const runnerPenance: RunnerPenance = new RunnerPenance(position, new RunnerPenanceRng(""), 1, 5);
+        const runnerPenance: RunnerPenance = new RunnerPenance(position, new RunnerPenanceRng(""), 1, 5, 1);
 
         runnerPenance.despawnCountdown = 1;
         runnerPenance.isDying = true;
@@ -221,7 +221,7 @@ describe("tick", (): void => {
 
         const position: Position = new Position(barbarianAssault.eastTrapPosition.x + relativeX, barbarianAssault.eastTrapPosition.y + relativeY);
 
-        const runnerPenance: RunnerPenance = new RunnerPenance(position, new RunnerPenanceRng(""), 1, 5);
+        const runnerPenance: RunnerPenance = new RunnerPenance(position, new RunnerPenanceRng(""), 1, 5, 1);
 
         runnerPenance.despawnCountdown = 1;
         runnerPenance.isDying = true;
@@ -265,7 +265,7 @@ describe("tick", (): void => {
 
         const position: Position = new Position(barbarianAssault.westTrapPosition.x + relativeX, barbarianAssault.westTrapPosition.y + relativeY);
 
-        const runnerPenance: RunnerPenance = new RunnerPenance(position, new RunnerPenanceRng(""), 1, 5);
+        const runnerPenance: RunnerPenance = new RunnerPenance(position, new RunnerPenanceRng(""), 1, 5, 1);
 
         runnerPenance.despawnCountdown = 1;
         runnerPenance.isDying = true;
@@ -309,7 +309,7 @@ describe("tick", (): void => {
 
         const position: Position = new Position(barbarianAssault.westTrapPosition.x + relativeX, barbarianAssault.westTrapPosition.y + relativeY);
 
-        const runnerPenance: RunnerPenance = new RunnerPenance(position, new RunnerPenanceRng(""), 1, 5);
+        const runnerPenance: RunnerPenance = new RunnerPenance(position, new RunnerPenanceRng(""), 1, 5, 1);
 
         runnerPenance.despawnCountdown = 1;
         runnerPenance.isDying = true;
@@ -322,7 +322,7 @@ describe("tick", (): void => {
 
 describe("processEggQueue", (): void => {
     test("red egg deals 3 damage when stalled reaches 0", (): void => {
-        const runner = new RunnerPenance(new Position(36, 39), new RunnerPenanceRng(""), 1, 5);
+        const runner = new RunnerPenance(new Position(36, 39), new RunnerPenanceRng(""), 1, 5, 1);
         const ba = new BarbarianAssault(1, true, true, false, [], 5, new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), []);
 
         runner.eggQueue.push(new EggQueueItem(0, EggType.RED, CannonSide.WEST));
@@ -332,7 +332,7 @@ describe("processEggQueue", (): void => {
     });
 
     test("red egg stalled counter decrements each call", (): void => {
-        const runner = new RunnerPenance(new Position(36, 39), new RunnerPenanceRng(""), 1, 5);
+        const runner = new RunnerPenance(new Position(36, 39), new RunnerPenanceRng(""), 1, 5, 1);
         const ba = new BarbarianAssault(1, true, true, false, [], 5, new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), []);
 
         runner.eggQueue.push(new EggQueueItem(3, EggType.RED, CannonSide.WEST));
@@ -344,7 +344,7 @@ describe("processEggQueue", (): void => {
     });
 
     test("red egg is removed after landing", (): void => {
-        const runner = new RunnerPenance(new Position(36, 39), new RunnerPenanceRng(""), 1, 5);
+        const runner = new RunnerPenance(new Position(36, 39), new RunnerPenanceRng(""), 1, 5, 1);
         const ba = new BarbarianAssault(1, true, true, false, [], 5, new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), []);
 
         runner.eggQueue.push(new EggQueueItem(0, EggType.RED, CannonSide.WEST));
@@ -355,7 +355,7 @@ describe("processEggQueue", (): void => {
     });
 
     test("green egg deals 1 damage and starts poison", (): void => {
-        const runner = new RunnerPenance(new Position(36, 39), new RunnerPenanceRng(""), 1, 5);
+        const runner = new RunnerPenance(new Position(36, 39), new RunnerPenanceRng(""), 1, 5, 1);
         const ba = new BarbarianAssault(1, true, true, false, [], 5, new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), []);
 
         runner.eggQueue.push(new EggQueueItem(0, EggType.GREEN, CannonSide.WEST));
@@ -366,7 +366,7 @@ describe("processEggQueue", (): void => {
     });
 
     test("green egg poison ticks damage every 5 ticks", (): void => {
-        const runner = new RunnerPenance(new Position(36, 39), new RunnerPenanceRng(""), 1, 5);
+        const runner = new RunnerPenance(new Position(36, 39), new RunnerPenanceRng(""), 1, 5, 1);
         const ba = new BarbarianAssault(1, true, true, false, [], 5, new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), []);
 
         runner.greenCounter = 20;
@@ -377,7 +377,7 @@ describe("processEggQueue", (): void => {
     });
 
     test("green poison does not tick damage at non-multiple of 5", (): void => {
-        const runner = new RunnerPenance(new Position(36, 39), new RunnerPenanceRng(""), 1, 5);
+        const runner = new RunnerPenance(new Position(36, 39), new RunnerPenanceRng(""), 1, 5, 1);
         const ba = new BarbarianAssault(1, true, true, false, [], 5, new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), []);
 
         runner.greenCounter = 17;
@@ -388,7 +388,7 @@ describe("processEggQueue", (): void => {
     });
 
     test("green counter expires after reaching -1", (): void => {
-        const runner = new RunnerPenance(new Position(36, 39), new RunnerPenanceRng(""), 1, 5);
+        const runner = new RunnerPenance(new Position(36, 39), new RunnerPenanceRng(""), 1, 5, 1);
         const ba = new BarbarianAssault(1, true, true, false, [], 5, new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), []);
 
         runner.greenCounter = 0;
@@ -398,7 +398,7 @@ describe("processEggQueue", (): void => {
     });
 
     test("blue egg sets blueCounter to 9 and clears egg queue", (): void => {
-        const runner = new RunnerPenance(new Position(36, 39), new RunnerPenanceRng(""), 1, 5);
+        const runner = new RunnerPenance(new Position(36, 39), new RunnerPenanceRng(""), 1, 5, 1);
         const ba = new BarbarianAssault(1, true, true, false, [], 5, new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), []);
 
         runner.eggQueue.push(new EggQueueItem(2, EggType.RED, CannonSide.WEST));
@@ -410,7 +410,7 @@ describe("processEggQueue", (): void => {
     });
 
     test("blue egg on dying runner revives it in place", (): void => {
-        const runner = new RunnerPenance(new Position(36, 39), new RunnerPenanceRng(""), 1, 5);
+        const runner = new RunnerPenance(new Position(36, 39), new RunnerPenanceRng(""), 1, 5, 1);
         const ba = new BarbarianAssault(1, true, true, false, [], 5, new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), []);
         runner.isDying = true;
 
@@ -425,7 +425,7 @@ describe("processEggQueue", (): void => {
     });
 
     test("blue stun decrements each tick", (): void => {
-        const runner = new RunnerPenance(new Position(36, 39), new RunnerPenanceRng(""), 1, 5);
+        const runner = new RunnerPenance(new Position(36, 39), new RunnerPenanceRng(""), 1, 5, 1);
         const ba = new BarbarianAssault(1, true, true, false, [], 5, new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), []);
 
         runner.blueCounter = 5;
@@ -435,7 +435,7 @@ describe("processEggQueue", (): void => {
     });
 
     test("runner isDying set when hp reaches 0", (): void => {
-        const runner = new RunnerPenance(new Position(36, 39), new RunnerPenanceRng(""), 1, 5);
+        const runner = new RunnerPenance(new Position(36, 39), new RunnerPenanceRng(""), 1, 5, 1);
         const ba = new BarbarianAssault(1, true, true, false, [], 5, new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), []);
 
         runner.hp = 3;
@@ -447,7 +447,7 @@ describe("processEggQueue", (): void => {
     });
 
     test("runner isDying set when hp goes negative", (): void => {
-        const runner = new RunnerPenance(new Position(36, 39), new RunnerPenanceRng(""), 1, 5);
+        const runner = new RunnerPenance(new Position(36, 39), new RunnerPenanceRng(""), 1, 5, 1);
         const ba = new BarbarianAssault(1, true, true, false, [], 5, new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), []);
 
         runner.hp = 1;
@@ -459,7 +459,7 @@ describe("processEggQueue", (): void => {
     });
 
     test("runner skips normal behavior when stunned", (): void => {
-        const runner = new RunnerPenance(new Position(36, 39), new RunnerPenanceRng(""), 1, 5);
+        const runner = new RunnerPenance(new Position(36, 39), new RunnerPenanceRng(""), 1, 5, 1);
         const ba = new BarbarianAssault(1, true, true, false, [], 5, new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), new Map<number, Array<Command>>(), []);
 
         runner.blueCounter = 3;
@@ -475,7 +475,7 @@ describe("processEggQueue", (): void => {
     });
 
     test("clone copies egg-related fields", (): void => {
-        const runner = new RunnerPenance(new Position(36, 39), new RunnerPenanceRng(""), 1, 5);
+        const runner = new RunnerPenance(new Position(36, 39), new RunnerPenanceRng(""), 1, 5, 1);
         runner.hp = 3;
         runner.blueCounter = 5;
         runner.greenCounter = 10;

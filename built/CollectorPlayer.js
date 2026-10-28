@@ -40,6 +40,8 @@ export class CollectorPlayer extends Player {
         collectorPlayer.codeQueue = this.codeQueue.map(a => a.clone());
         collectorPlayer.codeIndex = this.codeIndex;
         collectorPlayer.arriveDelay = this.arriveDelay;
+        collectorPlayer.foodDelayedByArrival = this.foodDelayedByArrival;
+        collectorPlayer.arrivedLastMove = this.arrivedLastMove;
         collectorPlayer.deferredFoodPathReinit = this.deferredFoodPathReinit;
         collectorPlayer.prevPosition = this.prevPosition === null ? null : this.prevPosition.clone();
         collectorPlayer.isRunning = this.isRunning;

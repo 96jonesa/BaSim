@@ -22,7 +22,7 @@ export class Renderer {
 
     public constructor(canvas: HTMLCanvasElement, width: number, height: number, tileSize: number, tileOffsetX: number = 0) {
         this.canvas = canvas;
-        this.context = canvas.getContext("2d");
+        this.context = canvas.getContext("2d")!;
         this.tileSize = tileSize;
         this.tileOffsetX = tileOffsetX;
 

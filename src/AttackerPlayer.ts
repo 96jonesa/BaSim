@@ -37,7 +37,7 @@ export class AttackerPlayer extends Player {
      */
     public clone(): AttackerPlayer {
         let attackerPlayer: AttackerPlayer = new AttackerPlayer(this.position);
-        attackerPlayer.position = this.position === null ? null : this.position.clone();
+        attackerPlayer.position = this.position === null ? null! : this.position.clone();
         attackerPlayer.checkpoints = this.checkpoints.map(p => p.clone());
         attackerPlayer.checkpointIndex = this.checkpointIndex;
         attackerPlayer.pathDestination = this.pathDestination === null ? null : this.pathDestination.clone();

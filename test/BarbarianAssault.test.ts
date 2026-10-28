@@ -654,18 +654,18 @@ describe("clone", (): void => {
             []
         );
 
-        const runnerPenance: RunnerPenance = null;
+        const runnerPenance: RunnerPenance = null!;
 
         barbarianAssault.runners.push(runnerPenance);
         barbarianAssault.runnersToRemove.push(runnerPenance);
-        barbarianAssault.map = null;
-        barbarianAssault.eastTrapPosition = null;
-        barbarianAssault.westTrapPosition = null;
-        barbarianAssault.defenderPlayer = null;
-        barbarianAssault.collectorPlayer = null;
-        barbarianAssault.mainAttackerPlayer = null;
-        barbarianAssault.secondAttackerPlayer = null;
-        barbarianAssault.healerPlayer = null;
+        barbarianAssault.map = null!;
+        barbarianAssault.eastTrapPosition = null!;
+        barbarianAssault.westTrapPosition = null!;
+        barbarianAssault.defenderPlayer = null!;
+        barbarianAssault.collectorPlayer = null!;
+        barbarianAssault.mainAttackerPlayer = null!;
+        barbarianAssault.secondAttackerPlayer = null!;
+        barbarianAssault.healerPlayer = null!;
 
         const barbarianAssaultClone: BarbarianAssault = barbarianAssault.clone();
 

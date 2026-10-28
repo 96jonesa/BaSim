@@ -9,9 +9,9 @@ import {Player} from "./Player.js";
  * Represents a Barbarian Assault defender player.
  */
 export class DefenderPlayer extends Player {
-    public foodBeingPickedUp: FoodType = null;
+    public foodBeingPickedUp: FoodType | null = null;
     public shouldPickUpAnyFood: boolean = false;
-    public pickUpFoodAtPosition: Position = null;
+    public pickUpFoodAtPosition: Position | null = null;
     public isPickingUpLogs: boolean = false;
     public repairTicksRemaining: number = 0;
     public ticksStandingStill: number = 0;
@@ -250,7 +250,7 @@ export class DefenderPlayer extends Player {
      */
     public clone(): DefenderPlayer {
         let defenderPlayer: DefenderPlayer = new DefenderPlayer(this.position);
-        defenderPlayer.position = this.position === null ? null : this.position.clone();
+        defenderPlayer.position = this.position === null ? null! : this.position.clone();
         defenderPlayer.foodBeingPickedUp = this.foodBeingPickedUp;
         defenderPlayer.shouldPickUpAnyFood = this.shouldPickUpAnyFood;
         defenderPlayer.pickUpFoodAtPosition = this.pickUpFoodAtPosition === null ? null : this.pickUpFoodAtPosition.clone();

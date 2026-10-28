@@ -50,7 +50,7 @@ describe("clone", (): void => {
     });
 
     test("clone is a deep copy with null position", (): void => {
-        const position: Position = null;
+        const position: Position = null!;
 
         const collectorPlayer: CollectorPlayer = new CollectorPlayer(position);
         const collectorPlayerClone: CollectorPlayer = collectorPlayer.clone();

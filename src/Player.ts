@@ -23,26 +23,26 @@ const MOVEMENT_PRIORITY: Record<string, number> = {
 export abstract class Player extends Character {
     public checkpoints: Array<Position> = [];
     public checkpointIndex: number = 0;
-    public pathDestination: Position = null;
+    public pathDestination: Position | null = null;
     public codeQueue: Array<HealerCodeAction> = [];
     public codeIndex: number = 0;
     public arriveDelay: boolean = false;
     public foodDelayedByArrival: boolean = false;
     public arrivedLastMove: boolean = false;
     public deferredFoodPathReinit: boolean = false;
-    public prevPosition: Position = null;
+    public prevPosition: Position | null = null;
     public isRunning: boolean = true;
-    public pendingSeed: SeedType = null;
+    public pendingSeed: SeedType | null = null;
     public seedMovedThisTick: boolean = false;
-    public preSeedPosition: Position = null;
-    public seedMovedToPosition: Position = null;
-    public repeatSeedType: SeedType = null;
+    public preSeedPosition: Position | null = null;
+    public seedMovedToPosition: Position | null = null;
+    public repeatSeedType: SeedType | null = null;
     public pendingJogreBones: boolean = false;
     public jogreBonesMovedThisTick: boolean = false;
-    public preJogreBonesPosition: Position = null;
-    public jogreBonesMovedToPosition: Position = null;
+    public preJogreBonesPosition: Position | null = null;
+    public jogreBonesMovedToPosition: Position | null = null;
     public repeatJogreBones: boolean = false;
-    public redXHealerId: number = null;
+    public redXHealerId: number | null = null;
     public isRedXPath: boolean = false;
     public phased: boolean = false;
     public pathStepPositions: Array<Position> = [];
@@ -266,7 +266,7 @@ export abstract class Player extends Character {
         this.pathQueuePositions[pathQueueEnd] = new Position(this.position.x, this.position.y);
         pathQueueEnd++;
 
-        let currentPosition: Position;
+        let currentPosition!: Position;
         let foundDestination: boolean = false;
 
         while (this.pathQueueIndex !== pathQueueEnd) {

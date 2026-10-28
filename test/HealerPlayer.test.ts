@@ -54,7 +54,7 @@ describe("clone", (): void => {
     });
 
     test("clone is a deep copy with null position", (): void => {
-        const position: Position = null;
+        const position: Position = null!;
 
         const healerPlayer: HealerPlayer = new HealerPlayer(position);
         const healerPlayerClone: HealerPlayer = healerPlayer.clone();

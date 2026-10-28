@@ -1,0 +1,37 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [master]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      # built/ is committed so index.html can be served as-is; rebuild from scratch
+      # and fail if the committed output differs, is missing, or is stale.
+      - name: Build
+        run: |
+          rm -rf built
+          npm run build
+
+      - name: Check built/ is up to date
+        run: |
+          if [ -n "$(git status --porcelain -- built/)" ]; then
+            echo "::error::built/ does not match src/. Run 'npm run build' and commit the result."
+            git status --short -- built/
+            git diff --stat -- built/
+            exit 1
+          fi
+
+      - run: npm test
